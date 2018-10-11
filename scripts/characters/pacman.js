@@ -1,0 +1,9 @@
+let animationInterval;
+
+stopAnimation = () => {
+    
+}
+
+startAnimation = () => {
+    
+}
