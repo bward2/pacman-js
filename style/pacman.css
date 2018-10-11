@@ -1,0 +1,5 @@
+.pacman {
+  height: 128px;
+  width: 128px;
+  background: url(../assets/graphics/spriteSheets/characters/pacman/pacman_right.svg);
+  background-size: 512px; }
