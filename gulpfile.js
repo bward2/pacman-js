@@ -9,6 +9,12 @@ gulp.task('sass', function(){
         .pipe(gulp.dest('style'))
 });
 
+gulp.task('compile-js', function(){
+    return gulp.src('scripts/**/*.js')
+        .pipe(concat('app.js'))
+        .pipe(gulp.dest('build'));
+});
+
 gulp.task('watch', function(){
     gulp.watch('style/**/*.scss', ['sass']);
 });
