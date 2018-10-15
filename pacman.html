@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script src='scripts/characters/pacman.js'></script>
-        <link rel="stylesheet" href="style/pacman.css">
+        <script src='build/app.js'></script>
+        <link rel="stylesheet" href="build/app.css">
         <title>Pacman</title>
     </head>
 
@@ -12,8 +12,9 @@
         </div>
 
         <script>
-            window.onload = function(){
-                startAnimation();
+            window.onload = () => {
+                let myPacman = new pacman();
+                myPacman.startAnimation();
             }
         </script>
     </body>
