@@ -1,4 +1,10 @@
 {
+  "nyc": {
+    "exclude": [
+      "**/*.test.js",
+      "build"
+    ]
+  },
   "scripts": {
     "test": "nyc mocha app/tests"
   },
