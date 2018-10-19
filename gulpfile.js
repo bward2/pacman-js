@@ -19,4 +19,8 @@ gulp.task('watch', function(){
     gulp.watch('style/**/*.scss', ['sass']);
 });
 
+gulp.task('watch-code', function(){
+    gulp.watch('app/scripts/**/*.js', ['compile-js']);
+});
+
 gulp.task('default', ['sass', 'compile-js']);

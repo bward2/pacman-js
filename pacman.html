@@ -7,14 +7,19 @@
     </head>
 
     <body>
-        <div>
+        <!-- <div>
             <p id='pacman' class='pacman'></p>
-        </div>
+        </div> -->
+        <div id="box"></div>
+        <div id="fpsDisplay"></div>
 
         <script>
             window.onload = () => {
-                let myPacman = new pacman();
-                myPacman.startAnimation();
+                // let pacman = new Pacman();
+                // pacman.startAnimation();
+
+                let gameEngine = new GameEngine();
+                gameEngine.start();
             }
         </script>
     </body>

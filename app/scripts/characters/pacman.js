@@ -1,4 +1,4 @@
-class pacman {
+class Pacman {
     constructor() {
         this.slideWidth = 128;
         this.offsetPixels = 0;
@@ -22,13 +22,9 @@ class pacman {
         this.animationInterval = setInterval(() => {
             this.animate(document.getElementById("pacman"));
         }, 100);
-
-        return 'abc';
     }
 }
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = pacman;
-} else {
-    window.pacman = pacman;
+    module.exports = Pacman;
 }
