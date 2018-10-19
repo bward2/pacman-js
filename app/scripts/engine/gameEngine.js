@@ -1,18 +1,13 @@
 class GameEngine {
     constructor() {
-        this.box = document.getElementById('box');
         this.fpsDisplay = document.getElementById('fpsDisplay');
-        this.boxPos = 10;
-        this.boxVelocity = 0.08;
         this.delta = 0;
-        this.limit = 300;
         this.lastFrameTimeMs = 0;
         this.maxFPS = 60;
-        this.timestep = 1000 / 60;
-        this.fps = 60;
+        this.timestep = 1000 / this.maxFPS;
+        this.fps = this.maxFPS;
         this.framesThisSecond = 0;
         this.lastFpsUpdate = 0;
-        this.boxLastPos = 10;
         this.frameID = 0;
         this.running = false;
         this.started = false;
@@ -34,15 +29,11 @@ class GameEngine {
     }
 
     draw(interp) {
-        this.box.style.left = (this.boxLastPos + (this.boxPos - this.boxLastPos) * interp) + 'px'; // interpolate
         this.fpsDisplay.textContent = Math.round(this.fps) + ' FPS'; // display the FPS
     }
 
     update(delta) {
-        this.boxLastPos = this.boxPos; // save the position from the last update
-        this.boxPos += this.boxVelocity * delta; // velocity is now time-sensitive
-        // Switch directions if we go too far
-        if (this.boxPos >= this.limit || this.boxPos <= 0) this.boxVelocity = -this.boxVelocity;
+        
     }
 
     panic() {
