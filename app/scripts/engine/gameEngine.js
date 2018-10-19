@@ -28,12 +28,23 @@ class GameEngine {
         }
     }
 
+    updateFpsDisplay(timestamp) {
+        if (timestamp > this.lastFpsUpdate + 1000) {
+            this.fps = 0.50 * this.framesThisSecond + (1 - 0.50) * this.fps;
+     
+            this.lastFpsUpdate = timestamp;
+            this.framesThisSecond = 0;
+        }
+        this.framesThisSecond++;
+        this.fpsDisplay.textContent = Math.round(this.fps) + ' FPS';
+    }
+
     draw(interp) {
-        this.fpsDisplay.textContent = Math.round(this.fps) + ' FPS'; // display the FPS
+
     }
 
     update(delta) {
-        
+
     }
 
     panic() {
@@ -80,13 +91,7 @@ class GameEngine {
         this.delta += timestamp - this.lastFrameTimeMs;
         this.lastFrameTimeMs = timestamp;
 
-        if (timestamp > this.lastFpsUpdate + 1000) {
-            this.fps = 0.50 * this.framesThisSecond + (1 - 0.50) * this.fps;
-     
-            this.lastFpsUpdate = timestamp;
-            this.framesThisSecond = 0;
-        }
-        this.framesThisSecond++;
+        this.updateFpsDisplay(timestamp);
 
         var numUpdateSteps = 0;
         // Simulate the total elapsed time in fixed-size chunks
