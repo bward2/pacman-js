@@ -1,11 +1,12 @@
 class Pacman {
     constructor() {
+        this.animationTarget = document.getElementById("pacman");
         this.slideWidth = 128;
         this.offsetPixels = 0;
     }
     
-    animate(animationTarget){
-        animationTarget.style.backgroundPosition = `-${this.offsetPixels}px 0px`;
+    animate(){
+        this.animationTarget.style.backgroundPosition = `-${this.offsetPixels}px 0px`;
         
         if (this.offsetPixels < (this.slideWidth * 3)) {
             this.offsetPixels = this.offsetPixels + this.slideWidth;
@@ -20,7 +21,7 @@ class Pacman {
     
     startAnimation(){
         this.animationInterval = setInterval(() => {
-            this.animate(document.getElementById("pacman"));
+            this.animate();
         }, 100);
     }
 }

@@ -12,6 +12,9 @@ class GameEngine {
         this.running = false;
         this.started = false;
 
+        this.pacman = new Pacman;
+        this.pacman.startAnimation();
+
         //Start/Stop with ESC key
         window.addEventListener('keyup', (e) => {
             if (e.keyCode === 27) {
