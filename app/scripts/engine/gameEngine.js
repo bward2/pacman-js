@@ -1,19 +1,22 @@
 class GameEngine {
     constructor() {
         this.fpsDisplay = document.getElementById('fpsDisplay');
-        this.delta = 0;
+        this.elapsedMilliseconds = 0;
         this.lastFrameTimeMs = 0;
-        this.maxFPS = 60;
-        this.timestep = 1000 / this.maxFPS;
-        this.fps = this.maxFPS;
+        this.maxFps = 60;
+        this.timestep = 1000 / this.maxFps;
+        this.fps = this.maxFps;
         this.framesThisSecond = 0;
         this.lastFpsUpdate = 0;
-        this.frameID = 0;
+        this.frameId = 0;
         this.running = false;
         this.started = false;
 
-        this.pacman = new Pacman;
-        this.pacman.startAnimation();
+        this.tileSize = 8;
+        this.scale = 8;
+        this.scaledTileSize = this.tileSize * this.scale;
+
+        this.pacman = new Pacman(this.scaledTileSize, this.maxFps);
 
         //Start/Stop with ESC key
         window.addEventListener('keyup', (e) => {
@@ -43,15 +46,15 @@ class GameEngine {
     }
 
     draw(interp) {
-
+        this.pacman.draw(interp);
     }
 
-    update(delta) {
-
+    update(elapsedMilliseconds) {
+        this.pacman.update(elapsedMilliseconds);
     }
 
     panic() {
-        this.delta = 0; // discard the unsimulated time
+        this.elapsedMilliseconds = 0; // discard the unsimulated time
         console.log('Panic!');
     }
 
@@ -60,7 +63,7 @@ class GameEngine {
             this.started = true;
             // Dummy frame to get our timestamps and initial drawing right.
             // Track the frame ID so we can cancel it if we stop quickly.
-            this.frameID = requestAnimationFrame((timestamp) => {
+            this.frameId = requestAnimationFrame((timestamp) => {
                 this.draw(1); // initial draw
                 this.running = true;
                 // reset some time tracking variables
@@ -68,7 +71,7 @@ class GameEngine {
                 this.lastFpsUpdate = timestamp;
                 this.framesThisSecond = 0;
                 // actually start the main loop
-                this.frameID = requestAnimationFrame((timestamp) => {
+                this.frameId = requestAnimationFrame((timestamp) => {
                     this.mainLoop(timestamp);
                 });
             });
@@ -78,37 +81,37 @@ class GameEngine {
     stop() {
         this.running = false;
         this.started = false;
-        cancelAnimationFrame(this.frameID);
+        cancelAnimationFrame(this.frameId);
     }
 
     mainLoop(timestamp) {
         // Throttle the frame rate.    
-        if (timestamp < this.lastFrameTimeMs + (1000 / this.maxFPS)) {
-            this.frameID = requestAnimationFrame((timestamp) => {
+        if (timestamp < this.lastFrameTimeMs + (1000 / this.maxFps)) {
+            this.frameId = requestAnimationFrame((timestamp) => {
                 this.mainLoop(timestamp)
             });
             return;
         }
 
         // Track the accumulated time that hasn't been simulated yet
-        this.delta += timestamp - this.lastFrameTimeMs;
+        this.elapsedMilliseconds += timestamp - this.lastFrameTimeMs;
         this.lastFrameTimeMs = timestamp;
 
         this.updateFpsDisplay(timestamp);
 
         var numUpdateSteps = 0;
         // Simulate the total elapsed time in fixed-size chunks
-        while (this.delta >= this.timestep) {
+        while (this.elapsedMilliseconds >= this.timestep) {
             this.update(this.timestep);
-            this.delta -= this.timestep;
+            this.elapsedMilliseconds -= this.timestep;
             // Sanity check
             if (++numUpdateSteps >= 240) {
                 this.panic(); // fix things
                 break; // bail out
             }
         }
-        this.draw(this.delta / this.timestep); // pass the interpolation percentage
-        this.frameID = requestAnimationFrame((timestamp) => {
+        this.draw(this.elapsedMilliseconds / this.timestep); // pass the interpolation percentage
+        this.frameId = requestAnimationFrame((timestamp) => {
             this.mainLoop(timestamp);
         });
     }

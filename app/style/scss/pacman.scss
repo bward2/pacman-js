@@ -1,8 +1,6 @@
 #pacman {
-    height: 128px;
-    width: 128px;
     background: url(../app/style/graphics/spriteSheets/characters/pacman/pacman_right.svg);
-    background-size: 512px;
+    position: absolute;
 }
 
 #fpsDisplay {
