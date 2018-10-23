@@ -1,7 +1,7 @@
 class GameEngine {
     constructor() {
         this.fpsDisplay = document.getElementById('fpsDisplay');
-        this.elapsedMilliseconds = 0;
+        this.elapsedMs = 0;
         this.lastFrameTimeMs = 0;
         this.maxFps = 60;
         this.timestep = 1000 / this.maxFps;
@@ -13,7 +13,7 @@ class GameEngine {
         this.started = false;
 
         this.tileSize = 8;
-        this.scale = 8;
+        this.scale = 6;
         this.scaledTileSize = this.tileSize * this.scale;
 
         this.pacman = new Pacman(this.scaledTileSize, this.maxFps);
@@ -49,12 +49,12 @@ class GameEngine {
         this.pacman.draw(interp);
     }
 
-    update(elapsedMilliseconds) {
-        this.pacman.update(elapsedMilliseconds);
+    update(elapsedMs) {
+        this.pacman.update(elapsedMs);
     }
 
     panic() {
-        this.elapsedMilliseconds = 0; // discard the unsimulated time
+        this.elapsedMs = 0; // discard the unsimulated time
         console.log('Panic!');
     }
 
@@ -94,23 +94,23 @@ class GameEngine {
         }
 
         // Track the accumulated time that hasn't been simulated yet
-        this.elapsedMilliseconds += timestamp - this.lastFrameTimeMs;
+        this.elapsedMs += timestamp - this.lastFrameTimeMs;
         this.lastFrameTimeMs = timestamp;
 
         this.updateFpsDisplay(timestamp);
 
         var numUpdateSteps = 0;
         // Simulate the total elapsed time in fixed-size chunks
-        while (this.elapsedMilliseconds >= this.timestep) {
+        while (this.elapsedMs >= this.timestep) {
             this.update(this.timestep);
-            this.elapsedMilliseconds -= this.timestep;
+            this.elapsedMs -= this.timestep;
             // Sanity check
             if (++numUpdateSteps >= 240) {
                 this.panic(); // fix things
                 break; // bail out
             }
         }
-        this.draw(this.elapsedMilliseconds / this.timestep); // pass the interpolation percentage
+        this.draw(this.elapsedMs / this.timestep); // pass the interpolation percentage
         this.frameId = requestAnimationFrame((timestamp) => {
             this.mainLoop(timestamp);
         });

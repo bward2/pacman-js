@@ -2,8 +2,12 @@ class Pacman {
     constructor(scaledTileSize, maxFps) {
         this.animationTarget = document.getElementById("pacman");
         this.measurement = scaledTileSize * 2;
+        this.msBetweenSprites = 1000/10;
+        this.msSinceLastSprite = 0;
+        this.spriteFrames = 4;
+        this.backgroundOffsetPixels = 0;
         this.offsetPixels = 0;
-        this.velocityPerMillisecond = this.calculateVelocityPerMillisecond(scaledTileSize, maxFps);
+        this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize, maxFps);
         this.position = {
             up: 0,
             down: 0,
@@ -17,13 +21,13 @@ class Pacman {
         this.animationTarget.style.backgroundSize = `${this.measurement * 4}px`;
     }
 
-    calculateVelocityPerMillisecond(scaledTileSize, maxFps) {
+    calculateVelocityPerMs(scaledTileSize, maxFps) {
         // In the original game, Pacman moved at 11 tiles per second.
         let velocityPerSecond = scaledTileSize * 11;
         let velocityPerFrame = velocityPerSecond / maxFps;
-        let expectedElapsedMilliseconds = 1000/maxFps;
+        let expectedElapsedMs = 1000/maxFps;
 
-        return velocityPerFrame / expectedElapsedMilliseconds;
+        return velocityPerFrame / expectedElapsedMs;
     }
 
     calculateNewDrawValue(interp) {
@@ -33,18 +37,24 @@ class Pacman {
     draw(interp){
         this.animationTarget.style.left = `${this.calculateNewDrawValue(interp)}px`;
 
-        // this.animationTarget.style.backgroundPosition = `-${this.offsetPixels}px 0px`;
+        if (this.msSinceLastSprite > this.msBetweenSprites) {
+            this.msSinceLastSprite = 0;
+
+            this.animationTarget.style.backgroundPosition = `-${this.backgroundOffsetPixels}px 0px`;
         
-        // if (this.offsetPixels < (this.slideWidth * 3)) {
-        //     this.offsetPixels = this.offsetPixels + this.slideWidth;
-        // } else {
-        //     this.offsetPixels = 0;
-        // }
+            if (this.backgroundOffsetPixels < (this.measurement * (this.spriteFrames - 1))) {
+                this.backgroundOffsetPixels = this.backgroundOffsetPixels + this.measurement;
+            } else {
+                this.backgroundOffsetPixels = 0;
+            }
+        }
     }
     
-    update(elapsedMilliseconds){
+    update(elapsedMs){
         this.oldPosition = Object.assign({}, this.position);
-        this.position.left += this.velocityPerMillisecond * elapsedMilliseconds;
+        this.position.left += this.velocityPerMs * elapsedMs;
+
+        this.msSinceLastSprite += elapsedMs;
     }
     
     stopAnimation(){
