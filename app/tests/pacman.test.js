@@ -64,6 +64,20 @@ describe('pacman', () => {
         });
     });
 
+    describe('setDefaultPosition', () => {
+        it('should set the position and oldPosition with up, down, left, and right properties', () => {
+            pacman.setDefaultPosition();
+
+            assert.deepEqual(pacman.position, {
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0
+            });
+            assert.deepEqual(pacman.position, pacman.oldPosition);
+        });
+    });
+
     describe('calculateVelocityPerMs', () => {
         it('should return the input multiplied by 11, then divided by 1000', ()=> {
             assert.equal(pacman.calculateVelocityPerMs(8), 0.088);
