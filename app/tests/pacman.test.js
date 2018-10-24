@@ -53,9 +53,22 @@ describe('pacman', () => {
         });
     });
 
+    describe('setSpriteAnimationStats', () => {
+        it('should set various stats for pacman\'s sprite animation', () => {
+            pacman.setSpriteAnimationStats();
+
+            assert.equal(pacman.msBetweenSprites, 100);
+            assert.equal(pacman.msSinceLastSprite, 0);
+            assert.equal(pacman.spriteFrames, 4);
+            assert.equal(pacman.backgroundOffsetPixels, 0);
+        });
+    });
+
     describe('calculateVelocityPerMs', () => {
-        it('should return the correct pixel-velocity per ms for a given tilesize and fps', ()=> {
-            assert.equal(pacman.calculateVelocityPerMs(scaledTileSize, maxFps), 0.08799999999999998);
+        it('should return the input multiplied by 11, then divided by 1000', ()=> {
+            assert.equal(pacman.calculateVelocityPerMs(8), 0.088);
+            assert.equal(pacman.calculateVelocityPerMs(64), 0.704);
+            assert.equal(pacman.calculateVelocityPerMs(200), 2.2);
         });
     });
 });

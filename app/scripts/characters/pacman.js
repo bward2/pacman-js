@@ -5,7 +5,7 @@ class Pacman {
         this.setStyleMeasurements(scaledTileSize);
         this.setSpriteAnimationStats();
         this.setDefaultPosition();
-        this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize, maxFps);
+        this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
     }
 
     setStyleMeasurements(scaledTileSize) {
@@ -18,7 +18,7 @@ class Pacman {
     }
 
     setSpriteAnimationStats() {
-        this.msBetweenSprites = 1000/10;
+        this.msBetweenSprites = 100;
         this.msSinceLastSprite = 0;
         this.spriteFrames = 4;
         this.backgroundOffsetPixels = 0;
@@ -34,13 +34,10 @@ class Pacman {
         this.oldPosition = Object.assign({}, this.position);
     }
 
-    calculateVelocityPerMs(scaledTileSize, maxFps) {
+    calculateVelocityPerMs(scaledTileSize) {
         // In the original game, Pacman moved at 11 tiles per second.
         let velocityPerSecond = scaledTileSize * 11;
-        let velocityPerFrame = velocityPerSecond / maxFps;
-        let expectedElapsedMs = 1000/maxFps;
-
-        return velocityPerFrame / expectedElapsedMs;
+        return velocityPerSecond / 1000;
     }
 
     calculateNewDrawValue(interp) {
