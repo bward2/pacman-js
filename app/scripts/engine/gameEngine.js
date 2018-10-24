@@ -12,14 +12,16 @@ class GameEngine {
         this.running = false;
         this.started = false;
 
+        //TODO: Move this logic to a separate game-coordinator class
         this.tileSize = 8;
-        this.scale = 6;
+        this.scale = 8;
         this.scaledTileSize = this.tileSize * this.scale;
 
         this.pacman = new Pacman(this.scaledTileSize, this.maxFps);
+        //
 
-        //Start/Stop with ESC key
         window.addEventListener('keyup', (e) => {
+            // ESC key
             if (e.keyCode === 27) {
                 this.changePausedState();
             }

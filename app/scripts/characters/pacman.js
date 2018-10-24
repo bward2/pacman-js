@@ -1,13 +1,30 @@
 class Pacman {
     constructor(scaledTileSize, maxFps) {
         this.animationTarget = document.getElementById("pacman");
+
+        this.setStyleMeasurements(scaledTileSize);
+        this.setSpriteAnimationStats();
+        this.setDefaultPosition();
+        this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
+    }
+
+    setStyleMeasurements(scaledTileSize) {
+        // Pacman is the size of 2x2 tiles.
         this.measurement = scaledTileSize * 2;
-        this.msBetweenSprites = 1000/10;
+
+        this.animationTarget.style.height = `${this.measurement}px`;
+        this.animationTarget.style.width = `${this.measurement}px`;
+        this.animationTarget.style.backgroundSize = `${this.measurement * 4}px`;
+    }
+
+    setSpriteAnimationStats() {
+        this.msBetweenSprites = 100;
         this.msSinceLastSprite = 0;
         this.spriteFrames = 4;
         this.backgroundOffsetPixels = 0;
-        this.offsetPixels = 0;
-        this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize, maxFps);
+    }
+
+    setDefaultPosition() {
         this.position = {
             up: 0,
             down: 0,
@@ -15,19 +32,12 @@ class Pacman {
             right: 0
         };
         this.oldPosition = Object.assign({}, this.position);
-
-        this.animationTarget.style.height = `${this.measurement}px`;
-        this.animationTarget.style.width = `${this.measurement}px`;
-        this.animationTarget.style.backgroundSize = `${this.measurement * 4}px`;
     }
 
-    calculateVelocityPerMs(scaledTileSize, maxFps) {
+    calculateVelocityPerMs(scaledTileSize) {
         // In the original game, Pacman moved at 11 tiles per second.
         let velocityPerSecond = scaledTileSize * 11;
-        let velocityPerFrame = velocityPerSecond / maxFps;
-        let expectedElapsedMs = 1000/maxFps;
-
-        return velocityPerFrame / expectedElapsedMs;
+        return velocityPerSecond / 1000;
     }
 
     calculateNewDrawValue(interp) {
@@ -55,16 +65,6 @@ class Pacman {
         this.position.left += this.velocityPerMs * elapsedMs;
 
         this.msSinceLastSprite += elapsedMs;
-    }
-    
-    stopAnimation(){
-        
-    }
-    
-    startAnimation(){
-        this.animationInterval = setInterval(() => {
-            this.animate();
-        }, 100);
     }
 }
 

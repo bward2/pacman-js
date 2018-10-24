@@ -1,14 +1,88 @@
 const assert = require('assert');
 const Pacman = require('../scripts/characters/pacman');
 
-const pacman = new Pacman();
+const scaledTileSize = 8;
+const maxFps = 60;
+
+global.document = {
+    getElementById: () => {
+        return {
+            style: {}
+        };
+    }
+}
+
+let pacman;
+
+beforeEach(() => {
+    pacman = new Pacman(scaledTileSize, maxFps);
+});
 
 describe('pacman', () => {
-    describe('startAnimation', ()=> {
-        it('should kick off the animationInterval', ()=> {
-            assert.equal(pacman.animationInterval, undefined);
-            pacman.startAnimation();
-            assert.notEqual(pacman.animationInterval, undefined);
+    describe('setStyleMeasurements', () => {
+        it('should set pacman\'s measurement, height, width, and backgroundSize properties', () => {
+            pacman.setStyleMeasurements(scaledTileSize);
+            assert.equal(pacman.measurement, 16);
+            assert.deepEqual(pacman.animationTarget.style, {
+                height: '16px',
+                width: '16px',
+                backgroundSize: '64px'
+            });
+        });
+
+        it('should always set pacman\'s measurement to the scaledTileSize times two', () => {
+            pacman.setStyleMeasurements(1);
+            assert.equal(pacman.measurement, 2);
+
+            pacman.setStyleMeasurements(8);
+            assert.equal(pacman.measurement, 16);
+
+            pacman.setStyleMeasurements(1000);
+            assert.equal(pacman.measurement, 2000);
+        });
+
+        it('should always set pacman\'s backgroundSize to the scaledTileSize times eight', () => {
+            pacman.setStyleMeasurements(1);
+            assert.equal(pacman.animationTarget.style.backgroundSize, '8px');
+
+            pacman.setStyleMeasurements(8);
+            assert.equal(pacman.animationTarget.style.backgroundSize, '64px');
+
+            pacman.setStyleMeasurements(1000);
+            assert.equal(pacman.animationTarget.style.backgroundSize, '8000px');
+        });
+    });
+
+    describe('setSpriteAnimationStats', () => {
+        it('should set various stats for pacman\'s sprite animation', () => {
+            pacman.setSpriteAnimationStats();
+
+            assert.equal(pacman.msBetweenSprites, 100);
+            assert.equal(pacman.msSinceLastSprite, 0);
+            assert.equal(pacman.spriteFrames, 4);
+            assert.equal(pacman.backgroundOffsetPixels, 0);
+        });
+    });
+
+    describe('setDefaultPosition', () => {
+        it('should set the position and oldPosition with up, down, left, and right properties', () => {
+            pacman.setDefaultPosition();
+
+            assert.deepEqual(pacman.position, {
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0
+            });
+            assert.deepEqual(pacman.position, pacman.oldPosition);
+        });
+    });
+
+    describe('calculateVelocityPerMs', () => {
+        it('should return the input multiplied by 11, then divided by 1000', ()=> {
+            assert.equal(pacman.calculateVelocityPerMs(8), 0.088);
+            assert.equal(pacman.calculateVelocityPerMs(64), 0.704);
+            assert.equal(pacman.calculateVelocityPerMs(200), 2.2);
         });
     });
 });
