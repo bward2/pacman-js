@@ -20,8 +20,8 @@ class GameEngine {
         this.pacman = new Pacman(this.scaledTileSize, this.maxFps);
         //
 
-        //Start/Stop with ESC key
         window.addEventListener('keyup', (e) => {
+            // ESC key
             if (e.keyCode === 27) {
                 this.changePausedState();
             }
