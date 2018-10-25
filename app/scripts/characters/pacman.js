@@ -2,10 +2,13 @@ class Pacman {
     constructor(scaledTileSize, maxFps) {
         this.animationTarget = document.getElementById("pacman");
 
+        this.setMovementStats(scaledTileSize);
         this.setStyleMeasurements(scaledTileSize);
         this.setSpriteAnimationStats();
         this.setDefaultPosition();
-        this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
+        this.setKeyListeners();
+
+        this.setSpriteSheet(this.direction);
     }
 
     setStyleMeasurements(scaledTileSize) {
@@ -26,12 +29,43 @@ class Pacman {
 
     setDefaultPosition() {
         this.position = {
-            up: 0,
-            down: 0,
-            left: 0,
-            right: 0
+            top: 0,
+            left: 0
         };
         this.oldPosition = Object.assign({}, this.position);
+    }
+
+    setMovementStats(scaledTileSize) {
+        this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
+        this.directions = {
+            up: 'up',
+            down: 'down',
+            left: 'left',
+            right: 'right'
+        }
+        this.direction = this.directions.right;
+        this.moving = false;
+    }
+
+    setKeyListeners() {
+        this.movementKeys = {
+            // WASD
+            87: 'up',
+            83: 'down',
+            65: 'left',
+            68: 'right',
+     
+            // Arrow Keys
+            38: 'up',
+            40: 'down',
+            37: 'left',
+            39: 'right'
+        };
+
+        window.addEventListener('keydown', (e) => {
+            this.changeDirection(e);
+            this.setSpriteSheet(this.direction);
+        });
     }
 
     calculateVelocityPerMs(scaledTileSize) {
@@ -40,12 +74,44 @@ class Pacman {
         return velocityPerSecond / 1000;
     }
 
-    calculateNewDrawValue(interp) {
-        return this.oldPosition.left + (this.position.left - this.oldPosition.left) * interp;
+    setSpriteSheet(direction) {
+        this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/pacman_${direction}.svg)`;
+    }
+
+    getPropertyToChange(direction) {
+        switch(direction) {
+            case this.directions.up:
+            case this.directions.down:
+                return 'top';
+            default:
+                return 'left';
+        }
+    }
+
+    getVelocity(direction, velocityPerMs) {
+        switch(direction) {
+            case this.directions.up:
+            case this.directions.left:
+                return velocityPerMs * -1;
+            default:
+                return velocityPerMs;
+        }
+    }
+
+    changeDirection(e) {
+        if(this.movementKeys[e.keyCode]) {
+            this.direction = this.directions[this.movementKeys[e.keyCode]];
+            this.moving = true;
+        }
+    }
+
+    calculateNewDrawValue(interp, prop) {
+        return this.oldPosition[prop] + (this.position[prop] - this.oldPosition[prop]) * interp;
     }
 
     draw(interp){
-        this.animationTarget.style.left = `${this.calculateNewDrawValue(interp)}px`;
+        let prop = this.getPropertyToChange(this.direction);
+        this.animationTarget.style[prop] = `${this.calculateNewDrawValue(interp, prop)}px`;
 
         if (this.msSinceLastSprite > this.msBetweenSprites) {
             this.msSinceLastSprite = 0;
@@ -61,10 +127,12 @@ class Pacman {
     }
     
     update(elapsedMs){
-        this.oldPosition = Object.assign({}, this.position);
-        this.position.left += this.velocityPerMs * elapsedMs;
-
-        this.msSinceLastSprite += elapsedMs;
+        if (this.moving) {
+            this.oldPosition = Object.assign({}, this.position);
+            this.position[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
+    
+            this.msSinceLastSprite += elapsedMs;
+        }
     }
 }
 

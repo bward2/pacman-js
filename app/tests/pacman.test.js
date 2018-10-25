@@ -12,6 +12,12 @@ global.document = {
     }
 }
 
+global.window = {
+    addEventListener: () => {
+        return true;
+    }
+};
+
 let pacman;
 
 beforeEach(() => {
@@ -21,6 +27,7 @@ beforeEach(() => {
 describe('pacman', () => {
     describe('setStyleMeasurements', () => {
         it('should set pacman\'s measurement, height, width, and backgroundSize properties', () => {
+            pacman.animationTarget.style = {};
             pacman.setStyleMeasurements(scaledTileSize);
             assert.equal(pacman.measurement, 16);
             assert.deepEqual(pacman.animationTarget.style, {
@@ -65,14 +72,12 @@ describe('pacman', () => {
     });
 
     describe('setDefaultPosition', () => {
-        it('should set the position and oldPosition with up, down, left, and right properties', () => {
+        it('should set the position and oldPosition with top and left properties', () => {
             pacman.setDefaultPosition();
 
             assert.deepEqual(pacman.position, {
-                up: 0,
-                down: 0,
                 left: 0,
-                right: 0
+                top: 0
             });
             assert.deepEqual(pacman.position, pacman.oldPosition);
         });
