@@ -27,6 +27,7 @@ beforeEach(() => {
 describe('pacman', () => {
     describe('setStyleMeasurements', () => {
         it('should set pacman\'s measurement, height, width, and backgroundSize properties', () => {
+            pacman.animationTarget.style = {};
             pacman.setStyleMeasurements(scaledTileSize);
             assert.equal(pacman.measurement, 16);
             assert.deepEqual(pacman.animationTarget.style, {

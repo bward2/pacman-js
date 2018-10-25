@@ -2,11 +2,13 @@ class Pacman {
     constructor(scaledTileSize, maxFps) {
         this.animationTarget = document.getElementById("pacman");
 
+        this.setMovementStats(scaledTileSize);
         this.setStyleMeasurements(scaledTileSize);
         this.setSpriteAnimationStats();
         this.setDefaultPosition();
-        this.setMovementStats(scaledTileSize);
         this.setKeyListeners();
+
+        this.setSpriteSheet(this.direction);
     }
 
     setStyleMeasurements(scaledTileSize) {
@@ -41,7 +43,7 @@ class Pacman {
             left: 'left',
             right: 'right'
         }
-        this.direction = this.directions.left;
+        this.direction = this.directions.right;
         this.moving = false;
     }
 
@@ -62,6 +64,7 @@ class Pacman {
 
         window.addEventListener('keydown', (e) => {
             this.changeDirection(e);
+            this.setSpriteSheet(this.direction);
         });
     }
 
@@ -69,6 +72,10 @@ class Pacman {
         // In the original game, Pacman moved at 11 tiles per second.
         let velocityPerSecond = scaledTileSize * 11;
         return velocityPerSecond / 1000;
+    }
+
+    setSpriteSheet(direction) {
+        this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/pacman_${direction}.svg)`;
     }
 
     getPropertyToChange(direction) {
