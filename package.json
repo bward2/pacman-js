@@ -1,9 +1,9 @@
 {
   "nyc": {
-    "exclude": [
-      "**/*.test.js",
-      "build"
-    ]
+    "include": [
+      "app/scripts/**/*.js"
+    ],
+    "all": true
   },
   "scripts": {
     "test": "nyc mocha app/tests"
