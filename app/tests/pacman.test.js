@@ -2,7 +2,6 @@ const assert = require('assert');
 const Pacman = require('../scripts/characters/pacman');
 
 const scaledTileSize = 8;
-const maxFps = 60;
 
 global.document = {
     getElementById: () => {
@@ -21,7 +20,7 @@ global.window = {
 let pacman;
 
 beforeEach(() => {
-    pacman = new Pacman(scaledTileSize, maxFps);
+    pacman = new Pacman(scaledTileSize);
 });
 
 describe('pacman', () => {

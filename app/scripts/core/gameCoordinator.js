@@ -1,6 +1,16 @@
 class GameCoordinator {
     constructor() {
-        this.gameEngine = new GameEngine();
+        this.maxFps = 60;
+        this.tileSize = 8;
+        this.scale = 8;
+        this.scaledTileSize = this.tileSize * this.scale;
+
+        this.entityList = [
+            this.pacman = new Pacman(this.scaledTileSize)
+        ];
+
+        this.gameEngine = new GameEngine(this.maxFps, this.entityList);
+        this.gameEngine.start();
 
         this.mazeArray = [
             ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
