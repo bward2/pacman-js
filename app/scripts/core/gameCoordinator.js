@@ -54,7 +54,7 @@ class GameCoordinator {
 
         this.mazeArray.forEach(row => {
             const rowDiv = document.createElement('div');
-            rowDiv.style.display = 'flex';
+            rowDiv.classList.add('maze-row');
             row[0].split('').forEach(block => {
                 const mazeBlock = document.createElement('div');
                 mazeBlock.style.width = '10px';
