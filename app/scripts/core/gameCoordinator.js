@@ -44,7 +44,26 @@ class GameCoordinator {
             ['X XXXXXXXXXX XX XXXXXXXXXX X'],
             ['X                          X'],
             ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX']
-        ]
+        ];
+
+        this.drawMaze();
+    }
+
+    drawMaze() {
+        const mazeDiv = document.getElementById('maze');
+
+        this.mazeArray.forEach(row => {
+            const rowDiv = document.createElement('div');
+            rowDiv.style.display = 'flex';
+            row[0].split('').forEach(block => {
+                const mazeBlock = document.createElement('div');
+                mazeBlock.style.width = '10px';
+                mazeBlock.style.height = '10px';
+                mazeBlock.style.background = block === 'X' ? 'black' : 'white';
+                rowDiv.appendChild(mazeBlock);
+            });
+            mazeDiv.appendChild(rowDiv);
+        });
     }
 }
 
