@@ -2,7 +2,7 @@ class GameCoordinator {
     constructor() {
         this.maxFps = 60;
         this.tileSize = 8;
-        this.scale = 8;
+        this.scale = 3;
         this.scaledTileSize = this.tileSize * this.scale;
 
         this.entityList = [
@@ -57,8 +57,8 @@ class GameCoordinator {
             rowDiv.classList.add('maze-row');
             row[0].split('').forEach(block => {
                 const mazeBlock = document.createElement('div');
-                mazeBlock.style.width = '10px';
-                mazeBlock.style.height = '10px';
+                mazeBlock.style.width = `${this.scaledTileSize}px`;
+                mazeBlock.style.height = `${this.scaledTileSize}px`;
                 mazeBlock.style.background = block === 'X' ? 'black' : 'white';
                 rowDiv.appendChild(mazeBlock);
             });
