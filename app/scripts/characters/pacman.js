@@ -5,7 +5,7 @@ class Pacman {
         this.setMovementStats(scaledTileSize);
         this.setStyleMeasurements(scaledTileSize);
         this.setSpriteAnimationStats();
-        this.setDefaultPosition();
+        this.setDefaultPosition(scaledTileSize);
         this.setKeyListeners();
 
         this.setSpriteSheet(this.direction);
@@ -27,12 +27,14 @@ class Pacman {
         this.backgroundOffsetPixels = 0;
     }
 
-    setDefaultPosition() {
+    setDefaultPosition(scaledTileSize) {
         this.position = {
-            top: 0,
-            left: 0
+            top: scaledTileSize * 22,
+            left: scaledTileSize * 13
         };
         this.oldPosition = Object.assign({}, this.position);
+        this.animationTarget.style.top = `${this.position.top}px`;
+        this.animationTarget.style.left = `${this.position.left}px`;
     }
 
     setMovementStats(scaledTileSize) {
