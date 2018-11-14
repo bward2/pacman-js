@@ -1,9 +1,10 @@
 class GameEngine {
-    constructor() {
+    constructor(maxFps, entityList) {
         this.fpsDisplay = document.getElementById('fpsDisplay');
         this.elapsedMs = 0;
         this.lastFrameTimeMs = 0;
-        this.maxFps = 60;
+        this.entityList = entityList;
+        this.maxFps = maxFps;
         this.timestep = 1000 / this.maxFps;
         this.fps = this.maxFps;
         this.framesThisSecond = 0;
@@ -11,14 +12,6 @@ class GameEngine {
         this.frameId = 0;
         this.running = false;
         this.started = false;
-
-        //TODO: Move this logic to a separate game-coordinator class
-        this.tileSize = 8;
-        this.scale = 8;
-        this.scaledTileSize = this.tileSize * this.scale;
-
-        this.pacman = new Pacman(this.scaledTileSize, this.maxFps);
-        //
 
         window.addEventListener('keyup', (e) => {
             // ESC key
@@ -48,11 +41,15 @@ class GameEngine {
     }
 
     draw(interp) {
-        this.pacman.draw(interp);
+        for (let entity in this.entityList) {
+            this.entityList[entity].draw(interp);
+        }
     }
 
     update(elapsedMs) {
-        this.pacman.update(elapsedMs);
+        for (let entity in this.entityList) {
+            this.entityList[entity].update(elapsedMs);
+        }
     }
 
     panic() {

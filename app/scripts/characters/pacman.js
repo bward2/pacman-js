@@ -1,5 +1,5 @@
 class Pacman {
-    constructor(scaledTileSize, maxFps) {
+    constructor(scaledTileSize) {
         this.animationTarget = document.getElementById("pacman");
 
         this.setMovementStats(scaledTileSize);
