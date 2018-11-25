@@ -47,8 +47,9 @@ class Pacman {
             left: 'left',
             right: 'right'
         }
-        this.direction = this.directions.right;
-        this.moving = false;
+        this.desiredDirection = this.directions.left;
+        this.direction = this.directions.left;
+        this.moving = true;
     }
 
     setKeyListeners() {
@@ -169,7 +170,7 @@ class Pacman {
         let prop = this.getPropertyToChange(this.direction);
         this.animationTarget.style[prop] = `${this.calculateNewDrawValue(interp, prop)}px`;
 
-        if (this.msSinceLastSprite > this.msBetweenSprites) {
+        if (this.msSinceLastSprite > this.msBetweenSprites && this.moving) {
             this.msSinceLastSprite = 0;
 
             this.animationTarget.style.backgroundPosition = `-${this.backgroundOffsetPixels}px 0px`;
@@ -183,8 +184,9 @@ class Pacman {
     }
     
     update(elapsedMs){
+        this.oldPosition = Object.assign({}, this.position);
+
         if (this.moving) {
-            this.oldPosition = Object.assign({}, this.position);
             let gridPosition = this.determineGridPosition(this.position);
             let desiredNewPosition = Object.assign({}, this.position);
             desiredNewPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
