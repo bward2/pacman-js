@@ -1,5 +1,7 @@
 class Pacman {
-    constructor(scaledTileSize) {
+    constructor(scaledTileSize, mazeArray) {
+        this.scaledTileSize = scaledTileSize;
+        this.mazeArray = mazeArray;
         this.animationTarget = document.getElementById("pacman");
 
         this.setMovementStats(scaledTileSize);
@@ -29,7 +31,7 @@ class Pacman {
 
     setDefaultPosition(scaledTileSize) {
         this.position = {
-            top: scaledTileSize * 22,
+            top: scaledTileSize * 22.5,
             left: scaledTileSize * 13
         };
         this.oldPosition = Object.assign({}, this.position);
@@ -102,6 +104,7 @@ class Pacman {
 
     changeDirection(e) {
         if(this.movementKeys[e.keyCode]) {
+            //TODO: Add a variable here for 'desiredDirection'
             this.direction = this.directions[this.movementKeys[e.keyCode]];
             this.moving = true;
         }
@@ -109,6 +112,57 @@ class Pacman {
 
     calculateNewDrawValue(interp, prop) {
         return this.oldPosition[prop] + (this.position[prop] - this.oldPosition[prop]) * interp;
+    }
+
+    determineGridPosition(currentPosition) {
+        return {
+            x : (currentPosition.left / this.scaledTileSize) + 0.5,
+            y : (currentPosition.top / this.scaledTileSize) + 0.5
+        };
+    }
+
+    determineRoundingFunction(direction) {
+        switch(direction) {
+            case this.directions.up:
+            case this.directions.left:
+                return Math.floor;
+            default:
+                return Math.ceil;
+        } 
+    }
+
+    checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
+        let roundingFunction = this.determineRoundingFunction(direction);
+
+        let desiredX = roundingFunction(desiredNewGridPosition.x);
+        let desiredY = roundingFunction(desiredNewGridPosition.y);
+        let newGridValue;
+
+        if (Array.isArray(mazeArray[desiredY])) {
+            newGridValue = mazeArray[desiredY][0].charAt(desiredX);
+        }
+        
+        return (newGridValue === 'X');
+    }
+
+    snapToGrid(position, direction, scaledTileSize) {
+        let newPosition = Object.assign({}, position);
+        let roundingFunction = this.determineRoundingFunction(direction);
+
+        switch(direction) {
+            case this.directions.up:
+            case this.directions.down:
+                newPosition.y = roundingFunction(newPosition.y);
+                break;
+            default:
+                newPosition.x = roundingFunction(newPosition.x);
+                break;
+        }
+
+        return {
+            top: (newPosition.y - 0.5) * scaledTileSize,
+            left: (newPosition.x - 0.5) * scaledTileSize
+        };
     }
 
     draw(interp){
@@ -131,7 +185,16 @@ class Pacman {
     update(elapsedMs){
         if (this.moving) {
             this.oldPosition = Object.assign({}, this.position);
-            this.position[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
+            let gridPosition = this.determineGridPosition(this.position);
+            let desiredNewPosition = Object.assign({}, this.position);
+            desiredNewPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
+            let desiredNewGridPosition = this.determineGridPosition(desiredNewPosition, this.mazeArray);
+            if (this.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.direction)) {
+                this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+                this.moving = false;
+            } else {
+                this.position = desiredNewPosition;
+            };
     
             this.msSinceLastSprite += elapsedMs;
         }

@@ -5,13 +5,6 @@ class GameCoordinator {
         this.scale = 3;
         this.scaledTileSize = this.tileSize * this.scale;
 
-        this.entityList = [
-            this.pacman = new Pacman(this.scaledTileSize)
-        ];
-
-        this.gameEngine = new GameEngine(this.maxFps, this.entityList);
-        this.gameEngine.start();
-
         this.mazeArray = [
             ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
             ['X            XX            X'],
@@ -45,6 +38,13 @@ class GameCoordinator {
             ['X                          X'],
             ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX']
         ];
+
+        this.entityList = [
+            this.pacman = new Pacman(this.scaledTileSize, this.mazeArray)
+        ];
+
+        this.gameEngine = new GameEngine(this.maxFps, this.entityList);
+        this.gameEngine.start();
 
         this.drawMaze();
     }
