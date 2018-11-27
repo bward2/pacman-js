@@ -49,7 +49,7 @@ class Pacman {
         }
         this.desiredDirection = this.directions.left;
         this.direction = this.directions.left;
-        this.moving = true;
+        this.moving = false;
     }
 
     setKeyListeners() {
@@ -69,7 +69,6 @@ class Pacman {
 
         window.addEventListener('keydown', (e) => {
             this.changeDirection(e);
-            this.setSpriteSheet(this.direction);
         });
     }
 
@@ -105,8 +104,7 @@ class Pacman {
 
     changeDirection(e) {
         if(this.movementKeys[e.keyCode]) {
-            //TODO: Add a variable here for 'desiredDirection'
-            this.direction = this.directions[this.movementKeys[e.keyCode]];
+            this.desiredDirection = this.directions[this.movementKeys[e.keyCode]];
             this.moving = true;
         }
     }
@@ -122,6 +120,19 @@ class Pacman {
         };
     }
 
+    turningAround(direction, desiredDirection) {
+        switch(direction) {
+            case this.directions.up:
+                return desiredDirection === this.directions.down;
+            case this.directions.down:
+                return desiredDirection === this.directions.up;
+            case this.directions.left:
+                return desiredDirection === this.directions.right;
+            default:
+                return desiredDirection === this.directions.left;
+        }
+    }
+
     determineRoundingFunction(direction) {
         switch(direction) {
             case this.directions.up:
@@ -130,6 +141,13 @@ class Pacman {
             default:
                 return Math.ceil;
         } 
+    }
+
+    changingGridPosition(oldPosition, newPosition) {
+        return (
+            Math.floor(oldPosition.x) !== Math.floor(newPosition.x) ||
+            Math.floor(oldPosition.y) !== Math.floor(newPosition.y)
+        );
     }
 
     checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
@@ -189,15 +207,32 @@ class Pacman {
         if (this.moving) {
             let gridPosition = this.determineGridPosition(this.position);
             let desiredNewPosition = Object.assign({}, this.position);
-            desiredNewPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
+            desiredNewPosition[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
             let desiredNewGridPosition = this.determineGridPosition(desiredNewPosition, this.mazeArray);
-            if (this.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.direction)) {
-                this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
-                this.moving = false;
+
+            if (this.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
+                let alternateNewPosition = Object.assign({}, this.position);
+                alternateNewPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
+                let alternateNewGridPosition = this.determineGridPosition(alternateNewPosition, this.mazeArray);
+
+                if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
+                    this.position = this.snapToGrid(gridPosition, this.desiredDirection, this.scaledTileSize);
+                    this.moving = false;
+                } else {
+                    this.position = alternateNewPosition;
+                }
             } else {
-                this.position = desiredNewPosition;
+                if (this.direction === this.desiredDirection) {
+                    this.position = desiredNewPosition;
+                } else if (this.turningAround(this.direction, this.desiredDirection)) {
+                    this.direction = this.desiredDirection;
+                    this.setSpriteSheet(this.direction);
+                    this.position = desiredNewPosition;
+                } else {
+                    console.log('Trying to round a corner!');
+                }
             };
-    
+
             this.msSinceLastSprite += elapsedMs;
         }
     }
