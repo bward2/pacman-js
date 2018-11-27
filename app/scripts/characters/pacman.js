@@ -226,7 +226,6 @@ class Pacman {
                 if (JSON.stringify(this.position) === JSON.stringify(this.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
                     if (this.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
                         if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
-                            this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                             this.moving = false;
                         } else {
                             this.position = alternateNewPosition;
@@ -249,7 +248,12 @@ class Pacman {
                             let gridPositionAroundCorner = this.determineGridPosition(positionAroundCorner, this.mazeArray);
     
                             if (this.checkForWallCollision(gridPositionAroundCorner, this.mazeArray, this.desiredDirection)) {
-                                this.position = alternateNewPosition;
+                                if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
+                                    this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+                                    this.moving = false;
+                                } else {
+                                    this.position = alternateNewPosition;
+                                }
                             } else {
                                 this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                             }
