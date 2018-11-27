@@ -76,7 +76,7 @@ describe('pacman', () => {
 
             assert.deepEqual(pacman.position, {
                 left: 104,
-                top: 176
+                top: 180
             });
             assert.deepEqual(pacman.position, pacman.oldPosition);
         });
