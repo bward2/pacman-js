@@ -2,7 +2,8 @@ class Pacman {
     constructor(scaledTileSize, mazeArray) {
         this.scaledTileSize = scaledTileSize;
         this.mazeArray = mazeArray;
-        this.animationTarget = document.getElementById("pacman");
+        this.animationTarget = document.getElementById('pacman');
+        this.pacmanArrow = document.getElementById('pacman-arrow');
 
         this.setMovementStats(scaledTileSize);
         this.setStyleMeasurements(scaledTileSize);
@@ -20,6 +21,10 @@ class Pacman {
         this.animationTarget.style.height = `${this.measurement}px`;
         this.animationTarget.style.width = `${this.measurement}px`;
         this.animationTarget.style.backgroundSize = `${this.measurement * 4}px`;
+
+        this.pacmanArrow.style.height = `${this.measurement * 2}px`;
+        this.pacmanArrow.style.width = `${this.measurement * 2}px`;
+        this.pacmanArrow.style.backgroundSize = `${this.measurement * 2}px`;
     }
 
     setSpriteAnimationStats() {
@@ -105,6 +110,7 @@ class Pacman {
     changeDirection(e) {
         if(this.movementKeys[e.keyCode]) {
             this.desiredDirection = this.directions[this.movementKeys[e.keyCode]];
+            this.pacmanArrow.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/arrow_${this.desiredDirection}.svg)`;
             this.moving = true;
         }
     }

@@ -4,6 +4,12 @@
     margin: 0;
 }
 
+#pacman-arrow {
+    position: absolute;
+    z-index: 1;
+    margin: 0;
+}
+
 #fpsDisplay {
     position: absolute;
     top: 10px;
