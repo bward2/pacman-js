@@ -59,7 +59,7 @@ class GameCoordinator {
                 const mazeBlock = document.createElement('div');
                 mazeBlock.style.width = `${this.scaledTileSize}px`;
                 mazeBlock.style.height = `${this.scaledTileSize}px`;
-                mazeBlock.style.background = block === 'X' ? 'black' : 'white';
+                mazeBlock.style.background = block === 'X' ? 'black' : 'gray';
                 rowDiv.appendChild(mazeBlock);
             });
             mazeDiv.appendChild(rowDiv);
