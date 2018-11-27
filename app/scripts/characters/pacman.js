@@ -119,6 +119,11 @@ class Pacman {
         return this.oldPosition[prop] + (this.position[prop] - this.oldPosition[prop]) * interp;
     }
 
+    updatePacmanArrowPosition(position, scaledTileSize) {
+        this.pacmanArrow.style.top = `${position.top - scaledTileSize}px`;
+        this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
+    }
+
     determineGridPosition(currentPosition) {
         return {
             x : (currentPosition.left / this.scaledTileSize) + 0.5,
@@ -193,6 +198,8 @@ class Pacman {
     draw(interp){
         this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
         this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
+
+        this.updatePacmanArrowPosition(this.position, this.scaledTileSize);
 
         if (this.msSinceLastSprite > this.msBetweenSprites && this.moving) {
             this.msSinceLastSprite = 0;
