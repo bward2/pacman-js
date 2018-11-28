@@ -14,12 +14,25 @@ class Pacdot {
         mazeDiv.appendChild(this.animationTarget);
     }
 
-    draw() {
+    checkForCollision(dotX, dotY, dotSize, pacmanX, pacmanY, pacmanSize) {
+        return (
+            dotX > pacmanX &&
+            dotY > pacmanY &&
+            (dotX + dotSize) < (pacmanX + pacmanSize) &&
+            (dotY + dotSize) < (pacmanY + pacmanSize)
+        );
+    }
 
+    draw() {
+        
     }
 
     update() {
-
+        if (this.animationTarget.style.visibility !== 'hidden') {
+            if (this.checkForCollision(this.x, this.y, this.size, this.pacman.position.left, this.pacman.position.top, this.pacman.measurement)) {
+                this.animationTarget.style.visibility = 'hidden';
+            }
+        }
     }
 }
 
