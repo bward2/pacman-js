@@ -72,11 +72,11 @@ describe('pacman', () => {
 
     describe('setDefaultPosition', () => {
         it('should set the position and oldPosition with top and left properties', () => {
-            pacman.setDefaultPosition();
+            pacman.setDefaultPosition(scaledTileSize);
 
             assert.deepEqual(pacman.position, {
-                left: 0,
-                top: 0
+                left: 104,
+                top: 180
             });
             assert.deepEqual(pacman.position, pacman.oldPosition);
         });

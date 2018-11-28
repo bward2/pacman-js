@@ -5,33 +5,26 @@ class GameCoordinator {
         this.scale = 3;
         this.scaledTileSize = this.tileSize * this.scale;
 
-        this.entityList = [
-            this.pacman = new Pacman(this.scaledTileSize)
-        ];
-
-        this.gameEngine = new GameEngine(this.maxFps, this.entityList);
-        this.gameEngine.start();
-
         this.mazeArray = [
             ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
             ['X            XX            X'],
             ['X XXXX XXXXX XX XXXXX XXXX X'],
-            ['X X  X X   X XX X   X X  X X'],
+            ['X XXXX XXXXX XX XXXXX XXXX X'],
             ['X XXXX XXXXX XX XXXXX XXXX X'],
             ['X                          X'],
             ['X XXXX XX XXXXXXXX XX XXXX X'],
             ['X XXXX XX XXXXXXXX XX XXXX X'],
             ['X      XX    XX    XX      X'],
             ['XXXXXX XXXXX XX XXXXX XXXXXX'],
-            ['     X XXXXX XX XXXXX X     '],
-            ['     X XX          XX X     '],
-            ['     X XX XXXXXXXX XX X     '],
+            ['XXXXXX XXXXX XX XXXXX XXXXXX'],
+            ['XXXXXX XX          XX XXXXXX'],
+            ['XXXXXX XX XXXXXXXX XX XXXXXX'],
             ['XXXXXX XX X      X XX XXXXXX'],
             ['          X      X          '],
             ['XXXXXX XX X      X XX XXXXXX'],
-            ['     X XX XXXXXXXX XX X     '],
-            ['     X XX          XX X     '],
-            ['     X XX XXXXXXXX XX X     '],
+            ['XXXXXX XX XXXXXXXX XX XXXXXX'],
+            ['XXXXXX XX          XX XXXXXX'],
+            ['XXXXXX XX XXXXXXXX XX XXXXXX'],
             ['XXXXXX XX XXXXXXXX XX XXXXXX'],
             ['X            XX            X'],
             ['X XXXX XXXXX XX XXXXX XXXX X'],
@@ -46,6 +39,13 @@ class GameCoordinator {
             ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX']
         ];
 
+        this.entityList = [
+            this.pacman = new Pacman(this.scaledTileSize, this.mazeArray)
+        ];
+
+        this.gameEngine = new GameEngine(this.maxFps, this.entityList);
+        this.gameEngine.start();
+
         this.drawMaze();
     }
 
@@ -59,7 +59,7 @@ class GameCoordinator {
                 const mazeBlock = document.createElement('div');
                 mazeBlock.style.width = `${this.scaledTileSize}px`;
                 mazeBlock.style.height = `${this.scaledTileSize}px`;
-                mazeBlock.style.background = block === 'X' ? 'black' : 'white';
+                mazeBlock.style.background = block === 'X' ? 'black' : 'gray';
                 rowDiv.appendChild(mazeBlock);
             });
             mazeDiv.appendChild(rowDiv);
