@@ -8,7 +8,7 @@ class Ghost {
 
         this.setMovementStats(pacman);
         this.setSpriteAnimationStats();
-        this.setStyleMeasurements(scaledTileSize);
+        this.setStyleMeasurements(scaledTileSize, this.spriteFrames);
         this.setDefaultPosition(scaledTileSize, name);
         this.setSpriteSheet(this.name, this.direction);
     }
@@ -36,19 +36,19 @@ class Ghost {
     }
 
     setSpriteAnimationStats() {
-        this.msBetweenSprites = 500;
+        this.msBetweenSprites = 250;
         this.msSinceLastSprite = 0;
         this.spriteFrames = 2;
         this.backgroundOffsetPixels = 0;
     }
 
-    setStyleMeasurements(scaledTileSize) {
+    setStyleMeasurements(scaledTileSize, spriteFrames) {
         // The ghosts are the size of 2x2 game tiles.
         this.measurement = scaledTileSize * 2;
 
         this.animationTarget.style.height = `${this.measurement}px`;
         this.animationTarget.style.width = `${this.measurement}px`;
-        this.animationTarget.style.backgroundSize = `${this.measurement * 2}px`;
+        this.animationTarget.style.backgroundSize = `${this.measurement * spriteFrames}px`;
     }
 
     setDefaultPosition(scaledTileSize, name) {
@@ -69,6 +69,24 @@ class Ghost {
 
     setSpriteSheet(name, direction) {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
+    }
+
+    draw(interp) {
+        if (this.msSinceLastSprite > this.msBetweenSprites) {
+            this.msSinceLastSprite = 0;
+
+            this.animationTarget.style.backgroundPosition = `-${this.backgroundOffsetPixels}px 0px`;
+        
+            if (this.backgroundOffsetPixels < (this.measurement * (this.spriteFrames - 1))) {
+                this.backgroundOffsetPixels = this.backgroundOffsetPixels + this.measurement;
+            } else {
+                this.backgroundOffsetPixels = 0;
+            }
+        }
+    }
+
+    update(elapsedMs) {
+        this.msSinceLastSprite += elapsedMs;
     }
 }
 
