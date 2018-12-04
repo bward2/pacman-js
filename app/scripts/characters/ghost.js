@@ -6,7 +6,11 @@ class Ghost {
         this.name = name;
         this.animationTarget = document.getElementById(name);
 
-        this.setMovementStats(this.pacman);
+        this.setMovementStats(pacman);
+        this.setSpriteAnimationStats();
+        this.setStyleMeasurements(scaledTileSize);
+        this.setDefaultPosition(scaledTileSize, name);
+        this.setSpriteSheet(this.name, this.direction);
     }
 
     setMovementStats(pacman) {
@@ -28,6 +32,43 @@ class Ghost {
         this.eyeSpeed = pacmanSpeed * 3;
 
         this.velocityPerMs = this.slowSpeed;
+        this.direction = this.directions.left;
+    }
+
+    setSpriteAnimationStats() {
+        this.msBetweenSprites = 500;
+        this.msSinceLastSprite = 0;
+        this.spriteFrames = 2;
+        this.backgroundOffsetPixels = 0;
+    }
+
+    setStyleMeasurements(scaledTileSize) {
+        // The ghosts are the size of 2x2 game tiles.
+        this.measurement = scaledTileSize * 2;
+
+        this.animationTarget.style.height = `${this.measurement}px`;
+        this.animationTarget.style.width = `${this.measurement}px`;
+        this.animationTarget.style.backgroundSize = `${this.measurement * 2}px`;
+    }
+
+    setDefaultPosition(scaledTileSize, name) {
+        switch(name) {
+            case 'blinky':
+                this.position = {
+                    top: scaledTileSize * 10.5,
+                    left: scaledTileSize * 13
+                };
+                break;
+            default:
+                break;
+        }
+        this.oldPosition = Object.assign({}, this.position);
+        this.animationTarget.style.top = `${this.position.top}px`;
+        this.animationTarget.style.left = `${this.position.left}px`;
+    }
+
+    setSpriteSheet(name, direction) {
+        this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
     }
 }
 
