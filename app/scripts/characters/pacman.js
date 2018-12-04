@@ -14,8 +14,21 @@ class Pacman {
         this.setSpriteSheet(this.direction);
     }
 
+    setMovementStats(scaledTileSize) {
+        this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
+        this.directions = {
+            up: 'up',
+            down: 'down',
+            left: 'left',
+            right: 'right'
+        }
+        this.desiredDirection = this.directions.left;
+        this.direction = this.directions.left;
+        this.moving = false;
+    }
+
     setStyleMeasurements(scaledTileSize) {
-        // Pacman is the size of 2x2 tiles.
+        // Pacman is the size of 2x2 game tiles.
         this.measurement = scaledTileSize * 2;
 
         this.animationTarget.style.height = `${this.measurement}px`;
@@ -42,19 +55,6 @@ class Pacman {
         this.oldPosition = Object.assign({}, this.position);
         this.animationTarget.style.top = `${this.position.top}px`;
         this.animationTarget.style.left = `${this.position.left}px`;
-    }
-
-    setMovementStats(scaledTileSize) {
-        this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
-        this.directions = {
-            up: 'up',
-            down: 'down',
-            left: 'left',
-            right: 'right'
-        }
-        this.desiredDirection = this.directions.left;
-        this.direction = this.directions.left;
-        this.moving = false;
     }
 
     setKeyListeners() {

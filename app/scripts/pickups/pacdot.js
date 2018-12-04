@@ -23,10 +23,6 @@ class Pacdot {
         );
     }
 
-    draw() {
-        
-    }
-
     update() {
         if (this.animationTarget.style.visibility !== 'hidden') {
             if (this.checkForCollision(this.x, this.y, this.size, this.pacman.position.left, this.pacman.position.top, this.pacman.measurement)) {

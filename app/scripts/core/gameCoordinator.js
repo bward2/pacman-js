@@ -40,7 +40,8 @@ class GameCoordinator {
         ];
 
         this.entityList = [
-            this.pacman = new Pacman(this.scaledTileSize, this.mazeArray)
+            this.pacman = new Pacman(this.scaledTileSize, this.mazeArray),
+            this.clyde = new Ghost(this.scaledTileSize, this.mazeArray, this.pacman, 'clyde')
         ];
 
         this.drawMaze();
