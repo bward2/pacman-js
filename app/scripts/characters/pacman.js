@@ -218,15 +218,15 @@ class Pacman {
         this.oldPosition = Object.assign({}, this.position);
 
         if (this.moving) {
-            let gridPosition = this.determineGridPosition(this.position);
+            const gridPosition = this.determineGridPosition(this.position);
 
-            let desiredNewPosition = Object.assign({}, this.position);
+            const desiredNewPosition = Object.assign({}, this.position);
             desiredNewPosition[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
-            let desiredNewGridPosition = this.determineGridPosition(desiredNewPosition, this.mazeArray);
+            const desiredNewGridPosition = this.determineGridPosition(desiredNewPosition, this.mazeArray);
 
-            let alternateNewPosition = Object.assign({}, this.position);
+            const alternateNewPosition = Object.assign({}, this.position);
             alternateNewPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
-            let alternateNewGridPosition = this.determineGridPosition(alternateNewPosition, this.mazeArray);
+            const alternateNewGridPosition = this.determineGridPosition(alternateNewPosition, this.mazeArray);
 
             if (this.direction === this.desiredDirection) {
                 if (this.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
@@ -255,10 +255,10 @@ class Pacman {
                             this.setSpriteSheet(this.direction);
                             this.position = desiredNewPosition;
                         } else {
-                            let snappedPosition = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
-                            let positionAroundCorner = Object.assign({}, snappedPosition);
+                            const snappedPosition = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+                            const positionAroundCorner = Object.assign({}, snappedPosition);
                             positionAroundCorner[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
-                            let gridPositionAroundCorner = this.determineGridPosition(positionAroundCorner, this.mazeArray);
+                            const gridPositionAroundCorner = this.determineGridPosition(positionAroundCorner, this.mazeArray);
     
                             if (this.checkForWallCollision(gridPositionAroundCorner, this.mazeArray, this.desiredDirection)) {
                                 if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
