@@ -260,6 +260,7 @@ class Ghost {
             if (JSON.stringify(this.position) === JSON.stringify(this.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
                 const pacmanGridPosition = this.determineGridPosition(this.pacman.position);
                 this.direction = this.determineDirection(this.name, gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
+                this.setSpriteSheet(this.name, this.direction);
 
                 this.position[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
             } else {
