@@ -188,12 +188,43 @@ class Ghost {
         return possibleMoves;
     }
 
-    determineDirection(gridPosition, pacmanGridPosition, direction, mazeArray) {
+    calculateDistance(position, pacman) {
+        return Math.sqrt(Math.pow(position['x'] - pacman['x'], 2) + Math.pow(position['y'] - pacman['y'], 2));
+    }
+
+    blinkyBestMove(possibleMoves, pacmanGridPosition) {
+        let shortestDistance = Infinity;
+        let bestMove;
+
+        for (let move in possibleMoves) {
+            let distance = this.calculateDistance(possibleMoves[move], pacmanGridPosition);
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                bestMove = move;
+            }
+        }
+
+        return bestMove;
+    }
+
+    determineBestMove(name, possibleMoves, pacmanGridPosition) {
+        switch(name) {
+            case 'blinky':
+                return this.blinkyBestMove(possibleMoves, pacmanGridPosition);
+            default:
+                // TODO: Other ghosts
+                return 'left';
+        }
+    }
+
+    determineDirection(name, gridPosition, pacmanGridPosition, direction, mazeArray) {
         let newDirection = direction;
         const possibleMoves = this.determinePossibleMoves(gridPosition, direction, mazeArray);
 
         if (Object.keys(possibleMoves).length === 1) {
             newDirection = Object.keys(possibleMoves)[0];
+        } else if (Object.keys(possibleMoves).length > 1) {
+            newDirection = this.determineBestMove(name, possibleMoves, pacmanGridPosition);
         }
 
         return newDirection;
@@ -228,7 +259,7 @@ class Ghost {
 
             if (JSON.stringify(this.position) === JSON.stringify(this.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
                 const pacmanGridPosition = this.determineGridPosition(this.pacman.position);
-                this.direction = this.determineDirection(gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
+                this.direction = this.determineDirection(this.name, gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
 
                 this.position[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
             } else {
