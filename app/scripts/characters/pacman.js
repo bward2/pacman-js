@@ -169,7 +169,7 @@ class Pacman {
         let newGridValue;
 
         if (Array.isArray(mazeArray[desiredY])) {
-            newGridValue = mazeArray[desiredY][0].charAt(desiredX);
+            newGridValue = mazeArray[desiredY][desiredX];
         }
         
         return (newGridValue === 'X');
