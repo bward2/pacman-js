@@ -145,7 +145,7 @@ class Ghost {
         this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
         this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
 
-        if (this.msSinceLastSprite > this.msBetweenSprites) {
+        if (this.msSinceLastSprite > this.msBetweenSprites && this.moving) {
             this.msSinceLastSprite = 0;
 
             this.animationTarget.style.backgroundPosition = `-${this.backgroundOffsetPixels}px 0px`;
@@ -167,24 +167,22 @@ class Ghost {
 
         if (this.moving) {
             const gridPosition = this.determineGridPosition(this.position);
-            
-            const newPosition = Object.assign({}, this.position);
-            newPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
-            const newGridPosition = this.determineGridPosition(newPosition, this.mazeArray);
 
             if (JSON.stringify(this.position) === JSON.stringify(this.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
-                this.position = newPosition;
+                // TODO: Set new direction with AI
+                console.log('AI');
+                this.position[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
             } else {
+                const newPosition = Object.assign({}, this.position);
+                newPosition[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
+                const newGridPosition = this.determineGridPosition(newPosition, this.mazeArray);
+    
                 if (this.changingGridPosition(gridPosition, newGridPosition)) {
-                    console.log('Snap!');
                     this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                 } else {
                     this.position = newPosition;
                 }
             }
-            
-            
-            
         }
 
         this.msSinceLastSprite += elapsedMs;
