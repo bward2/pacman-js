@@ -32,7 +32,6 @@ class Ghost {
         this.eyeSpeed = pacmanSpeed * 3;
 
         this.velocityPerMs = this.slowSpeed;
-        this.desiredDirection = this.directions.left;
         this.direction = this.directions.left;
         this.moving = false;
     }
@@ -193,9 +192,8 @@ class Ghost {
         let newDirection = direction;
         const possibleMoves = this.determinePossibleMoves(gridPosition, direction, mazeArray);
 
-        if (Object.keys(possibleMoves).length > 1) {
-            // TODO: AI to figure out where to go
-            console.log('Turning point');
+        if (Object.keys(possibleMoves).length === 1) {
+            newDirection = Object.keys(possibleMoves)[0];
         }
 
         return newDirection;
@@ -232,10 +230,10 @@ class Ghost {
                 const pacmanGridPosition = this.determineGridPosition(this.pacman.position);
                 this.direction = this.determineDirection(gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
 
-                this.position[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
+                this.position[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
             } else {
                 const newPosition = Object.assign({}, this.position);
-                newPosition[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
+                newPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
                 const newGridPosition = this.determineGridPosition(newPosition, this.mazeArray);
     
                 if (this.changingGridPosition(gridPosition, newGridPosition)) {
