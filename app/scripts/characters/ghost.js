@@ -157,8 +157,11 @@ class Ghost {
     getTile(mazeArray, y, x) {
         let tile = false;
 
-        if (mazeArray[y] && mazeArray[y][x]) {
-            tile = mazeArray[y][x];
+        if (mazeArray[y] && mazeArray[y][x] && mazeArray[y][x] !== 'X') {
+            tile = {
+                x: x,
+                y: y
+            };
         }
 
         return tile;
@@ -178,7 +181,7 @@ class Ghost {
         possibleMoves[this.getOppositeDirection(direction, this.directions)] = false;
 
         for (let tile in possibleMoves) {
-            if (possibleMoves[tile] === 'X' || possibleMoves[tile] === false) {
+            if (possibleMoves[tile] === false) {
                 delete possibleMoves[tile];
             }
         }
@@ -187,7 +190,15 @@ class Ghost {
     }
 
     determineDirection(gridPosition, pacmanGridPosition, direction, mazeArray) {
+        let newDirection = direction;
         const possibleMoves = this.determinePossibleMoves(gridPosition, direction, mazeArray);
+
+        if (Object.keys(possibleMoves).length > 1) {
+            // TODO: AI to figure out where to go
+            console.log('Turning point');
+        }
+
+        return newDirection;
     }
 
     draw(interp) {
@@ -219,7 +230,7 @@ class Ghost {
 
             if (JSON.stringify(this.position) === JSON.stringify(this.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
                 const pacmanGridPosition = this.determineGridPosition(this.pacman.position);
-                this.determineDirection(gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
+                this.direction = this.determineDirection(gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
 
                 this.position[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
             } else {
