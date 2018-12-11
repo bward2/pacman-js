@@ -195,6 +195,18 @@ class Pacman {
         };
     }
 
+    checkForWarp(position, gridPosition, scaledTileSize) {
+        let newPosition = Object.assign({}, position);
+
+        if (gridPosition.x < -0.75) {
+            newPosition.left = (scaledTileSize * 27.25);
+        } else if (gridPosition.x > 27.75) {
+            newPosition.left = (scaledTileSize * -1.25);
+        }
+
+        return newPosition;
+    }
+
     draw(interp){
         this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
         this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
@@ -280,6 +292,8 @@ class Pacman {
                     }
                 }
             }
+
+            this.position = this.checkForWarp(this.position, this.determineGridPosition(this.position), this.scaledTileSize);
 
             this.msSinceLastSprite += elapsedMs;
         }
