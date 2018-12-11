@@ -230,6 +230,18 @@ class Ghost {
         return newDirection;
     }
 
+    checkForWarp(position, gridPosition, scaledTileSize) {
+        let newPosition = Object.assign({}, position);
+
+        if (gridPosition.x <= -1) {
+            newPosition.left = (scaledTileSize * 27.5);
+        } else if (gridPosition.x >= 28) {
+            newPosition.left = (scaledTileSize * -1.5);
+        }
+
+        return newPosition;
+    }
+
     draw(interp) {
         this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
         this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
@@ -274,6 +286,8 @@ class Ghost {
                     this.position = newPosition;
                 }
             }
+
+            this.position = this.checkForWarp(this.position, this.determineGridPosition(this.position), this.scaledTileSize);
         }
 
         this.msSinceLastSprite += elapsedMs;
