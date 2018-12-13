@@ -231,15 +231,20 @@ class Ghost {
     }
 
     checkForWarp(position, gridPosition, scaledTileSize) {
-        let newPosition = Object.assign({}, position);
+        let results = {
+            newPosition: Object.assign({}, position),
+            visibility: 'visible'
+        };
 
         if (gridPosition.x < -0.75) {
-            newPosition.left = (scaledTileSize * 27.25);
+            results.newPosition.left = (scaledTileSize * 27.25);
+            results.visibility = 'hidden';
         } else if (gridPosition.x > 27.75) {
-            newPosition.left = (scaledTileSize * -1.25);
+            results.newPosition.left = (scaledTileSize * -1.25);
+            results.visibility = 'hidden';
         }
 
-        return newPosition;
+        return results;
     }
 
     draw(interp) {
@@ -287,7 +292,9 @@ class Ghost {
                 }
             }
 
-            this.position = this.checkForWarp(this.position, this.determineGridPosition(this.position), this.scaledTileSize);
+            const checkForWarpResults = this.checkForWarp(this.position, this.determineGridPosition(this.position), this.scaledTileSize);
+            this.position = checkForWarpResults.newPosition;
+            this.animationTarget.style['visibility'] = checkForWarpResults.visibility;
         }
 
         this.msSinceLastSprite += elapsedMs;
