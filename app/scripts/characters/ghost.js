@@ -103,6 +103,10 @@ class Ghost {
         };
     }
 
+    isInTunnel(gridPosition) {
+        return (gridPosition.y === 14 && (gridPosition.x < 6 || gridPosition.x > 21));
+    }
+
     determineRoundingFunction(direction) {
         switch(direction) {
             case this.directions.up:
@@ -273,16 +277,17 @@ class Ghost {
 
         if (this.moving) {
             const gridPosition = this.determineGridPosition(this.position);
+            const velocity = this.isInTunnel(gridPosition) ? this.tunnelSpeed : this.velocityPerMs;
 
             if (JSON.stringify(this.position) === JSON.stringify(this.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
                 const pacmanGridPosition = this.determineGridPosition(this.pacman.position);
                 this.direction = this.determineDirection(this.name, gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
                 this.setSpriteSheet(this.name, this.direction);
 
-                this.position[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
+                this.position[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, velocity) * elapsedMs;
             } else {
                 const newPosition = Object.assign({}, this.position);
-                newPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
+                newPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, velocity) * elapsedMs;
                 const newGridPosition = this.determineGridPosition(newPosition, this.mazeArray);
     
                 if (this.changingGridPosition(gridPosition, newGridPosition)) {
