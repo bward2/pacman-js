@@ -233,10 +233,10 @@ class Ghost {
     checkForWarp(position, gridPosition, scaledTileSize) {
         let newPosition = Object.assign({}, position);
 
-        if (gridPosition.x <= -1) {
-            newPosition.left = (scaledTileSize * 27.5);
-        } else if (gridPosition.x >= 28) {
-            newPosition.left = (scaledTileSize * -1.5);
+        if (gridPosition.x < -0.75) {
+            newPosition.left = (scaledTileSize * 27.25);
+        } else if (gridPosition.x > 27.75) {
+            newPosition.left = (scaledTileSize * -1.25);
         }
 
         return newPosition;
