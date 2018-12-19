@@ -119,6 +119,17 @@ class Pacman {
         return this.oldPosition[prop] + (this.position[prop] - this.oldPosition[prop]) * interp;
     }
 
+    checkForStutter(position, oldPosition) {
+        let stutter = false;
+        const threshold = 5;
+
+        if (Math.abs(position['top'] - oldPosition['top']) > threshold || Math.abs(position['left'] - oldPosition['left']) > threshold) {
+            stutter = true;
+        }
+
+        return stutter ? 'hidden' : 'visible';
+    }
+
     updatePacmanArrowPosition(position, scaledTileSize) {
         this.pacmanArrow.style.top = `${position.top - scaledTileSize}px`;
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
@@ -196,25 +207,22 @@ class Pacman {
     }
 
     checkForWarp(position, gridPosition, scaledTileSize) {
-        let results = {
-            newPosition: Object.assign({}, position),
-            visibility: 'visible'
-        };
+        let newPosition = Object.assign({}, position);
 
         if (gridPosition.x < -0.75) {
-            results.newPosition.left = (scaledTileSize * 27.25);
-            results.visibility = 'hidden';
+            newPosition.left = (scaledTileSize * 27.25);
         } else if (gridPosition.x > 27.75) {
-            results.newPosition.left = (scaledTileSize * -1.25);
-            results.visibility = 'hidden';
+            newPosition.left = (scaledTileSize * -1.25);
         }
 
-        return results;
+        return newPosition;
     }
 
     draw(interp){
         this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
         this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
+
+        this.animationTarget.style['visibility'] = this.checkForStutter(this.position, this.oldPosition);
 
         this.updatePacmanArrowPosition(this.position, this.scaledTileSize);
 
@@ -298,9 +306,7 @@ class Pacman {
                 }
             }
 
-            const checkForWarpResults = this.checkForWarp(this.position, this.determineGridPosition(this.position), this.scaledTileSize);
-            this.position = checkForWarpResults.newPosition;
-            this.animationTarget.style['visibility'] = checkForWarpResults.visibility;
+            this.position = this.checkForWarp(this.position, this.determineGridPosition(this.position), this.scaledTileSize);
 
             this.msSinceLastSprite += elapsedMs;
         }
