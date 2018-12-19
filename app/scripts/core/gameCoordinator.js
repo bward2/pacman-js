@@ -39,8 +39,13 @@ class GameCoordinator {
             ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX']
         ];
 
+        this.mazeArray.forEach((row, rowIndex) => {
+            this.mazeArray[rowIndex] = row[0].split('');
+        });
+
         this.entityList = [
-            this.pacman = new Pacman(this.scaledTileSize, this.mazeArray)
+            this.pacman = new Pacman(this.scaledTileSize, this.mazeArray),
+            this.blinky = new Ghost(this.scaledTileSize, this.mazeArray, this.pacman, 'blinky')
         ];
 
         this.drawMaze();
@@ -55,7 +60,7 @@ class GameCoordinator {
         this.mazeArray.forEach((row, rowIndex) => {
             const rowDiv = document.createElement('div');
             rowDiv.classList.add('maze-row');
-            row[0].split('').forEach((block, columnIndex) => {
+            row.forEach((block, columnIndex) => {
                 const mazeBlock = document.createElement('div');
                 mazeBlock.style.width = `${this.scaledTileSize}px`;
                 mazeBlock.style.height = `${this.scaledTileSize}px`;

@@ -27,7 +27,7 @@ describe('pacman', () => {
     describe('setStyleMeasurements', () => {
         it('should set pacman\'s measurement, height, width, and backgroundSize properties', () => {
             pacman.animationTarget.style = {};
-            pacman.setStyleMeasurements(scaledTileSize);
+            pacman.setStyleMeasurements(scaledTileSize, 4);
             assert.equal(pacman.measurement, 16);
             assert.deepEqual(pacman.animationTarget.style, {
                 height: '16px',
@@ -48,13 +48,13 @@ describe('pacman', () => {
         });
 
         it('should always set pacman\'s backgroundSize to the scaledTileSize times eight', () => {
-            pacman.setStyleMeasurements(1);
+            pacman.setStyleMeasurements(1, 4);
             assert.equal(pacman.animationTarget.style.backgroundSize, '8px');
 
-            pacman.setStyleMeasurements(8);
+            pacman.setStyleMeasurements(8, 4);
             assert.equal(pacman.animationTarget.style.backgroundSize, '64px');
 
-            pacman.setStyleMeasurements(1000);
+            pacman.setStyleMeasurements(1000, 4);
             assert.equal(pacman.animationTarget.style.backgroundSize, '8000px');
         });
     });
@@ -63,7 +63,7 @@ describe('pacman', () => {
         it('should set various stats for pacman\'s sprite animation', () => {
             pacman.setSpriteAnimationStats();
 
-            assert.equal(pacman.msBetweenSprites, 100);
+            assert.equal(pacman.msBetweenSprites, 50);
             assert.equal(pacman.msSinceLastSprite, 0);
             assert.equal(pacman.spriteFrames, 4);
             assert.equal(pacman.backgroundOffsetPixels, 0);

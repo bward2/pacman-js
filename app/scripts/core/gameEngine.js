@@ -42,13 +42,17 @@ class GameEngine {
 
     draw(interp) {
         for (let entity in this.entityList) {
-            this.entityList[entity].draw(interp);
+            if (typeof this.entityList[entity].draw === 'function') {
+                this.entityList[entity].draw(interp);
+            }
         }
     }
 
     update(elapsedMs) {
         for (let entity in this.entityList) {
-            this.entityList[entity].update(elapsedMs);
+            if (typeof this.entityList[entity].update === 'function') {
+                this.entityList[entity].update(elapsedMs);
+            }
         }
     }
 

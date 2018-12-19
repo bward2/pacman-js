@@ -6,42 +6,12 @@ class Pacman {
         this.pacmanArrow = document.getElementById('pacman-arrow');
 
         this.setMovementStats(scaledTileSize);
-        this.setStyleMeasurements(scaledTileSize);
         this.setSpriteAnimationStats();
+        this.setStyleMeasurements(scaledTileSize, this.spriteFrames);
         this.setDefaultPosition(scaledTileSize);
         this.setKeyListeners();
 
         this.setSpriteSheet(this.direction);
-    }
-
-    setStyleMeasurements(scaledTileSize) {
-        // Pacman is the size of 2x2 tiles.
-        this.measurement = scaledTileSize * 2;
-
-        this.animationTarget.style.height = `${this.measurement}px`;
-        this.animationTarget.style.width = `${this.measurement}px`;
-        this.animationTarget.style.backgroundSize = `${this.measurement * 4}px`;
-
-        this.pacmanArrow.style.height = `${this.measurement * 2}px`;
-        this.pacmanArrow.style.width = `${this.measurement * 2}px`;
-        this.pacmanArrow.style.backgroundSize = `${this.measurement * 2}px`;
-    }
-
-    setSpriteAnimationStats() {
-        this.msBetweenSprites = 100;
-        this.msSinceLastSprite = 0;
-        this.spriteFrames = 4;
-        this.backgroundOffsetPixels = 0;
-    }
-
-    setDefaultPosition(scaledTileSize) {
-        this.position = {
-            top: scaledTileSize * 22.5,
-            left: scaledTileSize * 13
-        };
-        this.oldPosition = Object.assign({}, this.position);
-        this.animationTarget.style.top = `${this.position.top}px`;
-        this.animationTarget.style.left = `${this.position.left}px`;
     }
 
     setMovementStats(scaledTileSize) {
@@ -55,6 +25,36 @@ class Pacman {
         this.desiredDirection = this.directions.left;
         this.direction = this.directions.left;
         this.moving = false;
+    }
+
+    setSpriteAnimationStats() {
+        this.msBetweenSprites = 50;
+        this.msSinceLastSprite = 0;
+        this.spriteFrames = 4;
+        this.backgroundOffsetPixels = 0;
+    }
+
+    setStyleMeasurements(scaledTileSize, spriteFrames) {
+        // Pacman is the size of 2x2 game tiles.
+        this.measurement = scaledTileSize * 2;
+
+        this.animationTarget.style.height = `${this.measurement}px`;
+        this.animationTarget.style.width = `${this.measurement}px`;
+        this.animationTarget.style.backgroundSize = `${this.measurement * spriteFrames}px`;
+
+        this.pacmanArrow.style.height = `${this.measurement * 2}px`;
+        this.pacmanArrow.style.width = `${this.measurement * 2}px`;
+        this.pacmanArrow.style.backgroundSize = `${this.measurement * 2}px`;
+    }
+
+    setDefaultPosition(scaledTileSize) {
+        this.position = {
+            top: scaledTileSize * 22.5,
+            left: scaledTileSize * 13
+        };
+        this.oldPosition = Object.assign({}, this.position);
+        this.animationTarget.style.top = `${this.position.top}px`;
+        this.animationTarget.style.left = `${this.position.left}px`;
     }
 
     setKeyListeners() {
@@ -169,7 +169,7 @@ class Pacman {
         let newGridValue;
 
         if (Array.isArray(mazeArray[desiredY])) {
-            newGridValue = mazeArray[desiredY][0].charAt(desiredX);
+            newGridValue = mazeArray[desiredY][desiredX];
         }
         
         return (newGridValue === 'X');
@@ -195,6 +195,23 @@ class Pacman {
         };
     }
 
+    checkForWarp(position, gridPosition, scaledTileSize) {
+        let results = {
+            newPosition: Object.assign({}, position),
+            visibility: 'visible'
+        };
+
+        if (gridPosition.x < -0.75) {
+            results.newPosition.left = (scaledTileSize * 27.25);
+            results.visibility = 'hidden';
+        } else if (gridPosition.x > 27.75) {
+            results.newPosition.left = (scaledTileSize * -1.25);
+            results.visibility = 'hidden';
+        }
+
+        return results;
+    }
+
     draw(interp){
         this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
         this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
@@ -218,15 +235,15 @@ class Pacman {
         this.oldPosition = Object.assign({}, this.position);
 
         if (this.moving) {
-            let gridPosition = this.determineGridPosition(this.position);
+            const gridPosition = this.determineGridPosition(this.position);
 
-            let desiredNewPosition = Object.assign({}, this.position);
+            const desiredNewPosition = Object.assign({}, this.position);
             desiredNewPosition[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
-            let desiredNewGridPosition = this.determineGridPosition(desiredNewPosition, this.mazeArray);
+            const desiredNewGridPosition = this.determineGridPosition(desiredNewPosition, this.mazeArray);
 
-            let alternateNewPosition = Object.assign({}, this.position);
+            const alternateNewPosition = Object.assign({}, this.position);
             alternateNewPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
-            let alternateNewGridPosition = this.determineGridPosition(alternateNewPosition, this.mazeArray);
+            const alternateNewGridPosition = this.determineGridPosition(alternateNewPosition, this.mazeArray);
 
             if (this.direction === this.desiredDirection) {
                 if (this.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
@@ -255,10 +272,10 @@ class Pacman {
                             this.setSpriteSheet(this.direction);
                             this.position = desiredNewPosition;
                         } else {
-                            let snappedPosition = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
-                            let positionAroundCorner = Object.assign({}, snappedPosition);
+                            const snappedPosition = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+                            const positionAroundCorner = Object.assign({}, snappedPosition);
                             positionAroundCorner[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
-                            let gridPositionAroundCorner = this.determineGridPosition(positionAroundCorner, this.mazeArray);
+                            const gridPositionAroundCorner = this.determineGridPosition(positionAroundCorner, this.mazeArray);
     
                             if (this.checkForWallCollision(gridPositionAroundCorner, this.mazeArray, this.desiredDirection)) {
                                 if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
@@ -280,6 +297,10 @@ class Pacman {
                     }
                 }
             }
+
+            const checkForWarpResults = this.checkForWarp(this.position, this.determineGridPosition(this.position), this.scaledTileSize);
+            this.position = checkForWarpResults.newPosition;
+            this.animationTarget.style['visibility'] = checkForWarpResults.visibility;
 
             this.msSinceLastSprite += elapsedMs;
         }
