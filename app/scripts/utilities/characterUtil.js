@@ -40,6 +40,32 @@ class CharacterUtil {
             y : (currentPosition.top / scaledTileSize) + 0.5
         };
     }
+
+    turningAround(direction, directions, desiredDirection) {
+        switch(direction) {
+            case directions.up:
+                return desiredDirection === directions.down;
+            case directions.down:
+                return desiredDirection === directions.up;
+            case directions.left:
+                return desiredDirection === directions.right;
+            default:
+                return desiredDirection === directions.left;
+        }
+    }
+
+    getOppositeDirection(direction, directions) {
+        switch(direction) {
+            case directions.up:
+                return directions.down;
+            case directions.down:
+                return directions.up;
+            case directions.left:
+                return directions.right;
+            default:
+                return directions.left;
+        }
+    }
 }
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

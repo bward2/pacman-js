@@ -114,19 +114,6 @@ class Ghost {
         };
     }
 
-    getOppositeDirection(direction, directions) {
-        switch(direction) {
-            case directions.up:
-                return directions.down;
-            case directions.down:
-                return directions.up;
-            case directions.left:
-                return directions.right;
-            default:
-                return directions.left;
-        }
-    }
-
     getTile(mazeArray, y, x) {
         let tile = false;
 
@@ -151,7 +138,7 @@ class Ghost {
             right: this.getTile(mazeArray, y, x + 1),
         };
 
-        possibleMoves[this.getOppositeDirection(direction, this.directions)] = false;
+        possibleMoves[this.characterUtil.getOppositeDirection(direction, this.directions)] = false;
 
         for (let tile in possibleMoves) {
             if (possibleMoves[tile] === false) {

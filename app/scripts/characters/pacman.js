@@ -101,19 +101,6 @@ class Pacman {
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
     }
 
-    turningAround(direction, desiredDirection) {
-        switch(direction) {
-            case this.directions.up:
-                return desiredDirection === this.directions.down;
-            case this.directions.down:
-                return desiredDirection === this.directions.up;
-            case this.directions.left:
-                return desiredDirection === this.directions.right;
-            default:
-                return desiredDirection === this.directions.left;
-        }
-    }
-
     determineRoundingFunction(direction) {
         switch(direction) {
             case this.directions.up:
@@ -234,7 +221,7 @@ class Pacman {
                     }
                 } else {
                     if (this.changingGridPosition(gridPosition, alternateNewGridPosition)) {
-                        if (this.turningAround(this.direction, this.desiredDirection)) {
+                        if (this.characterUtil.turningAround(this.direction, this.directions, this.desiredDirection)) {
                             this.direction = this.desiredDirection;
                             this.setSpriteSheet(this.direction);
                             this.position = desiredNewPosition;
