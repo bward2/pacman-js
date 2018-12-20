@@ -101,13 +101,6 @@ class Pacman {
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
     }
 
-    changingGridPosition(oldPosition, newPosition) {
-        return (
-            Math.floor(oldPosition.x) !== Math.floor(newPosition.x) ||
-            Math.floor(oldPosition.y) !== Math.floor(newPosition.y)
-        );
-    }
-
     checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
         let roundingFunction = this.characterUtil.determineRoundingFunction(direction, this.directions);
 
@@ -210,7 +203,7 @@ class Pacman {
                         this.position = desiredNewPosition;
                     }
                 } else {
-                    if (this.changingGridPosition(gridPosition, alternateNewGridPosition)) {
+                    if (this.characterUtil.changingGridPosition(gridPosition, alternateNewGridPosition)) {
                         if (this.characterUtil.turningAround(this.direction, this.directions, this.desiredDirection)) {
                             this.direction = this.desiredDirection;
                             this.setSpriteSheet(this.direction);

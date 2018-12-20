@@ -77,13 +77,6 @@ class Ghost {
         return (gridPosition.y === 14 && (gridPosition.x < 6 || gridPosition.x > 21));
     }
 
-    changingGridPosition(oldPosition, newPosition) {
-        return (
-            Math.floor(oldPosition.x) !== Math.floor(newPosition.x) ||
-            Math.floor(oldPosition.y) !== Math.floor(newPosition.y)
-        );
-    }
-
     snapToGrid(position, direction, scaledTileSize) {
         let newPosition = Object.assign({}, position);
         let roundingFunction = this.characterUtil.determineRoundingFunction(direction, this.directions);
@@ -234,7 +227,7 @@ class Ghost {
                 newPosition[this.characterUtil.getPropertyToChange(this.direction, this.directions)] += this.characterUtil.getVelocity(this.direction, this.directions, velocity) * elapsedMs;
                 const newGridPosition = this.characterUtil.determineGridPosition(newPosition, this.scaledTileSize);
     
-                if (this.changingGridPosition(gridPosition, newGridPosition)) {
+                if (this.characterUtil.changingGridPosition(gridPosition, newGridPosition)) {
                     this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                 } else {
                     this.position = newPosition;

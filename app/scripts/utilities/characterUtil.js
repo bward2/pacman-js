@@ -76,6 +76,13 @@ class CharacterUtil {
                 return Math.ceil;
         } 
     }
+
+    changingGridPosition(oldPosition, newPosition) {
+        return (
+            Math.floor(oldPosition.x) !== Math.floor(newPosition.x) ||
+            Math.floor(oldPosition.y) !== Math.floor(newPosition.y)
+        );
+    }
 }
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
