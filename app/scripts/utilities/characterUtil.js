@@ -33,6 +33,13 @@ class CharacterUtil {
     calculateNewDrawValue(interp, prop, oldPosition, position) {
         return oldPosition[prop] + (position[prop] - oldPosition[prop]) * interp;
     }
+
+    determineGridPosition(currentPosition, scaledTileSize) {
+        return {
+            x : (currentPosition.left / scaledTileSize) + 0.5,
+            y : (currentPosition.top / scaledTileSize) + 0.5
+        };
+    }
 }
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

@@ -73,13 +73,6 @@ class Ghost {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
     }
 
-    determineGridPosition(currentPosition) {
-        return {
-            x : (currentPosition.left / this.scaledTileSize) + 0.5,
-            y : (currentPosition.top / this.scaledTileSize) + 0.5
-        };
-    }
-
     isInTunnel(gridPosition) {
         return (gridPosition.y === 14 && (gridPosition.x < 6 || gridPosition.x > 21));
     }
@@ -250,11 +243,11 @@ class Ghost {
         }
 
         if (this.moving) {
-            const gridPosition = this.determineGridPosition(this.position);
+            const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
             const velocity = this.isInTunnel(gridPosition) ? this.tunnelSpeed : this.velocityPerMs;
 
             if (JSON.stringify(this.position) === JSON.stringify(this.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
-                const pacmanGridPosition = this.determineGridPosition(this.pacman.position);
+                const pacmanGridPosition = this.characterUtil.determineGridPosition(this.pacman.position, this.scaledTileSize);
                 this.direction = this.determineDirection(this.name, gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
                 this.setSpriteSheet(this.name, this.direction);
 
@@ -262,7 +255,7 @@ class Ghost {
             } else {
                 const newPosition = Object.assign({}, this.position);
                 newPosition[this.characterUtil.getPropertyToChange(this.direction, this.directions)] += this.characterUtil.getVelocity(this.direction, this.directions, velocity) * elapsedMs;
-                const newGridPosition = this.determineGridPosition(newPosition, this.mazeArray);
+                const newGridPosition = this.characterUtil.determineGridPosition(newPosition, this.scaledTileSize);
     
                 if (this.changingGridPosition(gridPosition, newGridPosition)) {
                     this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
@@ -271,7 +264,7 @@ class Ghost {
                 }
             }
 
-            this.position = this.checkForWarp(this.position, this.determineGridPosition(this.position), this.scaledTileSize);
+            this.position = this.checkForWarp(this.position, this.characterUtil.determineGridPosition(this.position, this.scaledTileSize), this.scaledTileSize);
 
             this.msSinceLastSprite += elapsedMs;
         }
