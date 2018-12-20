@@ -84,6 +84,20 @@ class CharacterUtil {
         );
     }
 
+    checkForWallCollision(desiredNewGridPosition, mazeArray, direction, directions) {
+        let roundingFunction = this.determineRoundingFunction(direction, directions);
+
+        let desiredX = roundingFunction(desiredNewGridPosition.x);
+        let desiredY = roundingFunction(desiredNewGridPosition.y);
+        let newGridValue;
+
+        if (Array.isArray(mazeArray[desiredY])) {
+            newGridValue = mazeArray[desiredY][desiredX];
+        }
+        
+        return (newGridValue === 'X');
+    }
+
     snapToGrid(position, direction, directions, scaledTileSize) {
         let newPosition = Object.assign({}, position);
         let roundingFunction = this.determineRoundingFunction(direction, directions);

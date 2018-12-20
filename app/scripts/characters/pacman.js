@@ -101,20 +101,6 @@ class Pacman {
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
     }
 
-    checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
-        let roundingFunction = this.characterUtil.determineRoundingFunction(direction, this.directions);
-
-        let desiredX = roundingFunction(desiredNewGridPosition.x);
-        let desiredY = roundingFunction(desiredNewGridPosition.y);
-        let newGridValue;
-
-        if (Array.isArray(mazeArray[desiredY])) {
-            newGridValue = mazeArray[desiredY][desiredX];
-        }
-        
-        return (newGridValue === 'X');
-    }
-
     draw(interp){
         this.animationTarget.style['top'] = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
         this.animationTarget.style['left'] = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;
@@ -151,7 +137,7 @@ class Pacman {
             const alternateNewGridPosition = this.characterUtil.determineGridPosition(alternateNewPosition, this.scaledTileSize);
 
             if (this.direction === this.desiredDirection) {
-                if (this.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
+                if (this.characterUtil.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection, this.directions)) {
                     this.position = this.characterUtil.snapToGrid(gridPosition, this.desiredDirection, this.directions, this.scaledTileSize);
                     this.moving = false;
                 } else {
@@ -159,8 +145,8 @@ class Pacman {
                 }
             } else {
                 if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize))) {
-                    if (this.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
-                        if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
+                    if (this.characterUtil.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection, this.directions)) {
+                        if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction, this.directions)) {
                             this.moving = false;
                         } else {
                             this.position = alternateNewPosition;
@@ -182,8 +168,8 @@ class Pacman {
                             positionAroundCorner[this.characterUtil.getPropertyToChange(this.desiredDirection, this.directions)] += this.characterUtil.getVelocity(this.desiredDirection, this.directions, this.velocityPerMs) * elapsedMs;
                             const gridPositionAroundCorner = this.characterUtil.determineGridPosition(positionAroundCorner, this.scaledTileSize);
     
-                            if (this.checkForWallCollision(gridPositionAroundCorner, this.mazeArray, this.desiredDirection)) {
-                                if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
+                            if (this.characterUtil.checkForWallCollision(gridPositionAroundCorner, this.mazeArray, this.desiredDirection, this.directions)) {
+                                if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction, this.directions)) {
                                     this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize);
                                     this.moving = false;
                                 } else {
@@ -194,7 +180,7 @@ class Pacman {
                             }
                         }
                     } else {
-                        if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
+                        if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction, this.directions)) {
                             this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize);
                         } else {
                             this.position = alternateNewPosition;
