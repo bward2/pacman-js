@@ -83,6 +83,26 @@ class CharacterUtil {
             Math.floor(oldPosition.y) !== Math.floor(newPosition.y)
         );
     }
+
+    snapToGrid(position, direction, directions, scaledTileSize) {
+        let newPosition = Object.assign({}, position);
+        let roundingFunction = this.determineRoundingFunction(direction, directions);
+
+        switch(direction) {
+            case directions.up:
+            case directions.down:
+                newPosition.y = roundingFunction(newPosition.y);
+                break;
+            default:
+                newPosition.x = roundingFunction(newPosition.x);
+                break;
+        }
+
+        return {
+            top: (newPosition.y - 0.5) * scaledTileSize,
+            left: (newPosition.x - 0.5) * scaledTileSize
+        };
+    }
 }
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

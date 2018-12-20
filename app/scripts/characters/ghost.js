@@ -77,26 +77,6 @@ class Ghost {
         return (gridPosition.y === 14 && (gridPosition.x < 6 || gridPosition.x > 21));
     }
 
-    snapToGrid(position, direction, scaledTileSize) {
-        let newPosition = Object.assign({}, position);
-        let roundingFunction = this.characterUtil.determineRoundingFunction(direction, this.directions);
-
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.down:
-                newPosition.y = roundingFunction(newPosition.y);
-                break;
-            default:
-                newPosition.x = roundingFunction(newPosition.x);
-                break;
-        }
-
-        return {
-            top: (newPosition.y - 0.5) * scaledTileSize,
-            left: (newPosition.x - 0.5) * scaledTileSize
-        };
-    }
-
     getTile(mazeArray, y, x) {
         let tile = false;
 
@@ -216,7 +196,7 @@ class Ghost {
             const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
             const velocity = this.isInTunnel(gridPosition) ? this.tunnelSpeed : this.velocityPerMs;
 
-            if (JSON.stringify(this.position) === JSON.stringify(this.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
+            if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize))) {
                 const pacmanGridPosition = this.characterUtil.determineGridPosition(this.pacman.position, this.scaledTileSize);
                 this.direction = this.determineDirection(this.name, gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
                 this.setSpriteSheet(this.name, this.direction);
@@ -228,7 +208,7 @@ class Ghost {
                 const newGridPosition = this.characterUtil.determineGridPosition(newPosition, this.scaledTileSize);
     
                 if (this.characterUtil.changingGridPosition(gridPosition, newGridPosition)) {
-                    this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+                    this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize);
                 } else {
                     this.position = newPosition;
                 }
