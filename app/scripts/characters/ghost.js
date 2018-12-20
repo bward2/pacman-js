@@ -1,9 +1,10 @@
 class Ghost {
-    constructor(scaledTileSize, mazeArray, pacman, name) {
+    constructor(scaledTileSize, mazeArray, pacman, name, characterUtil) {
         this.scaledTileSize = scaledTileSize;
         this.mazeArray = mazeArray;
         this.pacman = pacman;
         this.name = name;
+        this.characterUtil = characterUtil;
         this.animationTarget = document.getElementById(name);
 
         this.setMovementStats(pacman);
@@ -261,7 +262,7 @@ class Ghost {
         this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
         this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
 
-        this.animationTarget.style['visibility'] = this.checkForStutter(this.position, this.oldPosition);
+        this.animationTarget.style['visibility'] = this.characterUtil.checkForStutter(this.position, this.oldPosition);
 
         if (this.msSinceLastSprite > this.msBetweenSprites && this.moving) {
             this.msSinceLastSprite = 0;

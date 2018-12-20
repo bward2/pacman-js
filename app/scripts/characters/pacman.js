@@ -1,7 +1,8 @@
 class Pacman {
-    constructor(scaledTileSize, mazeArray) {
+    constructor(scaledTileSize, mazeArray, characterUtil) {
         this.scaledTileSize = scaledTileSize;
         this.mazeArray = mazeArray;
+        this.characterUtil = characterUtil;
         this.animationTarget = document.getElementById('pacman');
         this.pacmanArrow = document.getElementById('pacman-arrow');
 
@@ -119,17 +120,6 @@ class Pacman {
         return this.oldPosition[prop] + (this.position[prop] - this.oldPosition[prop]) * interp;
     }
 
-    checkForStutter(position, oldPosition) {
-        let stutter = false;
-        const threshold = 5;
-
-        if (Math.abs(position['top'] - oldPosition['top']) > threshold || Math.abs(position['left'] - oldPosition['left']) > threshold) {
-            stutter = true;
-        }
-
-        return stutter ? 'hidden' : 'visible';
-    }
-
     updatePacmanArrowPosition(position, scaledTileSize) {
         this.pacmanArrow.style.top = `${position.top - scaledTileSize}px`;
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
@@ -222,7 +212,7 @@ class Pacman {
         this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
         this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
 
-        this.animationTarget.style['visibility'] = this.checkForStutter(this.position, this.oldPosition);
+        this.animationTarget.style['visibility'] = this.characterUtil.checkForStutter(this.position, this.oldPosition);
 
         this.updatePacmanArrowPosition(this.position, this.scaledTileSize);
 
