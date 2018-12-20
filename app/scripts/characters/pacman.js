@@ -115,18 +115,6 @@ class Pacman {
         return (newGridValue === 'X');
     }
 
-    checkForWarp(position, gridPosition, scaledTileSize) {
-        let newPosition = Object.assign({}, position);
-
-        if (gridPosition.x < -0.75) {
-            newPosition.left = (scaledTileSize * 27.25);
-        } else if (gridPosition.x > 27.75) {
-            newPosition.left = (scaledTileSize * -1.25);
-        }
-
-        return newPosition;
-    }
-
     draw(interp){
         this.animationTarget.style['top'] = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
         this.animationTarget.style['left'] = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;
@@ -215,7 +203,7 @@ class Pacman {
                 }
             }
 
-            this.position = this.checkForWarp(this.position, this.characterUtil.determineGridPosition(this.position, this.scaledTileSize), this.scaledTileSize);
+            this.position = this.characterUtil.checkForWarp(this.position, this.characterUtil.determineGridPosition(this.position, this.scaledTileSize), this.scaledTileSize);
 
             this.msSinceLastSprite += elapsedMs;
         }

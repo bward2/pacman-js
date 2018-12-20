@@ -103,6 +103,18 @@ class CharacterUtil {
             left: (newPosition.x - 0.5) * scaledTileSize
         };
     }
+
+    checkForWarp(position, gridPosition, scaledTileSize) {
+        let newPosition = Object.assign({}, position);
+
+        if (gridPosition.x < -0.75) {
+            newPosition.left = (scaledTileSize * 27.25);
+        } else if (gridPosition.x > 27.75) {
+            newPosition.left = (scaledTileSize * -1.25);
+        }
+
+        return newPosition;
+    }
 }
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
