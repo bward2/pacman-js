@@ -73,21 +73,6 @@ class Ghost {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
     }
 
-    calculateNewDrawValue(interp, prop) {
-        return this.oldPosition[prop] + (this.position[prop] - this.oldPosition[prop]) * interp;
-    }
-
-    checkForStutter(position, oldPosition) {
-        let stutter = false;
-        const threshold = 5;
-
-        if (Math.abs(position['top'] - oldPosition['top']) > threshold || Math.abs(position['left'] - oldPosition['left']) > threshold) {
-            stutter = true;
-        }
-
-        return stutter ? 'hidden' : 'visible';
-    }
-
     determineGridPosition(currentPosition) {
         return {
             x : (currentPosition.left / this.scaledTileSize) + 0.5,
@@ -239,8 +224,8 @@ class Ghost {
     }
 
     draw(interp) {
-        this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
-        this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
+        this.animationTarget.style['top'] = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
+        this.animationTarget.style['left'] = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;
 
         this.animationTarget.style['visibility'] = this.characterUtil.checkForStutter(this.position, this.oldPosition);
 

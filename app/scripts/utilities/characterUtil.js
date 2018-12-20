@@ -29,6 +29,10 @@ class CharacterUtil {
                 return velocityPerMs;
         }
     }
+
+    calculateNewDrawValue(interp, prop, oldPosition, position) {
+        return oldPosition[prop] + (position[prop] - oldPosition[prop]) * interp;
+    }
 }
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

@@ -96,10 +96,6 @@ class Pacman {
         }
     }
 
-    calculateNewDrawValue(interp, prop) {
-        return this.oldPosition[prop] + (this.position[prop] - this.oldPosition[prop]) * interp;
-    }
-
     updatePacmanArrowPosition(position, scaledTileSize) {
         this.pacmanArrow.style.top = `${position.top - scaledTileSize}px`;
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
@@ -189,8 +185,8 @@ class Pacman {
     }
 
     draw(interp){
-        this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
-        this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
+        this.animationTarget.style['top'] = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
+        this.animationTarget.style['left'] = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;
 
         this.animationTarget.style['visibility'] = this.characterUtil.checkForStutter(this.position, this.oldPosition);
 
