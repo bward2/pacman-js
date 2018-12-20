@@ -101,16 +101,6 @@ class Pacman {
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
     }
 
-    determineRoundingFunction(direction) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.left:
-                return Math.floor;
-            default:
-                return Math.ceil;
-        } 
-    }
-
     changingGridPosition(oldPosition, newPosition) {
         return (
             Math.floor(oldPosition.x) !== Math.floor(newPosition.x) ||
@@ -119,7 +109,7 @@ class Pacman {
     }
 
     checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
-        let roundingFunction = this.determineRoundingFunction(direction);
+        let roundingFunction = this.characterUtil.determineRoundingFunction(direction, this.directions);
 
         let desiredX = roundingFunction(desiredNewGridPosition.x);
         let desiredY = roundingFunction(desiredNewGridPosition.y);
@@ -134,7 +124,7 @@ class Pacman {
 
     snapToGrid(position, direction, scaledTileSize) {
         let newPosition = Object.assign({}, position);
-        let roundingFunction = this.determineRoundingFunction(direction);
+        let roundingFunction = this.characterUtil.determineRoundingFunction(direction, this.directions);
 
         switch(direction) {
             case this.directions.up:

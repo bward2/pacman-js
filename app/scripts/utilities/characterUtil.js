@@ -66,6 +66,16 @@ class CharacterUtil {
                 return directions.left;
         }
     }
+
+    determineRoundingFunction(direction, directions) {
+        switch(direction) {
+            case directions.up:
+            case directions.left:
+                return Math.floor;
+            default:
+                return Math.ceil;
+        } 
+    }
 }
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
