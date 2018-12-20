@@ -73,26 +73,6 @@ class Ghost {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
     }
 
-    getPropertyToChange(direction) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.down:
-                return 'top';
-            default:
-                return 'left';
-        }
-    }
-
-    getVelocity(direction, velocityPerMs) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.left:
-                return velocityPerMs * -1;
-            default:
-                return velocityPerMs;
-        }
-    }
-
     calculateNewDrawValue(interp, prop) {
         return this.oldPosition[prop] + (this.position[prop] - this.oldPosition[prop]) * interp;
     }
@@ -293,10 +273,10 @@ class Ghost {
                 this.direction = this.determineDirection(this.name, gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
                 this.setSpriteSheet(this.name, this.direction);
 
-                this.position[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, velocity) * elapsedMs;
+                this.position[this.characterUtil.getPropertyToChange(this.direction, this.directions)] += this.characterUtil.getVelocity(this.direction, this.directions, velocity) * elapsedMs;
             } else {
                 const newPosition = Object.assign({}, this.position);
-                newPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, velocity) * elapsedMs;
+                newPosition[this.characterUtil.getPropertyToChange(this.direction, this.directions)] += this.characterUtil.getVelocity(this.direction, this.directions, velocity) * elapsedMs;
                 const newGridPosition = this.determineGridPosition(newPosition, this.mazeArray);
     
                 if (this.changingGridPosition(gridPosition, newGridPosition)) {

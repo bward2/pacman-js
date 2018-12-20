@@ -88,26 +88,6 @@ class Pacman {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/pacman_${direction}.svg)`;
     }
 
-    getPropertyToChange(direction) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.down:
-                return 'top';
-            default:
-                return 'left';
-        }
-    }
-
-    getVelocity(direction, velocityPerMs) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.left:
-                return velocityPerMs * -1;
-            default:
-                return velocityPerMs;
-        }
-    }
-
     changeDirection(e) {
         if(this.movementKeys[e.keyCode]) {
             this.desiredDirection = this.directions[this.movementKeys[e.keyCode]];
@@ -236,11 +216,11 @@ class Pacman {
             const gridPosition = this.determineGridPosition(this.position);
 
             const desiredNewPosition = Object.assign({}, this.position);
-            desiredNewPosition[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
+            desiredNewPosition[this.characterUtil.getPropertyToChange(this.desiredDirection, this.directions)] += this.characterUtil.getVelocity(this.desiredDirection, this.directions, this.velocityPerMs) * elapsedMs;
             const desiredNewGridPosition = this.determineGridPosition(desiredNewPosition, this.mazeArray);
 
             const alternateNewPosition = Object.assign({}, this.position);
-            alternateNewPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
+            alternateNewPosition[this.characterUtil.getPropertyToChange(this.direction, this.directions)] += this.characterUtil.getVelocity(this.direction, this.directions, this.velocityPerMs) * elapsedMs;
             const alternateNewGridPosition = this.determineGridPosition(alternateNewPosition, this.mazeArray);
 
             if (this.direction === this.desiredDirection) {
@@ -272,7 +252,7 @@ class Pacman {
                         } else {
                             const snappedPosition = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                             const positionAroundCorner = Object.assign({}, snappedPosition);
-                            positionAroundCorner[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
+                            positionAroundCorner[this.characterUtil.getPropertyToChange(this.desiredDirection, this.directions)] += this.characterUtil.getVelocity(this.desiredDirection, this.directions, this.velocityPerMs) * elapsedMs;
                             const gridPositionAroundCorner = this.determineGridPosition(positionAroundCorner, this.mazeArray);
     
                             if (this.checkForWallCollision(gridPositionAroundCorner, this.mazeArray, this.desiredDirection)) {

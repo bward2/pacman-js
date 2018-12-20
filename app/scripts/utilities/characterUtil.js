@@ -1,6 +1,4 @@
 class CharacterUtil {
-    constructor() {}
-
     checkForStutter(position, oldPosition) {
         let stutter = false;
         const threshold = 5;
@@ -10,6 +8,26 @@ class CharacterUtil {
         }
 
         return stutter ? 'hidden' : 'visible';
+    }
+
+    getPropertyToChange(direction, directions) {
+        switch(direction) {
+            case directions.up:
+            case directions.down:
+                return 'top';
+            default:
+                return 'left';
+        }
+    }
+
+    getVelocity(direction, directions, velocityPerMs) {
+        switch(direction) {
+            case directions.up:
+            case directions.left:
+                return velocityPerMs * -1;
+            default:
+                return velocityPerMs;
+        }
     }
 }
 
