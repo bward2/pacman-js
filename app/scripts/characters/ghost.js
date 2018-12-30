@@ -15,13 +15,6 @@ class Ghost {
     }
 
     setMovementStats(pacman) {
-        this.directions = {
-            up: 'up',
-            down: 'down',
-            left: 'left',
-            right: 'right'
-        }
-
         const pacmanSpeed = pacman.velocityPerMs;
 
         this.slowSpeed = pacmanSpeed * 0.75;
@@ -33,7 +26,7 @@ class Ghost {
         this.eyeSpeed = pacmanSpeed * 3;
 
         this.velocityPerMs = this.slowSpeed;
-        this.direction = this.directions.left;
+        this.direction = this.characterUtil.directions.left;
         this.moving = false;
     }
 
@@ -101,7 +94,7 @@ class Ghost {
             right: this.getTile(mazeArray, y, x + 1),
         };
 
-        possibleMoves[this.characterUtil.getOppositeDirection(direction, this.directions)] = false;
+        possibleMoves[this.characterUtil.getOppositeDirection(direction)] = false;
 
         for (let tile in possibleMoves) {
             if (possibleMoves[tile] === false) {
@@ -184,19 +177,19 @@ class Ghost {
             const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
             const velocity = this.isInTunnel(gridPosition) ? this.tunnelSpeed : this.velocityPerMs;
 
-            if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize))) {
+            if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
                 const pacmanGridPosition = this.characterUtil.determineGridPosition(this.pacman.position, this.scaledTileSize);
                 this.direction = this.determineDirection(this.name, gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
                 this.setSpriteSheet(this.name, this.direction);
 
-                this.position[this.characterUtil.getPropertyToChange(this.direction, this.directions)] += this.characterUtil.getVelocity(this.direction, this.directions, velocity) * elapsedMs;
+                this.position[this.characterUtil.getPropertyToChange(this.direction)] += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
             } else {
                 const newPosition = Object.assign({}, this.position);
-                newPosition[this.characterUtil.getPropertyToChange(this.direction, this.directions)] += this.characterUtil.getVelocity(this.direction, this.directions, velocity) * elapsedMs;
+                newPosition[this.characterUtil.getPropertyToChange(this.direction)] += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
                 const newGridPosition = this.characterUtil.determineGridPosition(newPosition, this.scaledTileSize);
     
                 if (this.characterUtil.changingGridPosition(gridPosition, newGridPosition)) {
-                    this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize);
+                    this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                 } else {
                     this.position = newPosition;
                 }

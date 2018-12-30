@@ -17,14 +17,8 @@ class Pacman {
 
     setMovementStats(scaledTileSize) {
         this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
-        this.directions = {
-            up: 'up',
-            down: 'down',
-            left: 'left',
-            right: 'right'
-        }
-        this.desiredDirection = this.directions.left;
-        this.direction = this.directions.left;
+        this.desiredDirection = this.characterUtil.directions.left;
+        this.direction = this.characterUtil.directions.left;
         this.moving = false;
     }
 
@@ -90,7 +84,7 @@ class Pacman {
 
     changeDirection(e) {
         if(this.movementKeys[e.keyCode]) {
-            this.desiredDirection = this.directions[this.movementKeys[e.keyCode]];
+            this.desiredDirection = this.characterUtil.directions[this.movementKeys[e.keyCode]];
             this.pacmanArrow.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/arrow_${this.desiredDirection}.svg)`;
             this.moving = true;
         }
@@ -129,24 +123,24 @@ class Pacman {
             const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
 
             const desiredNewPosition = Object.assign({}, this.position);
-            desiredNewPosition[this.characterUtil.getPropertyToChange(this.desiredDirection, this.directions)] += this.characterUtil.getVelocity(this.desiredDirection, this.directions, this.velocityPerMs) * elapsedMs;
+            desiredNewPosition[this.characterUtil.getPropertyToChange(this.desiredDirection)] += this.characterUtil.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
             const desiredNewGridPosition = this.characterUtil.determineGridPosition(desiredNewPosition, this.scaledTileSize);
 
             const alternateNewPosition = Object.assign({}, this.position);
-            alternateNewPosition[this.characterUtil.getPropertyToChange(this.direction, this.directions)] += this.characterUtil.getVelocity(this.direction, this.directions, this.velocityPerMs) * elapsedMs;
+            alternateNewPosition[this.characterUtil.getPropertyToChange(this.direction)] += this.characterUtil.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
             const alternateNewGridPosition = this.characterUtil.determineGridPosition(alternateNewPosition, this.scaledTileSize);
 
             if (this.direction === this.desiredDirection) {
-                if (this.characterUtil.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection, this.directions)) {
-                    this.position = this.characterUtil.snapToGrid(gridPosition, this.desiredDirection, this.directions, this.scaledTileSize);
+                if (this.characterUtil.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
+                    this.position = this.characterUtil.snapToGrid(gridPosition, this.desiredDirection, this.scaledTileSize);
                     this.moving = false;
                 } else {
                     this.position = desiredNewPosition;
                 }
             } else {
-                if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize))) {
-                    if (this.characterUtil.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection, this.directions)) {
-                        if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction, this.directions)) {
+                if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
+                    if (this.characterUtil.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
+                        if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
                             this.moving = false;
                         } else {
                             this.position = alternateNewPosition;
@@ -158,30 +152,30 @@ class Pacman {
                     }
                 } else {
                     if (this.characterUtil.changingGridPosition(gridPosition, alternateNewGridPosition)) {
-                        if (this.characterUtil.turningAround(this.direction, this.directions, this.desiredDirection)) {
+                        if (this.characterUtil.turningAround(this.direction, this.desiredDirection)) {
                             this.direction = this.desiredDirection;
                             this.setSpriteSheet(this.direction);
                             this.position = desiredNewPosition;
                         } else {
-                            const snappedPosition = this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize);
+                            const snappedPosition = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                             const positionAroundCorner = Object.assign({}, snappedPosition);
-                            positionAroundCorner[this.characterUtil.getPropertyToChange(this.desiredDirection, this.directions)] += this.characterUtil.getVelocity(this.desiredDirection, this.directions, this.velocityPerMs) * elapsedMs;
+                            positionAroundCorner[this.characterUtil.getPropertyToChange(this.desiredDirection)] += this.characterUtil.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
                             const gridPositionAroundCorner = this.characterUtil.determineGridPosition(positionAroundCorner, this.scaledTileSize);
     
-                            if (this.characterUtil.checkForWallCollision(gridPositionAroundCorner, this.mazeArray, this.desiredDirection, this.directions)) {
-                                if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction, this.directions)) {
-                                    this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize);
+                            if (this.characterUtil.checkForWallCollision(gridPositionAroundCorner, this.mazeArray, this.desiredDirection)) {
+                                if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
+                                    this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                                     this.moving = false;
                                 } else {
                                     this.position = alternateNewPosition;
                                 }
                             } else {
-                                this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize);
+                                this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                             }
                         }
                     } else {
-                        if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction, this.directions)) {
-                            this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.directions, this.scaledTileSize);
+                        if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
+                            this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                         } else {
                             this.position = alternateNewPosition;
                         }

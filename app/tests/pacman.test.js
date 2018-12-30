@@ -1,5 +1,6 @@
 const assert = require('assert');
 const Pacman = require('../scripts/characters/pacman');
+const CharacterUtil = require('../scripts/utilities/characterUtil');
 
 const scaledTileSize = 8;
 
@@ -20,7 +21,7 @@ global.window = {
 let pacman;
 
 beforeEach(() => {
-    pacman = new Pacman(scaledTileSize);
+    pacman = new Pacman(scaledTileSize, undefined, new CharacterUtil());
 });
 
 describe('pacman', () => {

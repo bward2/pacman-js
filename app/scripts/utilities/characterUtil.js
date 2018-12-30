@@ -1,4 +1,13 @@
 class CharacterUtil {
+    constructor() {
+        this.directions = {
+            up: 'up',
+            down: 'down',
+            left: 'left',
+            right: 'right'
+        }
+    }
+
     /**
      * Checks if a given character has moved more than five in-game tiles during a frame.
      * If so, we want to temporarily hide the object to avoid 'animation stutter'.
@@ -18,20 +27,24 @@ class CharacterUtil {
         return stutter ? 'hidden' : 'visible';
     }
 
-    getPropertyToChange(direction, directions) {
+    /**
+     * Check which CSS property needs to be changed given the character's current direction
+     * @param {string} direction 
+     */
+    getPropertyToChange(direction) {
         switch(direction) {
-            case directions.up:
-            case directions.down:
+            case this.directions.up:
+            case this.directions.down:
                 return 'top';
             default:
                 return 'left';
         }
     }
 
-    getVelocity(direction, directions, velocityPerMs) {
+    getVelocity(direction, velocityPerMs) {
         switch(direction) {
-            case directions.up:
-            case directions.left:
+            case this.directions.up:
+            case this.directions.left:
                 return velocityPerMs * -1;
             default:
                 return velocityPerMs;
@@ -49,36 +62,36 @@ class CharacterUtil {
         };
     }
 
-    turningAround(direction, directions, desiredDirection) {
+    turningAround(direction, desiredDirection) {
         switch(direction) {
-            case directions.up:
-                return desiredDirection === directions.down;
-            case directions.down:
-                return desiredDirection === directions.up;
-            case directions.left:
-                return desiredDirection === directions.right;
+            case this.directions.up:
+                return desiredDirection === this.directions.down;
+            case this.directions.down:
+                return desiredDirection === this.directions.up;
+            case this.directions.left:
+                return desiredDirection === this.directions.right;
             default:
-                return desiredDirection === directions.left;
+                return desiredDirection === this.directions.left;
         }
     }
 
-    getOppositeDirection(direction, directions) {
+    getOppositeDirection(direction) {
         switch(direction) {
-            case directions.up:
-                return directions.down;
-            case directions.down:
-                return directions.up;
-            case directions.left:
-                return directions.right;
+            case this.directions.up:
+                return this.directions.down;
+            case this.directions.down:
+                return this.directions.up;
+            case this.directions.left:
+                return this.directions.right;
             default:
-                return directions.left;
+                return this.directions.left;
         }
     }
 
-    determineRoundingFunction(direction, directions) {
+    determineRoundingFunction(direction) {
         switch(direction) {
-            case directions.up:
-            case directions.left:
+            case this.directions.up:
+            case this.directions.left:
                 return Math.floor;
             default:
                 return Math.ceil;
@@ -92,8 +105,8 @@ class CharacterUtil {
         );
     }
 
-    checkForWallCollision(desiredNewGridPosition, mazeArray, direction, directions) {
-        let roundingFunction = this.determineRoundingFunction(direction, directions);
+    checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
+        let roundingFunction = this.determineRoundingFunction(direction, this.directions);
 
         let desiredX = roundingFunction(desiredNewGridPosition.x);
         let desiredY = roundingFunction(desiredNewGridPosition.y);
@@ -106,13 +119,13 @@ class CharacterUtil {
         return (newGridValue === 'X');
     }
 
-    snapToGrid(position, direction, directions, scaledTileSize) {
+    snapToGrid(position, direction, scaledTileSize) {
         let newPosition = Object.assign({}, position);
-        let roundingFunction = this.determineRoundingFunction(direction, directions);
+        let roundingFunction = this.determineRoundingFunction(direction, this.directions);
 
         switch(direction) {
-            case directions.up:
-            case directions.down:
+            case this.directions.up:
+            case this.directions.down:
                 newPosition.y = roundingFunction(newPosition.y);
                 break;
             default:
