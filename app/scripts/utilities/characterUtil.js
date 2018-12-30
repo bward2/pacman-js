@@ -1,4 +1,12 @@
 class CharacterUtil {
+    /**
+     * Checks if a given character has moved more than five in-game tiles during a frame.
+     * If so, we want to temporarily hide the object to avoid 'animation stutter'.
+     * @param {Object} position 
+     * @param {Object} oldPosition 
+     * 
+     * @returns {string} Hidden or visible, the new 'visibility' css property value for the character.
+     */
     checkForStutter(position, oldPosition) {
         let stutter = false;
         const threshold = 5;
