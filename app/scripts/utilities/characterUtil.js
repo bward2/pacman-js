@@ -9,10 +9,10 @@ class CharacterUtil {
     }
 
     /**
-     * Checks if a given character has moved more than five in-game tiles during a frame.
+     * Check if a given character has moved more than five in-game tiles during a frame.
      * If so, we want to temporarily hide the object to avoid 'animation stutter'.
-     * @param {Object} position 
-     * @param {Object} oldPosition 
+     * @param {Object} position The character's position during the current frame
+     * @param {Object} oldPosition The character's position during the previous frame
      * 
      * @returns {string} Hidden or visible, the new 'visibility' css property value for the character.
      */
@@ -20,8 +20,10 @@ class CharacterUtil {
         let stutter = false;
         const threshold = 5;
 
-        if (Math.abs(position['top'] - oldPosition['top']) > threshold || Math.abs(position['left'] - oldPosition['left']) > threshold) {
-            stutter = true;
+        if (position && oldPosition) {
+            if (Math.abs(position['top'] - oldPosition['top']) > threshold || Math.abs(position['left'] - oldPosition['left']) > threshold) {
+                stutter = true;
+            }
         }
 
         return stutter ? 'hidden' : 'visible';
@@ -29,7 +31,9 @@ class CharacterUtil {
 
     /**
      * Check which CSS property needs to be changed given the character's current direction
-     * @param {string} direction 
+     * @param {string} direction The direction the character is currently traveling in
+     * 
+     * @returns {string} 'top' or 'left', the CSS property to be changed
      */
     getPropertyToChange(direction) {
         switch(direction) {
