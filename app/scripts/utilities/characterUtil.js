@@ -119,6 +119,12 @@ class CharacterUtil {
         }
     }
 
+    /**
+     * Calculate the proper rounding function, given the character's current direction, to assist with collision detection
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in 
+     * 
+     * @returns {(Math.floor | Math.ceil)}
+     */
     determineRoundingFunction(direction) {
         switch(direction) {
             case this.directions.up:

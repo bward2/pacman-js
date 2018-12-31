@@ -101,4 +101,16 @@ describe('characterUtil', () => {
             assert.strictEqual(characterUtil.getOppositeDirection('right'), 'left');
         });
     });
+
+    describe('determineRoundingFunction', ()=> {
+        it('should return MATH.FLOOR if the character\s direction is UP or LEFT', ()=> {
+            assert.strictEqual(characterUtil.determineRoundingFunction('up'), Math.floor);
+            assert.strictEqual(characterUtil.determineRoundingFunction('left'), Math.floor);
+        });
+
+        it('should return MATH.CEIL if the character\s direction is DOWN or RIGHT', ()=> {
+            assert.strictEqual(characterUtil.determineRoundingFunction('down'), Math.ceil);
+            assert.strictEqual(characterUtil.determineRoundingFunction('right'), Math.ceil);
+        });
+    });
 });
