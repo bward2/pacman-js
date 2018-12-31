@@ -47,14 +47,29 @@ describe('characterUtil', () => {
     });
 
     describe('getVelocity', ()=> {
-        it('should return a positive number if the character\'s direction is down or right', ()=> {
+        it('should return a positive number if the character\'s direction is DOWN or RIGHT', ()=> {
             assert.strictEqual(characterUtil.getVelocity('down', 100), 100);
             assert.strictEqual(characterUtil.getVelocity('right', 100), 100);
         });
 
-        it('should return a negative number if the character\'s direction is up or left', ()=> {
+        it('should return a negative number if the character\'s direction is UP or LEFT', ()=> {
             assert.strictEqual(characterUtil.getVelocity('up', 100), -100);
             assert.strictEqual(characterUtil.getVelocity('left', 100), -100);
+        });
+    });
+
+    describe('calculateNewDrawValue', ()=> {
+        const oldPosition = { top: 0, left: 0 };
+        const position = { top: 10, left: 100 };
+
+        it('should calculate a new value given all parameters', ()=> {
+            assert.strictEqual(characterUtil.calculateNewDrawValue(1, 'top', oldPosition, position), 10);
+            assert.strictEqual(characterUtil.calculateNewDrawValue(1, 'left', oldPosition, position), 100);
+        });
+
+        it('should factor in interp when calculating the new value', ()=> {
+            assert.strictEqual(characterUtil.calculateNewDrawValue(0.5, 'top', oldPosition, position), 5);
+            assert.strictEqual(characterUtil.calculateNewDrawValue(0.5, 'left', oldPosition, position), 50);
         });
     });
 });

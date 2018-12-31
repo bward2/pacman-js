@@ -46,7 +46,7 @@ class CharacterUtil {
     }
 
     /**
-     * Calculate the velocity for the character's next tick.
+     * Calculate the velocity for the character's next frame.
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
      * @param {number} velocityPerMs - The distance the character should travel in a single millisecond
      * 
@@ -62,6 +62,15 @@ class CharacterUtil {
         }
     }
 
+    /**
+     * Determine the next value which will be used to draw the character's position on screen
+     * @param {number} interp - The percentage of the desired timestamp between frames
+     * @param {('top'|'left')} prop - The css property to be changed
+     * @param {({top: number, left: number})} oldPosition - The character's position during the previous frame
+     * @param {({top: number, left: number})} position - The character's position during the current frame
+     * 
+     * @returns {number} - New value for css positioning
+     */
     calculateNewDrawValue(interp, prop, oldPosition, position) {
         return oldPosition[prop] + (position[prop] - oldPosition[prop]) * interp;
     }
