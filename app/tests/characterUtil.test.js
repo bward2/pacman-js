@@ -92,4 +92,13 @@ describe('characterUtil', () => {
             assert.strictEqual(characterUtil.turningAround('up', 'right'), false);
         });
     });
+
+    describe('getOppositeDirection', ()=> {
+        it('should return the opposite of any given direction', ()=> {
+            assert.strictEqual(characterUtil.getOppositeDirection('up'), 'down');
+            assert.strictEqual(characterUtil.getOppositeDirection('down'), 'up');
+            assert.strictEqual(characterUtil.getOppositeDirection('left'), 'right');
+            assert.strictEqual(characterUtil.getOppositeDirection('right'), 'left');
+        });
+    });
 });

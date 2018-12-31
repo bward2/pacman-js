@@ -33,7 +33,7 @@ class CharacterUtil {
      * Check which CSS property needs to be changed given the character's current direction
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
      * 
-     * @returns {('top'|'left')} - The CSS property to be changed
+     * @returns {('top'|'left')}
      */
     getPropertyToChange(direction) {
         switch(direction) {
@@ -80,7 +80,7 @@ class CharacterUtil {
      * @param {*} position - The character's position during the current frame
      * @param {*} scaledTileSize - The dimensions of a single tile
      * 
-     * @returns {({x: number, y: number})} - An x-y pair representing a row-column location on the maze array
+     * @returns {({x: number, y: number})}
      */
     determineGridPosition(position, scaledTileSize) {
         return {
@@ -94,21 +94,18 @@ class CharacterUtil {
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
      * @param {('up'|'down'|'left'|'right')} desiredDirection - The direction the character wants to be traveling in
      * 
-     * @returns {boolean} - True if the character wishes to turn around, false otherwise
+     * @returns {boolean}
      */
     turningAround(direction, desiredDirection) {
-        switch(direction) {
-            case this.directions.up:
-                return desiredDirection === this.directions.down;
-            case this.directions.down:
-                return desiredDirection === this.directions.up;
-            case this.directions.left:
-                return desiredDirection === this.directions.right;
-            default:
-                return desiredDirection === this.directions.left;
-        }
+        return desiredDirection === this.getOppositeDirection(direction);
     }
 
+    /**
+     * Calculate the opposite of a given direction
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in 
+     * 
+     * @returns {('up'|'down'|'left'|'right')}
+     */
     getOppositeDirection(direction) {
         switch(direction) {
             case this.directions.up:
