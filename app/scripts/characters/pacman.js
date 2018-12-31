@@ -1,7 +1,8 @@
 class Pacman {
-    constructor(scaledTileSize, mazeArray) {
+    constructor(scaledTileSize, mazeArray, characterUtil) {
         this.scaledTileSize = scaledTileSize;
         this.mazeArray = mazeArray;
+        this.characterUtil = characterUtil;
         this.animationTarget = document.getElementById('pacman');
         this.pacmanArrow = document.getElementById('pacman-arrow');
 
@@ -16,14 +17,8 @@ class Pacman {
 
     setMovementStats(scaledTileSize) {
         this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
-        this.directions = {
-            up: 'up',
-            down: 'down',
-            left: 'left',
-            right: 'right'
-        }
-        this.desiredDirection = this.directions.left;
-        this.direction = this.directions.left;
+        this.desiredDirection = this.characterUtil.directions.left;
+        this.direction = this.characterUtil.directions.left;
         this.moving = false;
     }
 
@@ -87,36 +82,12 @@ class Pacman {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/pacman_${direction}.svg)`;
     }
 
-    getPropertyToChange(direction) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.down:
-                return 'top';
-            default:
-                return 'left';
-        }
-    }
-
-    getVelocity(direction, velocityPerMs) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.left:
-                return velocityPerMs * -1;
-            default:
-                return velocityPerMs;
-        }
-    }
-
     changeDirection(e) {
         if(this.movementKeys[e.keyCode]) {
-            this.desiredDirection = this.directions[this.movementKeys[e.keyCode]];
+            this.desiredDirection = this.characterUtil.directions[this.movementKeys[e.keyCode]];
             this.pacmanArrow.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/arrow_${this.desiredDirection}.svg)`;
             this.moving = true;
         }
-    }
-
-    calculateNewDrawValue(interp, prop) {
-        return this.oldPosition[prop] + (this.position[prop] - this.oldPosition[prop]) * interp;
     }
 
     updatePacmanArrowPosition(position, scaledTileSize) {
@@ -124,97 +95,11 @@ class Pacman {
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
     }
 
-    determineGridPosition(currentPosition) {
-        return {
-            x : (currentPosition.left / this.scaledTileSize) + 0.5,
-            y : (currentPosition.top / this.scaledTileSize) + 0.5
-        };
-    }
-
-    turningAround(direction, desiredDirection) {
-        switch(direction) {
-            case this.directions.up:
-                return desiredDirection === this.directions.down;
-            case this.directions.down:
-                return desiredDirection === this.directions.up;
-            case this.directions.left:
-                return desiredDirection === this.directions.right;
-            default:
-                return desiredDirection === this.directions.left;
-        }
-    }
-
-    determineRoundingFunction(direction) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.left:
-                return Math.floor;
-            default:
-                return Math.ceil;
-        } 
-    }
-
-    changingGridPosition(oldPosition, newPosition) {
-        return (
-            Math.floor(oldPosition.x) !== Math.floor(newPosition.x) ||
-            Math.floor(oldPosition.y) !== Math.floor(newPosition.y)
-        );
-    }
-
-    checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
-        let roundingFunction = this.determineRoundingFunction(direction);
-
-        let desiredX = roundingFunction(desiredNewGridPosition.x);
-        let desiredY = roundingFunction(desiredNewGridPosition.y);
-        let newGridValue;
-
-        if (Array.isArray(mazeArray[desiredY])) {
-            newGridValue = mazeArray[desiredY][desiredX];
-        }
-        
-        return (newGridValue === 'X');
-    }
-
-    snapToGrid(position, direction, scaledTileSize) {
-        let newPosition = Object.assign({}, position);
-        let roundingFunction = this.determineRoundingFunction(direction);
-
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.down:
-                newPosition.y = roundingFunction(newPosition.y);
-                break;
-            default:
-                newPosition.x = roundingFunction(newPosition.x);
-                break;
-        }
-
-        return {
-            top: (newPosition.y - 0.5) * scaledTileSize,
-            left: (newPosition.x - 0.5) * scaledTileSize
-        };
-    }
-
-    checkForWarp(position, gridPosition, scaledTileSize) {
-        let results = {
-            newPosition: Object.assign({}, position),
-            visibility: 'visible'
-        };
-
-        if (gridPosition.x < -0.75) {
-            results.newPosition.left = (scaledTileSize * 27.25);
-            results.visibility = 'hidden';
-        } else if (gridPosition.x > 27.75) {
-            results.newPosition.left = (scaledTileSize * -1.25);
-            results.visibility = 'hidden';
-        }
-
-        return results;
-    }
-
     draw(interp){
-        this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
-        this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
+        this.animationTarget.style['top'] = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
+        this.animationTarget.style['left'] = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;
+
+        this.animationTarget.style['visibility'] = this.characterUtil.checkForStutter(this.position, this.oldPosition);
 
         this.updatePacmanArrowPosition(this.position, this.scaledTileSize);
 
@@ -235,27 +120,27 @@ class Pacman {
         this.oldPosition = Object.assign({}, this.position);
 
         if (this.moving) {
-            const gridPosition = this.determineGridPosition(this.position);
+            const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
 
             const desiredNewPosition = Object.assign({}, this.position);
-            desiredNewPosition[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
-            const desiredNewGridPosition = this.determineGridPosition(desiredNewPosition, this.mazeArray);
+            desiredNewPosition[this.characterUtil.getPropertyToChange(this.desiredDirection)] += this.characterUtil.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
+            const desiredNewGridPosition = this.characterUtil.determineGridPosition(desiredNewPosition, this.scaledTileSize);
 
             const alternateNewPosition = Object.assign({}, this.position);
-            alternateNewPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
-            const alternateNewGridPosition = this.determineGridPosition(alternateNewPosition, this.mazeArray);
+            alternateNewPosition[this.characterUtil.getPropertyToChange(this.direction)] += this.characterUtil.getVelocity(this.direction, this.velocityPerMs) * elapsedMs;
+            const alternateNewGridPosition = this.characterUtil.determineGridPosition(alternateNewPosition, this.scaledTileSize);
 
             if (this.direction === this.desiredDirection) {
-                if (this.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
-                    this.position = this.snapToGrid(gridPosition, this.desiredDirection, this.scaledTileSize);
+                if (this.characterUtil.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
+                    this.position = this.characterUtil.snapToGrid(gridPosition, this.desiredDirection, this.scaledTileSize);
                     this.moving = false;
                 } else {
                     this.position = desiredNewPosition;
                 }
             } else {
-                if (JSON.stringify(this.position) === JSON.stringify(this.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
-                    if (this.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
-                        if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
+                if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
+                    if (this.characterUtil.checkForWallCollision(desiredNewGridPosition, this.mazeArray, this.desiredDirection)) {
+                        if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
                             this.moving = false;
                         } else {
                             this.position = alternateNewPosition;
@@ -266,31 +151,31 @@ class Pacman {
                         this.position = desiredNewPosition;
                     }
                 } else {
-                    if (this.changingGridPosition(gridPosition, alternateNewGridPosition)) {
-                        if (this.turningAround(this.direction, this.desiredDirection)) {
+                    if (this.characterUtil.changingGridPosition(gridPosition, alternateNewGridPosition)) {
+                        if (this.characterUtil.turningAround(this.direction, this.desiredDirection)) {
                             this.direction = this.desiredDirection;
                             this.setSpriteSheet(this.direction);
                             this.position = desiredNewPosition;
                         } else {
-                            const snappedPosition = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+                            const snappedPosition = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                             const positionAroundCorner = Object.assign({}, snappedPosition);
-                            positionAroundCorner[this.getPropertyToChange(this.desiredDirection)] += this.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
-                            const gridPositionAroundCorner = this.determineGridPosition(positionAroundCorner, this.mazeArray);
+                            positionAroundCorner[this.characterUtil.getPropertyToChange(this.desiredDirection)] += this.characterUtil.getVelocity(this.desiredDirection, this.velocityPerMs) * elapsedMs;
+                            const gridPositionAroundCorner = this.characterUtil.determineGridPosition(positionAroundCorner, this.scaledTileSize);
     
-                            if (this.checkForWallCollision(gridPositionAroundCorner, this.mazeArray, this.desiredDirection)) {
-                                if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
-                                    this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+                            if (this.characterUtil.checkForWallCollision(gridPositionAroundCorner, this.mazeArray, this.desiredDirection)) {
+                                if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
+                                    this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                                     this.moving = false;
                                 } else {
                                     this.position = alternateNewPosition;
                                 }
                             } else {
-                                this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+                                this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                             }
                         }
                     } else {
-                        if (this.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
-                            this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+                        if (this.characterUtil.checkForWallCollision(alternateNewGridPosition, this.mazeArray, this.direction)) {
+                            this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                         } else {
                             this.position = alternateNewPosition;
                         }
@@ -298,9 +183,7 @@ class Pacman {
                 }
             }
 
-            const checkForWarpResults = this.checkForWarp(this.position, this.determineGridPosition(this.position), this.scaledTileSize);
-            this.position = checkForWarpResults.newPosition;
-            this.animationTarget.style['visibility'] = checkForWarpResults.visibility;
+            this.position = this.characterUtil.handleWarp(this.position, this.scaledTileSize, this.mazeArray);
 
             this.msSinceLastSprite += elapsedMs;
         }

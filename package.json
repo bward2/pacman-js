@@ -9,8 +9,9 @@
     "test": "nyc mocha app/tests"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
     "gulp-concat": "^2.6.1",
+    "gulp-remove-code": "^3.0.4",
     "gulp-sass": "^4.0.1",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",

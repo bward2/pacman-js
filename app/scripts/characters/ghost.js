@@ -1,9 +1,10 @@
 class Ghost {
-    constructor(scaledTileSize, mazeArray, pacman, name) {
+    constructor(scaledTileSize, mazeArray, pacman, name, characterUtil) {
         this.scaledTileSize = scaledTileSize;
         this.mazeArray = mazeArray;
         this.pacman = pacman;
         this.name = name;
+        this.characterUtil = characterUtil;
         this.animationTarget = document.getElementById(name);
 
         this.setMovementStats(pacman);
@@ -14,13 +15,6 @@ class Ghost {
     }
 
     setMovementStats(pacman) {
-        this.directions = {
-            up: 'up',
-            down: 'down',
-            left: 'left',
-            right: 'right'
-        }
-
         const pacmanSpeed = pacman.velocityPerMs;
 
         this.slowSpeed = pacmanSpeed * 0.75;
@@ -32,7 +26,7 @@ class Ghost {
         this.eyeSpeed = pacmanSpeed * 3;
 
         this.velocityPerMs = this.slowSpeed;
-        this.direction = this.directions.left;
+        this.direction = this.characterUtil.directions.left;
         this.moving = false;
     }
 
@@ -72,89 +66,8 @@ class Ghost {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
     }
 
-    getPropertyToChange(direction) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.down:
-                return 'top';
-            default:
-                return 'left';
-        }
-    }
-
-    getVelocity(direction, velocityPerMs) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.left:
-                return velocityPerMs * -1;
-            default:
-                return velocityPerMs;
-        }
-    }
-
-    calculateNewDrawValue(interp, prop) {
-        return this.oldPosition[prop] + (this.position[prop] - this.oldPosition[prop]) * interp;
-    }
-
-    determineGridPosition(currentPosition) {
-        return {
-            x : (currentPosition.left / this.scaledTileSize) + 0.5,
-            y : (currentPosition.top / this.scaledTileSize) + 0.5
-        };
-    }
-
     isInTunnel(gridPosition) {
         return (gridPosition.y === 14 && (gridPosition.x < 6 || gridPosition.x > 21));
-    }
-
-    determineRoundingFunction(direction) {
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.left:
-                return Math.floor;
-            default:
-                return Math.ceil;
-        } 
-    }
-
-    changingGridPosition(oldPosition, newPosition) {
-        return (
-            Math.floor(oldPosition.x) !== Math.floor(newPosition.x) ||
-            Math.floor(oldPosition.y) !== Math.floor(newPosition.y)
-        );
-    }
-
-    snapToGrid(position, direction, scaledTileSize) {
-        let newPosition = Object.assign({}, position);
-        let roundingFunction = this.determineRoundingFunction(direction);
-
-        switch(direction) {
-            case this.directions.up:
-            case this.directions.down:
-                newPosition.y = roundingFunction(newPosition.y);
-                break;
-            default:
-                newPosition.x = roundingFunction(newPosition.x);
-                break;
-        }
-
-        return {
-            top: (newPosition.y - 0.5) * scaledTileSize,
-            left: (newPosition.x - 0.5) * scaledTileSize
-        };
-    }
-
-    getOppositeDirection(direction, directions) {
-        switch(direction) {
-            case directions.up:
-                return directions.down;
-            case directions.down:
-                return directions.up;
-            case directions.left:
-                return directions.right;
-            default:
-                return directions.left;
-        }
     }
 
     getTile(mazeArray, y, x) {
@@ -181,7 +94,7 @@ class Ghost {
             right: this.getTile(mazeArray, y, x + 1),
         };
 
-        possibleMoves[this.getOppositeDirection(direction, this.directions)] = false;
+        possibleMoves[this.characterUtil.getOppositeDirection(direction)] = false;
 
         for (let tile in possibleMoves) {
             if (possibleMoves[tile] === false) {
@@ -234,26 +147,11 @@ class Ghost {
         return newDirection;
     }
 
-    checkForWarp(position, gridPosition, scaledTileSize) {
-        let results = {
-            newPosition: Object.assign({}, position),
-            visibility: 'visible'
-        };
-
-        if (gridPosition.x < -0.75) {
-            results.newPosition.left = (scaledTileSize * 27.25);
-            results.visibility = 'hidden';
-        } else if (gridPosition.x > 27.75) {
-            results.newPosition.left = (scaledTileSize * -1.25);
-            results.visibility = 'hidden';
-        }
-
-        return results;
-    }
-
     draw(interp) {
-        this.animationTarget.style['top'] = `${this.calculateNewDrawValue(interp, 'top')}px`;
-        this.animationTarget.style['left'] = `${this.calculateNewDrawValue(interp, 'left')}px`;
+        this.animationTarget.style['top'] = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
+        this.animationTarget.style['left'] = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;
+
+        this.animationTarget.style['visibility'] = this.characterUtil.checkForStutter(this.position, this.oldPosition);
 
         if (this.msSinceLastSprite > this.msBetweenSprites && this.moving) {
             this.msSinceLastSprite = 0;
@@ -276,33 +174,31 @@ class Ghost {
         }
 
         if (this.moving) {
-            const gridPosition = this.determineGridPosition(this.position);
+            const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
             const velocity = this.isInTunnel(gridPosition) ? this.tunnelSpeed : this.velocityPerMs;
 
-            if (JSON.stringify(this.position) === JSON.stringify(this.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
-                const pacmanGridPosition = this.determineGridPosition(this.pacman.position);
+            if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
+                const pacmanGridPosition = this.characterUtil.determineGridPosition(this.pacman.position, this.scaledTileSize);
                 this.direction = this.determineDirection(this.name, gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
                 this.setSpriteSheet(this.name, this.direction);
 
-                this.position[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, velocity) * elapsedMs;
+                this.position[this.characterUtil.getPropertyToChange(this.direction)] += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
             } else {
                 const newPosition = Object.assign({}, this.position);
-                newPosition[this.getPropertyToChange(this.direction)] += this.getVelocity(this.direction, velocity) * elapsedMs;
-                const newGridPosition = this.determineGridPosition(newPosition, this.mazeArray);
+                newPosition[this.characterUtil.getPropertyToChange(this.direction)] += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
+                const newGridPosition = this.characterUtil.determineGridPosition(newPosition, this.scaledTileSize);
     
-                if (this.changingGridPosition(gridPosition, newGridPosition)) {
-                    this.position = this.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+                if (this.characterUtil.changingGridPosition(gridPosition, newGridPosition)) {
+                    this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
                 } else {
                     this.position = newPosition;
                 }
             }
 
-            const checkForWarpResults = this.checkForWarp(this.position, this.determineGridPosition(this.position), this.scaledTileSize);
-            this.position = checkForWarpResults.newPosition;
-            this.animationTarget.style['visibility'] = checkForWarpResults.visibility;
-        }
+            this.position = this.characterUtil.handleWarp(this.position, this.scaledTileSize, this.mazeArray);
 
-        this.msSinceLastSprite += elapsedMs;
+            this.msSinceLastSprite += elapsedMs;
+        }
     }
 }
 
