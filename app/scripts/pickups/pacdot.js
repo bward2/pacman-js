@@ -14,6 +14,16 @@ class Pacdot {
         mazeDiv.appendChild(this.animationTarget);
     }
 
+    /**
+     * Checks to see if the smaller Pacdot rectangle is completely contained within the larger Pacman rectangle
+     * @param {number} dotX
+     * @param {number} dotY
+     * @param {number} dotSize
+     * @param {number} pacmanX
+     * @param {number} pacmanY
+     * @param {number} pacmanSize
+     * @returns {boolean}
+     */
     checkForCollision(dotX, dotY, dotSize, pacmanX, pacmanY, pacmanSize) {
         return (
             dotX > pacmanX &&

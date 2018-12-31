@@ -4,23 +4,23 @@ const CharacterUtil = require('../scripts/utilities/characterUtil');
 
 const scaledTileSize = 8;
 
-global.document = {
-    getElementById: () => {
-        return {
-            style: {}
-        };
-    }
-}
-
-global.window = {
-    addEventListener: () => {
-        return true;
-    }
-};
-
 let pacman;
 
 beforeEach(() => {
+    global.document = {
+        getElementById: () => {
+            return {
+                style: {}
+            };
+        }
+    };
+    
+    global.window = {
+        addEventListener: () => {
+            return true;
+        }
+    };
+
     pacman = new Pacman(scaledTileSize, undefined, new CharacterUtil());
 });
 
