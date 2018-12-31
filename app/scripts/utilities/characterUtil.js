@@ -14,7 +14,7 @@ class CharacterUtil {
      * @param {({top: number, left: number})} position - The character's position during the current frame
      * @param {({top: number, left: number})} oldPosition - The character's position during the previous frame
      * 
-     * @returns {('hidden'|'visible')} The new 'visibility' css property value for the character.
+     * @returns {('hidden'|'visible')} - The new 'visibility' css property value for the character.
      */
     checkForStutter(position, oldPosition) {
         let stutter = false;
@@ -33,7 +33,7 @@ class CharacterUtil {
      * Check which CSS property needs to be changed given the character's current direction
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
      * 
-     * @returns {('top'|'left')} The CSS property to be changed
+     * @returns {('top'|'left')} - The CSS property to be changed
      */
     getPropertyToChange(direction) {
         switch(direction) {
@@ -45,6 +45,13 @@ class CharacterUtil {
         }
     }
 
+    /**
+     * Calculate the velocity for the character's next tick.
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+     * @param {number} velocityPerMs - The distance the character should travel in a single millisecond
+     * 
+     * @returns {number} - New velocity. Since we are using css positioning, moving down or right is positive, while up or left is negative.
+     */
     getVelocity(direction, velocityPerMs) {
         switch(direction) {
             case this.directions.up:
