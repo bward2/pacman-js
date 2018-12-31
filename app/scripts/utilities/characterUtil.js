@@ -123,7 +123,7 @@ class CharacterUtil {
      * Calculate the proper rounding function, given the character's current direction, to assist with collision detection
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in 
      * 
-     * @returns {(Math.floor | Math.ceil)}
+     * @returns {Function}
      */
     determineRoundingFunction(direction) {
         switch(direction) {
@@ -135,10 +135,17 @@ class CharacterUtil {
         } 
     }
 
-    changingGridPosition(oldPosition, newPosition) {
+    /**
+     * Check to see if the character's next frame results in moving to a new tile on the maze array
+     * @param {({x: number, y: number})} oldPosition - The character's position during the previous frame
+     * @param {({x: number, y: number})} position - The character's position during the current frame
+     * 
+     * @returns {boolean}
+     */
+    changingGridPosition(oldPosition, position) {
         return (
-            Math.floor(oldPosition.x) !== Math.floor(newPosition.x) ||
-            Math.floor(oldPosition.y) !== Math.floor(newPosition.y)
+            Math.floor(oldPosition.x) !== Math.floor(position.x) ||
+            Math.floor(oldPosition.y) !== Math.floor(position.y)
         );
     }
 

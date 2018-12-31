@@ -4,6 +4,9 @@ const CharacterUtil = require('../scripts/utilities/characterUtil');
 let characterUtil;
 const oldPosition = { top: 0, left: 0 };
 const position = { top: 10, left: 100 };
+const oldGridPosition = { x: 0, y: 0 };
+const sameGridPosition = { x: 0.1, y: 0.9 };
+const differentGridPosition = { x: 1, y: 0 };
 const scaledTileSize = 8;
 
 beforeEach(() => {
@@ -111,6 +114,17 @@ describe('characterUtil', () => {
         it('should return MATH.CEIL if the character\s direction is DOWN or RIGHT', ()=> {
             assert.strictEqual(characterUtil.determineRoundingFunction('down'), Math.ceil);
             assert.strictEqual(characterUtil.determineRoundingFunction('right'), Math.ceil);
+        });
+    });
+
+    describe('changingGridPosition', ()=> {
+        it('should return TRUE if the character is about to move to a new grid position on the maze', ()=> {
+            assert.strictEqual(characterUtil.changingGridPosition(oldGridPosition, differentGridPosition), true);
+        });
+
+        it('should return FALSE if the character will remain on the same maze tile', ()=> {
+            assert.strictEqual(characterUtil.changingGridPosition(oldGridPosition, oldGridPosition), false);
+            assert.strictEqual(characterUtil.changingGridPosition(oldGridPosition, sameGridPosition), false);
         });
     });
 });
