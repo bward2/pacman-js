@@ -150,4 +150,15 @@ describe('characterUtil', () => {
             assert.strictEqual(characterUtil.checkForWallCollision({x:Infinity, y:Infinity}, mazeArray, 'right'), false);
         });
     });
+
+    describe('snapToGrid', ()=> {
+        const unsnappedPosition = { x: 1.5, y: 1.5 };
+
+        it('should return a snapped value when traveling in any direction', ()=> {
+            assert.deepEqual(characterUtil.snapToGrid(unsnappedPosition, 'up', scaledTileSize), { top: 4, left: 8 });
+            assert.deepEqual(characterUtil.snapToGrid(unsnappedPosition, 'down', scaledTileSize), { top: 12, left: 8 });
+            assert.deepEqual(characterUtil.snapToGrid(unsnappedPosition, 'left', scaledTileSize), { top: 8, left: 4 });
+            assert.deepEqual(characterUtil.snapToGrid(unsnappedPosition, 'right', scaledTileSize), { top: 8, left: 12 });
+        });
+    });
 });

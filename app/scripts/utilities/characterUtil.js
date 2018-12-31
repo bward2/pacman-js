@@ -13,7 +13,6 @@ class CharacterUtil {
      * If so, we want to temporarily hide the object to avoid 'animation stutter'.
      * @param {({top: number, left: number})} position - The character's position during the current frame
      * @param {({top: number, left: number})} oldPosition - The character's position during the previous frame
-     * 
      * @returns {('hidden'|'visible')} - The new 'visibility' css property value for the character.
      */
     checkForStutter(position, oldPosition) {
@@ -32,7 +31,6 @@ class CharacterUtil {
     /**
      * Check which CSS property needs to be changed given the character's current direction
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
-     * 
      * @returns {('top'|'left')}
      */
     getPropertyToChange(direction) {
@@ -49,7 +47,6 @@ class CharacterUtil {
      * Calculate the velocity for the character's next frame.
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
      * @param {number} velocityPerMs - The distance the character should travel in a single millisecond
-     * 
      * @returns {number} - New velocity. Since we are using css positioning, moving down or right is positive, while up or left is negative.
      */
     getVelocity(direction, velocityPerMs) {
@@ -68,7 +65,6 @@ class CharacterUtil {
      * @param {('top'|'left')} prop - The css property to be changed
      * @param {({top: number, left: number})} oldPosition - The character's position during the previous frame
      * @param {({top: number, left: number})} position - The character's position during the current frame
-     * 
      * @returns {number} - New value for css positioning
      */
     calculateNewDrawValue(interp, prop, oldPosition, position) {
@@ -77,9 +73,8 @@ class CharacterUtil {
 
     /**
      * Convert the character's css position to a row-column on the maze array
-     * @param {*} position - The character's position during the current frame
-     * @param {*} scaledTileSize - The dimensions of a single tile
-     * 
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+     * @param {number} scaledTileSize - The dimensions of a single tile
      * @returns {({x: number, y: number})}
      */
     determineGridPosition(position, scaledTileSize) {
@@ -93,7 +88,6 @@ class CharacterUtil {
      * Check to see if a character's disired direction results in turning around
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
      * @param {('up'|'down'|'left'|'right')} desiredDirection - The direction the character wants to be traveling in
-     * 
      * @returns {boolean}
      */
     turningAround(direction, desiredDirection) {
@@ -103,7 +97,6 @@ class CharacterUtil {
     /**
      * Calculate the opposite of a given direction
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in 
-     * 
      * @returns {('up'|'down'|'left'|'right')}
      */
     getOppositeDirection(direction) {
@@ -122,7 +115,6 @@ class CharacterUtil {
     /**
      * Calculate the proper rounding function, given the character's current direction, to assist with collision detection
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in 
-     * 
      * @returns {Function}
      */
     determineRoundingFunction(direction) {
@@ -139,7 +131,6 @@ class CharacterUtil {
      * Check to see if the character's next frame results in moving to a new tile on the maze array
      * @param {({x: number, y: number})} oldPosition - The character's position during the previous frame
      * @param {({x: number, y: number})} position - The character's position during the current frame
-     * 
      * @returns {boolean}
      */
     changingGridPosition(oldPosition, position) {
@@ -154,7 +145,6 @@ class CharacterUtil {
      * @param {({x: number, y: number})} desiredNewGridPosition - The tile on the maze that the character wishes to move to
      * @param {Array} mazeArray - The 2D array representing the game's maze
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
-     * 
      * @returns {boolean}
      */
     checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
@@ -171,6 +161,13 @@ class CharacterUtil {
         return (newGridValue === 'X');
     }
 
+    /**
+     * Calculates the css position when snapping the character to an integer x-y value along the maze grid
+     * @param {({x: number, y: number})} position - The character's position during the current frame 
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+     * @param {number} scaledTileSize - The dimensions of a single tile
+     * @returns {({top: number, left: number})}
+     */
     snapToGrid(position, direction, scaledTileSize) {
         let newPosition = Object.assign({}, position);
         let roundingFunction = this.determineRoundingFunction(direction, this.directions);
