@@ -77,4 +77,19 @@ describe('characterUtil', () => {
             assert.deepEqual(characterUtil.determineGridPosition(position, scaledTileSize), { x: 13, y: 1.75 });
         });
     });
+
+    describe('turningAround', ()=> {
+        it('should return TRUE if a character\'s direction and desired direction are opposites', ()=> {
+            assert.strictEqual(characterUtil.turningAround('up', 'down'), true);
+            assert.strictEqual(characterUtil.turningAround('down', 'up'), true);
+            assert.strictEqual(characterUtil.turningAround('left', 'right'), true);
+            assert.strictEqual(characterUtil.turningAround('right', 'left'), true);
+        });
+
+        it('should return FALSE if a character is continuing straight or turning to the side', ()=> {
+            assert.strictEqual(characterUtil.turningAround('up', 'up'), false);
+            assert.strictEqual(characterUtil.turningAround('up', 'left'), false);
+            assert.strictEqual(characterUtil.turningAround('up', 'right'), false);
+        });
+    });
 });

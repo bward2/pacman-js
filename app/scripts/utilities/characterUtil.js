@@ -89,6 +89,13 @@ class CharacterUtil {
         };
     }
 
+    /**
+     * Check to see if a character's disired direction results in turning around
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+     * @param {('up'|'down'|'left'|'right')} desiredDirection - The direction the character wants to be traveling in
+     * 
+     * @returns {boolean} - True if the character wishes to turn around, false otherwise
+     */
     turningAround(direction, desiredDirection) {
         switch(direction) {
             case this.directions.up:
