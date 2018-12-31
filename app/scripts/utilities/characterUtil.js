@@ -75,10 +75,17 @@ class CharacterUtil {
         return oldPosition[prop] + (position[prop] - oldPosition[prop]) * interp;
     }
 
-    determineGridPosition(currentPosition, scaledTileSize) {
+    /**
+     * Convert the character's css position to a row-column on the maze array
+     * @param {*} position - The character's position during the current frame
+     * @param {*} scaledTileSize - The dimensions of a single tile
+     * 
+     * @returns {({x: number, y: number})} - An x-y pair representing a row-column location on the maze array
+     */
+    determineGridPosition(position, scaledTileSize) {
         return {
-            x : (currentPosition.left / scaledTileSize) + 0.5,
-            y : (currentPosition.top / scaledTileSize) + 0.5
+            x : (position.left / scaledTileSize) + 0.5,
+            y : (position.top / scaledTileSize) + 0.5
         };
     }
 

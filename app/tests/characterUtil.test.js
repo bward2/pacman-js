@@ -2,6 +2,9 @@ const assert = require('assert');
 const CharacterUtil = require('../scripts/utilities/characterUtil');
 
 let characterUtil;
+const oldPosition = { top: 0, left: 0 };
+const position = { top: 10, left: 100 };
+const scaledTileSize = 8;
 
 beforeEach(() => {
     characterUtil = new CharacterUtil();
@@ -9,8 +12,6 @@ beforeEach(() => {
 
 describe('characterUtil', () => {
     describe('checkForStutter', ()=> {
-        const oldPosition = { top: 0, left: 0 };
-
         it('should return VISIBLE if the character has moved five tiles or less in any direction', ()=> {
             assert.strictEqual(characterUtil.checkForStutter(oldPosition, { top: 0, left: 0 }), 'visible');
             assert.strictEqual(characterUtil.checkForStutter(oldPosition, { top: 0, left: 5 }), 'visible');
@@ -59,9 +60,6 @@ describe('characterUtil', () => {
     });
 
     describe('calculateNewDrawValue', ()=> {
-        const oldPosition = { top: 0, left: 0 };
-        const position = { top: 10, left: 100 };
-
         it('should calculate a new value given all parameters', ()=> {
             assert.strictEqual(characterUtil.calculateNewDrawValue(1, 'top', oldPosition, position), 10);
             assert.strictEqual(characterUtil.calculateNewDrawValue(1, 'left', oldPosition, position), 100);
@@ -70,6 +68,13 @@ describe('characterUtil', () => {
         it('should factor in interp when calculating the new value', ()=> {
             assert.strictEqual(characterUtil.calculateNewDrawValue(0.5, 'top', oldPosition, position), 5);
             assert.strictEqual(characterUtil.calculateNewDrawValue(0.5, 'left', oldPosition, position), 50);
+        });
+    });
+
+    describe('determineGridPosition', ()=> {
+        it('should return an x-y object given a valid position', ()=> {
+            assert.deepEqual(characterUtil.determineGridPosition(oldPosition, scaledTileSize), { x: 0.5, y: 0.5 });
+            assert.deepEqual(characterUtil.determineGridPosition(position, scaledTileSize), { x: 13, y: 1.75 });
         });
     });
 });
