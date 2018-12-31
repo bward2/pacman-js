@@ -183,7 +183,7 @@ class Pacman {
                 }
             }
 
-            this.position = this.characterUtil.checkForWarp(this.position, this.characterUtil.determineGridPosition(this.position, this.scaledTileSize), this.scaledTileSize);
+            this.position = this.characterUtil.handleWarp(this.position, this.scaledTileSize, this.mazeArray);
 
             this.msSinceLastSprite += elapsedMs;
         }

@@ -161,4 +161,15 @@ describe('characterUtil', () => {
             assert.deepEqual(characterUtil.snapToGrid(unsnappedPosition, 'right', scaledTileSize), { top: 8, left: 12 });
         });
     });
+
+    describe('handleWarp', ()=> {
+        it('should warp the character if they travel too far to the left or right', ()=> {
+            assert.deepEqual(characterUtil.handleWarp({top:0, left:-100}, scaledTileSize, mazeArray), {top:0, left:18});
+            assert.deepEqual(characterUtil.handleWarp({top:0, left:100}, scaledTileSize, mazeArray), {top:0, left:-10});
+        });
+
+        it('should not warp the character if they are within the left-right boundaries of the maze', ()=> {
+            assert.deepEqual(characterUtil.handleWarp({top:0, left:0}, scaledTileSize, mazeArray), {top:0, left:0});
+        });
+    });
 });

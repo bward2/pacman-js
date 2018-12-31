@@ -188,12 +188,20 @@ class CharacterUtil {
         };
     }
 
-    checkForWarp(position, gridPosition, scaledTileSize) {
+    /**
+     * Checks to see if the character needs to warp and returns a modified position if so
+     * @param {({top: number, left: number})} position - The character's css position during the current frame
+     * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame
+     * @param {number} scaledTileSize - The dimensions of a single tile
+     * @returns {({top: number, left: number})}
+     */
+    handleWarp(position, scaledTileSize, mazeArray) {
         let newPosition = Object.assign({}, position);
+        const gridPosition = this.determineGridPosition(position, scaledTileSize);
 
         if (gridPosition.x < -0.75) {
-            newPosition.left = (scaledTileSize * 27.25);
-        } else if (gridPosition.x > 27.75) {
+            newPosition.left = (scaledTileSize * (mazeArray[0].length - 0.75));
+        } else if (gridPosition.x > (mazeArray[0].length - 0.25)) {
             newPosition.left = (scaledTileSize * -1.25);
         }
 
