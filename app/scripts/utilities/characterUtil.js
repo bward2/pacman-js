@@ -149,6 +149,14 @@ class CharacterUtil {
         );
     }
 
+    /**
+     * Check to see if the character is attempting to run into a wall of the maze
+     * @param {({x: number, y: number})} desiredNewGridPosition - The tile on the maze that the character wishes to move to
+     * @param {Array} mazeArray - The 2D array representing the game's maze
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+     * 
+     * @returns {boolean}
+     */
     checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
         let roundingFunction = this.determineRoundingFunction(direction, this.directions);
 

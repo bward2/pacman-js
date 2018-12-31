@@ -4,9 +4,11 @@ const CharacterUtil = require('../scripts/utilities/characterUtil');
 let characterUtil;
 const oldPosition = { top: 0, left: 0 };
 const position = { top: 10, left: 100 };
-const oldGridPosition = { x: 0, y: 0 };
-const sameGridPosition = { x: 0.1, y: 0.9 };
-const differentGridPosition = { x: 1, y: 0 };
+const mazeArray = [
+    ['X','X','X'],
+    ['X',' ',' '],
+    ['X',' ','X'],
+];
 const scaledTileSize = 8;
 
 beforeEach(() => {
@@ -119,12 +121,33 @@ describe('characterUtil', () => {
 
     describe('changingGridPosition', ()=> {
         it('should return TRUE if the character is about to move to a new grid position on the maze', ()=> {
-            assert.strictEqual(characterUtil.changingGridPosition(oldGridPosition, differentGridPosition), true);
+            assert.strictEqual(characterUtil.changingGridPosition({x:0, y:0}, {x:0, y:1}), true);
+            assert.strictEqual(characterUtil.changingGridPosition({x:0, y:0}, {x:1, y:0}), true);
+            assert.strictEqual(characterUtil.changingGridPosition({x:0, y:0}, {x:1, y:1}), true);
         });
 
         it('should return FALSE if the character will remain on the same maze tile', ()=> {
-            assert.strictEqual(characterUtil.changingGridPosition(oldGridPosition, oldGridPosition), false);
-            assert.strictEqual(characterUtil.changingGridPosition(oldGridPosition, sameGridPosition), false);
+            assert.strictEqual(characterUtil.changingGridPosition({x:0, y:0}, {x:0, y:0}), false);
+            assert.strictEqual(characterUtil.changingGridPosition({x:0, y:0}, {x:0.1, y:0.9}), false);
+        });
+    });
+
+    describe('checkForWallCollision', ()=> {
+        it('should return TRUE if the character is about to run into a wall', ()=> {
+            assert.strictEqual(characterUtil.checkForWallCollision({x:0, y:1}, mazeArray, 'left'), true);
+            assert.strictEqual(characterUtil.checkForWallCollision({x:1, y:0}, mazeArray, 'up'), true);
+        });
+
+        it('should return FALSE if the character is running to an unobstructed tile', ()=> {
+            assert.strictEqual(characterUtil.checkForWallCollision({x:2, y:1}, mazeArray, 'right'), false);
+            assert.strictEqual(characterUtil.checkForWallCollision({x:1, y:2}, mazeArray, 'down'), false);
+            assert.strictEqual(characterUtil.checkForWallCollision({x:1, y:1}, mazeArray, 'left'), false);
+            assert.strictEqual(characterUtil.checkForWallCollision({x:1, y:1}, mazeArray, 'up'), false);
+        });
+
+        it('should return FALSE if the character is moving to a tile outside of the maze', ()=> {
+            assert.strictEqual(characterUtil.checkForWallCollision({x:-1, y:-1}, mazeArray, 'right'), false);
+            assert.strictEqual(characterUtil.checkForWallCollision({x:Infinity, y:Infinity}, mazeArray, 'right'), false);
         });
     });
 });
