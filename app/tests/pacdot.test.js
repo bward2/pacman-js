@@ -1,4 +1,5 @@
 const assert = require('assert');
+const sinon = require('sinon');
 const Pacdot = require('../scripts/pickups/pacdot');
 
 let pacdot;
@@ -42,6 +43,33 @@ describe('pacdot', ()=> {
 
         it('should return FALSE if the Pacdot is only partially overlapping Pacman', ()=> {
             assert.strictEqual(pacdot.checkForCollision(0, 0, 5, 1, 1, 10), false);
+        });
+    });
+
+    describe('update', ()=> {
+        it('should turn the Pacdot\'s visibility to HIDDEN if a collision with Pacman occurs', ()=> {
+            const collisionSpy = sinon.fake.returns(true);
+            pacdot.checkForCollision = collisionSpy;
+
+            pacdot.update();
+            assert.strictEqual(pacdot.animationTarget.style.visibility, 'hidden');
+        });
+
+        it('should leave the Pacdot\'s visibility alone if a collision has not yet occured', ()=> {
+            const collisionSpy = sinon.fake.returns(false);
+            pacdot.checkForCollision = collisionSpy;
+
+            pacdot.update();
+            assert.notStrictEqual(pacdot.animationTarget.style.visibility, 'hidden');
+        });
+
+        it('should not perform collision-detection if the Pacdot is already hidden', ()=> {
+            const collisionSpy = sinon.fake();
+            pacdot.checkForCollision = collisionSpy;
+
+            pacdot.animationTarget.style.visibility = 'hidden';
+            pacdot.update();
+            assert(collisionSpy.notCalled);
         });
     });
 });

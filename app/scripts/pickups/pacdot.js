@@ -33,6 +33,10 @@ class Pacdot {
         );
     }
 
+    /**
+     * If the Pacdot is still visible, it checks to see if it is colliding with Pacman. It will turn itself invisible and cease
+     * collision-detection after the first collision with Pacman.
+     */
     update() {
         if (this.animationTarget.style.visibility !== 'hidden') {
             if (this.checkForCollision(this.x, this.y, this.size, this.pacman.position.left, this.pacman.position.top, this.pacman.measurement)) {
@@ -42,6 +46,6 @@ class Pacdot {
     }
 }
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = Pacdot;
-}
+//removeIf(production)
+module.exports = Pacdot;
+//endRemoveIf(production)
