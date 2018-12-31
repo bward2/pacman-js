@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 const sass = require('gulp-sass');
 const concat = require('gulp-concat');
+const removeCode = require('gulp-remove-code');
 
 gulp.task('sass', function(){
     return gulp.src('app/style/scss/**/*.scss')
@@ -11,6 +12,7 @@ gulp.task('sass', function(){
 
 gulp.task('compile-js', function(){
     return gulp.src('app/scripts/**/*.js')
+        .pipe(removeCode({ production: true }))
         .pipe(concat('app.js'))
         .pipe(gulp.dest('build'));
 });
