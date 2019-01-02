@@ -14,7 +14,6 @@
     "gulp-concat": "^2.6.1",
     "gulp-remove-code": "^3.0.4",
     "gulp-sass": "^4.0.1",
-    "istanbul": "^0.4.5",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "sass": "^1.14.1",
