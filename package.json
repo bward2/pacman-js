@@ -6,9 +6,11 @@
     "all": true
   },
   "scripts": {
-    "test": "nyc mocha app/tests"
+    "test": "nyc mocha app/tests",
+    "coverage": "nyc report --reporter=text-lcov | node ./node_modules/coveralls/bin/coveralls.js"
   },
   "devDependencies": {
+    "coveralls": "^3.0.2",
     "gulp": "^4.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-remove-code": "^3.0.4",

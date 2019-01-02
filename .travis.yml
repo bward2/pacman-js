@@ -6,3 +6,5 @@ install:
 script:
   - gulp
   - npm test
+after_success:
+  - npm run coverage
