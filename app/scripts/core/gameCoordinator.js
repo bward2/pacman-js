@@ -48,16 +48,19 @@ class GameCoordinator {
             this.blinky = new Ghost(this.scaledTileSize, this.mazeArray, this.pacman, 'blinky', new CharacterUtil())
         ];
 
-        this.drawMaze();
+        this.drawMaze(this.mazeArray, this.entityList);
 
         this.gameEngine = new GameEngine(this.maxFps, this.entityList);
         this.gameEngine.start();
     }
 
-    drawMaze() {
+    /**
+     * Adds HTML elements to draw on the webpage by iterating through the 2D maze array
+     */
+    drawMaze(mazeArray, entityList) {
         const mazeDiv = document.getElementById('maze');
 
-        this.mazeArray.forEach((row, rowIndex) => {
+        mazeArray.forEach((row, rowIndex) => {
             const rowDiv = document.createElement('div');
             rowDiv.classList.add('maze-row');
             row.forEach((block, columnIndex) => {
@@ -67,7 +70,7 @@ class GameCoordinator {
                 mazeBlock.style.background = block === 'X' ? 'black' : 'gray';
 
                 if (block === 'o') {
-                    this.entityList.push(new Pacdot(this.scaledTileSize, columnIndex, rowIndex, this.pacman, mazeDiv));
+                    entityList.push(new Pacdot(this.scaledTileSize, columnIndex, rowIndex, this.pacman, mazeDiv));
                 }
 
                 rowDiv.appendChild(mazeBlock);
@@ -77,6 +80,6 @@ class GameCoordinator {
     }
 }
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = GameCoordinator;
-}
+//removeIf(production)
+module.exports = GameCoordinator;
+//endRemoveIf(production)
