@@ -126,13 +126,14 @@ class GameEngine {
     }
 
     /**
-     * The endless, recursive function which will call the update and draw functions for each entity in the game multiple times per second
+     * A single cycle of the engine which checks to see if enough time has passed, and, if so, will kick off the loops to
+     * update and draw the game's entities.
      * @param {number} timestamp - The amount of time, in milliseconds, which have passed since starting the game engine 
      */
-    mainLoop(timestamp) {   
+    engineCycle(timestamp) {
         if (timestamp < this.lastFrameTimeMs + (1000 / this.maxFps)) {
             this.frameId = requestAnimationFrame((timestamp) => {
-                this.mainLoop(timestamp)
+                this.mainLoop(timestamp);
             });
             return;
         }
@@ -141,11 +142,19 @@ class GameEngine {
         this.lastFrameTimeMs = timestamp;
         this.updateFpsDisplay(timestamp);
         this.processFrames();
-
         this.draw(this.elapsedMs / this.timestep, this.entityList);
+
         this.frameId = requestAnimationFrame((timestamp) => {
             this.mainLoop(timestamp);
         });
+    }
+
+    /**
+     * The endless loop which will kick off engine cycles so long as the game is running
+     * @param {number} timestamp - The amount of time, in milliseconds, which have passed since starting the game engine 
+     */
+    mainLoop(timestamp) {   
+        this.engineCycle(timestamp);
     }
 }
 

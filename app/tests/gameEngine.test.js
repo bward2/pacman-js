@@ -181,4 +181,58 @@ describe('gameEngine', ()=> {
             assert(panicSpy.called);
         });
     });
+
+    describe('engineCycle', ()=> {
+        it('will not call updateFpsDisplay, processFrames, or draw if less than one timestep has passed since the last update', ()=> {
+            const mainLoopSpy = sinon.fake();
+            const updateFpsDisplaySpy = sinon.fake();
+            const processFramesSpy = sinon.fake();
+            const drawSpy = sinon.fake();
+            gameEngine.mainLoop = mainLoopSpy;
+            gameEngine.updateFpsDisplay = updateFpsDisplaySpy;
+            gameEngine.processFrames = processFramesSpy;
+            gameEngine.draw = drawSpy;
+            gameEngine.elapsedMs = 10000;
+            gameEngine.lastFrameTimeMs = 9000;
+
+            gameEngine.engineCycle(0);
+            assert(mainLoopSpy.called);
+            assert(!updateFpsDisplaySpy.called);
+            assert(!processFramesSpy.called);
+            assert(!drawSpy.called);
+            assert.strictEqual(gameEngine.elapsedMs, 10000);
+            assert.strictEqual(gameEngine.lastFrameTimeMs, 9000);
+        });
+
+        it('will call updateFpsDisplay, processFrames, or draw if more than one timestep has passed since the last update', ()=> {
+            const mainLoopSpy = sinon.fake();
+            const updateFpsDisplaySpy = sinon.fake();
+            const processFramesSpy = sinon.fake();
+            const drawSpy = sinon.fake();
+            gameEngine.mainLoop = mainLoopSpy;
+            gameEngine.updateFpsDisplay = updateFpsDisplaySpy;
+            gameEngine.processFrames = processFramesSpy;
+            gameEngine.draw = drawSpy;
+            gameEngine.elapsedMs = 10000;
+            gameEngine.lastFrameTimeMs = 9000;
+
+            gameEngine.engineCycle(11000);
+            assert(mainLoopSpy.called);
+            assert(updateFpsDisplaySpy.called);
+            assert(processFramesSpy.called);
+            assert(drawSpy.called);
+            assert.strictEqual(gameEngine.elapsedMs, 12000);
+            assert.strictEqual(gameEngine.lastFrameTimeMs, 11000);
+        });
+    });
+
+    describe('mainLoop', ()=> {
+        it('calls the engineCycle function with a timestamp', ()=> {
+            const engineCycleSpy = sinon.fake();
+            gameEngine.engineCycle = engineCycleSpy;
+
+            gameEngine.mainLoop(1000);
+            assert(engineCycleSpy.calledWith(1000));
+        });
+    });
 });
