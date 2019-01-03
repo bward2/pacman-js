@@ -33,10 +33,13 @@ class GameEngine {
         }
     }
 
+    /**
+     * Updates the on-screen FPS counter once per second
+     * @param {number} timestamp - The amount of time, in milliseconds, which have passed since starting the game engine
+     */
     updateFpsDisplay(timestamp) {
         if (timestamp > this.lastFpsUpdate + 1000) {
-            this.fps = 0.50 * this.framesThisSecond + (1 - 0.50) * this.fps;
-     
+            this.fps = (this.framesThisSecond + this.fps)/2;
             this.lastFpsUpdate = timestamp;
             this.framesThisSecond = 0;
         }
