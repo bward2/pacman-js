@@ -13,12 +13,18 @@ class GameEngine {
         this.running = false;
         this.started = false;
 
-        window.addEventListener('keyup', (e) => {
-            // ESC key
-            if (e.keyCode === 27) {
-                this.changePausedState(this.running);
-            }
-        });
+        // window.addEventListener('keyup', this.handleKeyPress.bind(this));
+    }
+
+    /**
+     * Calls various functions given a keyup event
+     * @param {Event} e - The keyup event to evaluate
+     */
+    handleKeyPress(e) {
+        // ESC key
+        if (e.keyCode === 27) {
+            this.changePausedState(this.running);
+        }
     }
 
     /**

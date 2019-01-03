@@ -24,6 +24,28 @@ beforeEach(()=> {
 });
 
 describe('gameEngine', ()=> {
+    describe('handleKeyPress', ()=> {
+        it('calls changePausedState if the escape key is pressed', ()=> {
+            const pauseSpy = sinon.fake();
+            gameEngine.changePausedState = pauseSpy;
+
+            gameEngine.handleKeyPress({
+                keyCode: 27
+            });
+            assert(pauseSpy.called);
+        });
+
+        it('does not call changePausedState unless the escape key is pressed', ()=> {
+            const pauseSpy = sinon.fake();
+            gameEngine.changePausedState = pauseSpy;
+
+            gameEngine.handleKeyPress({
+                keyCode: 1
+            });
+            assert(!pauseSpy.called);
+        });
+    });
+    
     describe('changePausedState', ()=> {
         let stopSpy, startSpy;
 
@@ -91,6 +113,15 @@ describe('gameEngine', ()=> {
             assert(drawSpy1.calledWith(50));
             assert(drawSpy2.calledWith(50));
         });
+
+        it('will not crash if the DRAW property is missing or not a function', ()=> {
+            const entityList = [
+                { draw: 123 },
+                {},
+            ];
+
+            gameEngine.draw(50, entityList);
+        });
     });
 
     describe('update', ()=> {
@@ -105,6 +136,15 @@ describe('gameEngine', ()=> {
             gameEngine.update(100, entityList);
             assert(updateSpy1.calledWith(100));
             assert(updateSpy2.calledWith(100));
+        });
+
+        it('will not crash if the UPDATE property is missing or not a function', ()=> {
+            const entityList = [
+                { update: 123 },
+                {},
+            ];
+
+            gameEngine.update(50, entityList);
         });
     });
 
