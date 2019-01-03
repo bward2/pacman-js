@@ -110,8 +110,26 @@ class GameEngine {
         cancelAnimationFrame(this.frameId);
     }
 
-    mainLoop(timestamp) {
-        // Throttle the frame rate.    
+    /**
+     * The loop which will process all necessary frames to update the game's entities prior to animating them
+     */
+    processFrames() {
+        var numUpdateSteps = 0;
+        while (this.elapsedMs >= this.timestep) {
+            this.update(this.timestep, this.entityList);
+            this.elapsedMs -= this.timestep;
+            if (++numUpdateSteps >= this.maxFps) {
+                this.panic();
+                break;
+            }
+        }
+    }
+
+    /**
+     * The endless, recursive function which will call the update and draw functions for each entity in the game multiple times per second
+     * @param {number} timestamp - The amount of time, in milliseconds, which have passed since starting the game engine 
+     */
+    mainLoop(timestamp) {   
         if (timestamp < this.lastFrameTimeMs + (1000 / this.maxFps)) {
             this.frameId = requestAnimationFrame((timestamp) => {
                 this.mainLoop(timestamp)
@@ -119,24 +137,12 @@ class GameEngine {
             return;
         }
 
-        // Track the accumulated time that hasn't been simulated yet
         this.elapsedMs += timestamp - this.lastFrameTimeMs;
         this.lastFrameTimeMs = timestamp;
-
         this.updateFpsDisplay(timestamp);
+        this.processFrames();
 
-        var numUpdateSteps = 0;
-        // Simulate the total elapsed time in fixed-size chunks
-        while (this.elapsedMs >= this.timestep) {
-            this.update(this.timestep, this.entityList);
-            this.elapsedMs -= this.timestep;
-            // Sanity check
-            if (++numUpdateSteps >= 240) {
-                this.panic(); // fix things
-                break; // bail out
-            }
-        }
-        this.draw(this.elapsedMs / this.timestep, this.entityList); // pass the interpolation percentage
+        this.draw(this.elapsedMs / this.timestep, this.entityList);
         this.frameId = requestAnimationFrame((timestamp) => {
             this.mainLoop(timestamp);
         });

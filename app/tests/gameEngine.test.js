@@ -157,4 +157,28 @@ describe('gameEngine', ()=> {
             assert(cancelSpy.called);
         });
     });
+
+    describe('processFrames', ()=> {
+        it('calls the update function once per timestep passed since the last update', ()=> {
+            const updateSpy = sinon.fake();
+            gameEngine.update = updateSpy;
+
+            gameEngine.elapsedMs = 3;
+            gameEngine.timestep = 1;
+            gameEngine.processFrames();
+            assert(updateSpy.calledThrice);
+        });
+
+        it('calls the panic function and stops calling update if more than a second\'s worth of frames have elapsed', ()=> {
+            const updateSpy = sinon.fake();
+            const panicSpy = sinon.fake();
+            gameEngine.update = updateSpy;
+            gameEngine.panic = panicSpy;
+
+            gameEngine.elapsedMs = (gameEngine.maxFps * gameEngine.timestep) + 1;
+            gameEngine.processFrames();
+            assert.strictEqual(updateSpy.callCount, gameEngine.maxFps);
+            assert(panicSpy.called);
+        });
+    });
 });
