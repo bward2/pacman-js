@@ -13,7 +13,7 @@ class GameEngine {
         this.running = false;
         this.started = false;
 
-        // window.addEventListener('keyup', this.handleKeyPress.bind(this));
+        window.addEventListener('keyup', this.handleKeyPress.bind(this));
     }
 
     /**
