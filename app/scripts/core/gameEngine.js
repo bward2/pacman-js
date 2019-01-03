@@ -16,13 +16,17 @@ class GameEngine {
         window.addEventListener('keyup', (e) => {
             // ESC key
             if (e.keyCode === 27) {
-                this.changePausedState();
+                this.changePausedState(this.running);
             }
         });
     }
 
-    changePausedState() {
-        if (this.running) {
+    /**
+     * Toggles the paused/running status of the game
+     * @param {Boolean} running - Whether the game is currently in motion
+     */
+    changePausedState(running) {
+        if (running) {
             this.stop();
         } else {
             this.start();
