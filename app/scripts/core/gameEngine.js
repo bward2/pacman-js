@@ -80,19 +80,20 @@ class GameEngine {
         this.elapsedMs = 0;
     }
 
+    /**
+     * Draws an initial frame, resets a few tracking variables related to animation, and calls the mainLoop function to start the engine
+     */
     start() {
-        if (!this.started) { // don't request multiple frames
+        if (!this.started) {
             this.started = true;
-            // Dummy frame to get our timestamps and initial drawing right.
-            // Track the frame ID so we can cancel it if we stop quickly.
+
             this.frameId = requestAnimationFrame((timestamp) => {
-                this.draw(1); // initial draw
+                this.draw(1);
                 this.running = true;
-                // reset some time tracking variables
                 this.lastFrameTimeMs = timestamp;
                 this.lastFpsUpdate = timestamp;
                 this.framesThisSecond = 0;
-                // actually start the main loop
+
                 this.frameId = requestAnimationFrame((timestamp) => {
                     this.mainLoop(timestamp);
                 });

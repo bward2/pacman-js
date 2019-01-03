@@ -16,6 +16,10 @@ beforeEach(()=> {
         addEventListener: ()=> { return; }
     };
 
+    global.requestAnimationFrame = (callback)=> {
+        callback(1000);
+    }
+
     gameEngine = new GameEngine(maxFps);
 });
 
@@ -110,5 +114,33 @@ describe('gameEngine', ()=> {
             gameEngine.panic();
             assert.strictEqual(gameEngine.elapsedMs, 0);
         });
-    })
+    });
+
+    describe('start', ()=> {
+        it('calls the mainLoop function if the engine is not currently running', ()=> {
+            const mainLoopSpy = sinon.fake();
+            const drawSpy = sinon.fake();
+            gameEngine.mainLoop = mainLoopSpy;
+            gameEngine.draw = drawSpy;
+
+            gameEngine.started = false;
+            gameEngine.start();
+            assert(gameEngine.started);
+            assert(drawSpy.called);
+            assert(gameEngine.running);
+            assert.strictEqual(gameEngine.lastFrameTimeMs, 1000);
+            assert.strictEqual(gameEngine.lastFpsUpdate, 1000);
+            assert.strictEqual(gameEngine.framesThisSecond, 0);
+            assert(mainLoopSpy.called);
+        });
+
+        it('does not call the mainLoop function once the engine is already running', ()=> {
+            const mainLoopSpy = sinon.fake();
+            gameEngine.mainLoop = mainLoopSpy;
+
+            gameEngine.started = true;
+            gameEngine.start();
+            assert(mainLoopSpy.notCalled);
+        });
+    });
 });
