@@ -39,7 +39,7 @@ class GameEngine {
      */
     updateFpsDisplay(timestamp) {
         if (timestamp > this.lastFpsUpdate + 1000) {
-            this.fps = (this.framesThisSecond + this.fps)/2;
+            this.fps = (this.framesThisSecond + this.fps) / 2;
             this.lastFpsUpdate = timestamp;
             this.framesThisSecond = 0;
         }
@@ -47,18 +47,28 @@ class GameEngine {
         this.fpsDisplay.textContent = Math.round(this.fps) + ' FPS';
     }
 
-    draw(interp) {
-        for (let entity in this.entityList) {
-            if (typeof this.entityList[entity].draw === 'function') {
-                this.entityList[entity].draw(interp);
+    /**
+     * Calls the draw function for every member of the entityList
+     * @param {number} interp - The percentage of accuracy between the desired and actual amount of time between updates
+     * @param {Array} entityList - List of entities (Pacman, Ghosts, etc.) to be used throughout the game 
+     */
+    draw(interp, entityList) {
+        for (let entity in entityList) {
+            if (typeof entityList[entity].draw === 'function') {
+                entityList[entity].draw(interp);
             }
         }
     }
 
-    update(elapsedMs) {
-        for (let entity in this.entityList) {
-            if (typeof this.entityList[entity].update === 'function') {
-                this.entityList[entity].update(elapsedMs);
+    /**
+     * Calls the update function for every member of the entityList
+     * @param {number} elapsedMs - The amount of MS that have passed since the last update
+     * @param {Array} entityList - List of entities (Pacman, Ghosts, etc.) to be used throughout the game
+     */
+    update(elapsedMs, entityList) {
+        for (let entity in entityList) {
+            if (typeof entityList[entity].update === 'function') {
+                entityList[entity].update(elapsedMs);
             }
         }
     }
@@ -112,7 +122,7 @@ class GameEngine {
         var numUpdateSteps = 0;
         // Simulate the total elapsed time in fixed-size chunks
         while (this.elapsedMs >= this.timestep) {
-            this.update(this.timestep);
+            this.update(this.timestep, this.entityList);
             this.elapsedMs -= this.timestep;
             // Sanity check
             if (++numUpdateSteps >= 240) {
@@ -120,7 +130,7 @@ class GameEngine {
                 break; // bail out
             }
         }
-        this.draw(this.elapsedMs / this.timestep); // pass the interpolation percentage
+        this.draw(this.elapsedMs / this.timestep, this.entityList); // pass the interpolation percentage
         this.frameId = requestAnimationFrame((timestamp) => {
             this.mainLoop(timestamp);
         });

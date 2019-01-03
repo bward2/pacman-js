@@ -73,4 +73,34 @@ describe('gameEngine', ()=> {
             assert.strictEqual(gameEngine.fpsDisplay.textContent, '120 FPS');
         });
     });
+
+    describe('draw', ()=> {
+        it('should call the DRAW function and pass in the interp value for every member of the given entity list', ()=> {
+            const drawSpy1 = sinon.fake();
+            const drawSpy2 = sinon.fake();
+            const entityList = [
+                { draw: drawSpy1 },
+                { draw: drawSpy2 },
+            ];
+
+            gameEngine.draw(50, entityList);
+            assert(drawSpy1.calledWith(50));
+            assert(drawSpy2.calledWith(50));
+        });
+    });
+
+    describe('update', ()=> {
+        it('should call the UPDATE function and pass in the elapsedMs value for every member of the given entity list', ()=> {
+            const updateSpy1 = sinon.fake();
+            const updateSpy2 = sinon.fake();
+            const entityList = [
+                { update: updateSpy1 },
+                { update: updateSpy2 },
+            ];
+
+            gameEngine.update(100, entityList);
+            assert(updateSpy1.calledWith(100));
+            assert(updateSpy2.calledWith(100));
+        });
+    });
 });
