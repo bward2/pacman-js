@@ -73,9 +73,11 @@ class GameEngine {
         }
     }
 
+    /**
+     * In the event that a ton of unsimulated frames pile up, discard all of these frames to prevent crashing the game
+     */
     panic() {
-        this.elapsedMs = 0; // discard the unsimulated time
-        console.log('Panic!');
+        this.elapsedMs = 0;
     }
 
     start() {

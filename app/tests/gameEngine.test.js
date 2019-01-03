@@ -103,4 +103,12 @@ describe('gameEngine', ()=> {
             assert(updateSpy2.calledWith(100));
         });
     });
+
+    describe('panic', ()=> {
+        it('resets the elapsedMs value to zero', ()=> {
+            gameEngine.elapsedMs = 100;
+            gameEngine.panic();
+            assert.strictEqual(gameEngine.elapsedMs, 0);
+        });
+    })
 });
