@@ -101,6 +101,9 @@ class GameEngine {
         }
     }
 
+    /**
+     * Stops the engine and cancels the current animation frame
+     */
     stop() {
         this.running = false;
         this.started = false;

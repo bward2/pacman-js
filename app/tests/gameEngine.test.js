@@ -143,4 +143,18 @@ describe('gameEngine', ()=> {
             assert(mainLoopSpy.notCalled);
         });
     });
+
+    describe('stop', ()=> {
+        it('stops the engine and cancels the current animation frame', ()=> {
+            const cancelSpy = sinon.fake();
+            global.cancelAnimationFrame = cancelSpy;
+
+            gameEngine.running = true;
+            gameEngine.started = true;
+            gameEngine.stop();
+            assert(!gameEngine.running);
+            assert(!gameEngine.started);
+            assert(cancelSpy.called);
+        });
+    });
 });
