@@ -90,4 +90,17 @@ describe('pacman', () => {
             assert.strictEqual(pacman.calculateVelocityPerMs(200), 2.2);
         });
     });
+
+    describe('setSpriteSheet', ()=> {
+        it('should set the correct spritesheet for any given direction', ()=> {
+            pacman.setSpriteSheet('up');
+            assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_up.svg)');
+            pacman.setSpriteSheet('down');
+            assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_down.svg)');
+            pacman.setSpriteSheet('left');
+            assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_left.svg)');
+            pacman.setSpriteSheet('right');
+            assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_right.svg)');
+        });
+    });
 });
