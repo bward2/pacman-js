@@ -138,17 +138,7 @@ class Pacman {
 
         this.updatePacmanArrowPosition(this.position, this.scaledTileSize);
 
-        if (this.msSinceLastSprite > this.msBetweenSprites && this.moving) {
-            this.msSinceLastSprite = 0;
-
-            this.animationTarget.style.backgroundPosition = `-${this.backgroundOffsetPixels}px 0px`;
-        
-            if (this.backgroundOffsetPixels < (this.measurement * (this.spriteFrames - 1))) {
-                this.backgroundOffsetPixels = this.backgroundOffsetPixels + this.measurement;
-            } else {
-                this.backgroundOffsetPixels = 0;
-            }
-        }
+        this.characterUtil.advanceSpriteSheet(this);
     }
     
     update(elapsedMs){
