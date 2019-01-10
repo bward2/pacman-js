@@ -172,4 +172,52 @@ describe('characterUtil', () => {
             assert.deepEqual(characterUtil.handleWarp({top:0, left:0}, scaledTileSize, mazeArray), {top:0, left:0});
         });
     });
+
+    describe('advanceSpriteSheet', ()=> {
+        let character;
+
+        beforeEach(()=> {
+            character = {
+                msSinceLastSprite: 15,
+                msBetweenSprites: 10,
+                moving: true,
+                animationTarget: {
+                    style: {}
+                },
+                backgroundOffsetPixels: 50,
+                measurement: 25,
+                spriteFrames: 5
+            };
+        });
+
+        it('should advance animation by one frame if enough time has passed', ()=> {
+            characterUtil.advanceSpriteSheet(character);
+            assert.strictEqual(character.msSinceLastSprite, 0);
+            assert.strictEqual(character.animationTarget.style.backgroundPosition, '-50px 0px');
+            assert.strictEqual(character.backgroundOffsetPixels, 75);
+        });
+
+        it('should return to the first frame in the spritesheet if the end of the spritesheet is reached', ()=> {
+            character.backgroundOffsetPixels = 250;
+
+            characterUtil.advanceSpriteSheet(character);
+            assert.strictEqual(character.msSinceLastSprite, 0);
+            assert.strictEqual(character.animationTarget.style.backgroundPosition, '-250px 0px');
+            assert.strictEqual(character.backgroundOffsetPixels, 0);
+        });
+
+        it('should not advance animation if insufficient time has passed between sprites', ()=> {
+            character.msSinceLastSprite = 5;
+
+            characterUtil.advanceSpriteSheet(character);
+            assert.strictEqual(character.msSinceLastSprite, 5);
+        });
+
+        it('should not advance animation if the character is not moving', ()=> {
+            character.moving = false;
+
+            characterUtil.advanceSpriteSheet(character);
+            assert.strictEqual(character.msSinceLastSprite, 15);
+        });
+    });
 });
