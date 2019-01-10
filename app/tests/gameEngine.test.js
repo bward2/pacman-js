@@ -26,8 +26,7 @@ beforeEach(()=> {
 describe('gameEngine', ()=> {
     describe('handleKeyPress', ()=> {
         it('calls changePausedState if the escape key is pressed', ()=> {
-            const pauseSpy = sinon.fake();
-            gameEngine.changePausedState = pauseSpy;
+            const pauseSpy = gameEngine.changePausedState = sinon.fake();
 
             gameEngine.handleKeyPress({
                 keyCode: 27
@@ -36,8 +35,7 @@ describe('gameEngine', ()=> {
         });
 
         it('does not call changePausedState unless the escape key is pressed', ()=> {
-            const pauseSpy = sinon.fake();
-            gameEngine.changePausedState = pauseSpy;
+            const pauseSpy = gameEngine.changePausedState = sinon.fake();
 
             gameEngine.handleKeyPress({
                 keyCode: 1
@@ -47,22 +45,14 @@ describe('gameEngine', ()=> {
     });
     
     describe('changePausedState', ()=> {
-        let stopSpy, startSpy;
-
-        beforeEach(()=> {
-            stopSpy = sinon.fake();
-            startSpy = sinon.fake();
-
-            gameEngine.stop = stopSpy;
-            gameEngine.start = startSpy;
-        });
-
         it('should pause the game if it is running', ()=> {
+            const stopSpy = gameEngine.stop = sinon.fake();
             gameEngine.changePausedState(true);
             assert(stopSpy.called);
         });
 
         it('should resume the game if it is paused', ()=> {
+            const startSpy = gameEngine.start = sinon.fake();
             gameEngine.changePausedState(false);
             assert(startSpy.called);
         });
@@ -158,10 +148,8 @@ describe('gameEngine', ()=> {
 
     describe('start', ()=> {
         it('calls the mainLoop function if the engine is not currently running', ()=> {
-            const mainLoopSpy = sinon.fake();
-            const drawSpy = sinon.fake();
-            gameEngine.mainLoop = mainLoopSpy;
-            gameEngine.draw = drawSpy;
+            const mainLoopSpy = gameEngine.mainLoop = sinon.fake();
+            const drawSpy = gameEngine.draw = sinon.fake();
 
             gameEngine.started = false;
             gameEngine.start();
@@ -175,8 +163,7 @@ describe('gameEngine', ()=> {
         });
 
         it('does not call the mainLoop function once the engine is already running', ()=> {
-            const mainLoopSpy = sinon.fake();
-            gameEngine.mainLoop = mainLoopSpy;
+            const mainLoopSpy = gameEngine.mainLoop = sinon.fake();
 
             gameEngine.started = true;
             gameEngine.start();
@@ -186,8 +173,7 @@ describe('gameEngine', ()=> {
 
     describe('stop', ()=> {
         it('stops the engine and cancels the current animation frame', ()=> {
-            const cancelSpy = sinon.fake();
-            global.cancelAnimationFrame = cancelSpy;
+            const cancelSpy = global.cancelAnimationFrame = sinon.fake();
 
             gameEngine.running = true;
             gameEngine.started = true;
@@ -200,8 +186,7 @@ describe('gameEngine', ()=> {
 
     describe('processFrames', ()=> {
         it('calls the update function once per timestep passed since the last update', ()=> {
-            const updateSpy = sinon.fake();
-            gameEngine.update = updateSpy;
+            const updateSpy = gameEngine.update = sinon.fake();
 
             gameEngine.elapsedMs = 3;
             gameEngine.timestep = 1;
@@ -210,10 +195,8 @@ describe('gameEngine', ()=> {
         });
 
         it('calls the panic function and stops calling update if more than a second\'s worth of frames have elapsed', ()=> {
-            const updateSpy = sinon.fake();
-            const panicSpy = sinon.fake();
-            gameEngine.update = updateSpy;
-            gameEngine.panic = panicSpy;
+            const updateSpy = gameEngine.update = sinon.fake();
+            const panicSpy = gameEngine.panic = sinon.fake();
 
             gameEngine.elapsedMs = (gameEngine.maxFps * gameEngine.timestep) + 1;
             gameEngine.processFrames();
@@ -224,14 +207,10 @@ describe('gameEngine', ()=> {
 
     describe('engineCycle', ()=> {
         it('will not call updateFpsDisplay, processFrames, or draw if less than one timestep has passed since the last update', ()=> {
-            const mainLoopSpy = sinon.fake();
-            const updateFpsDisplaySpy = sinon.fake();
-            const processFramesSpy = sinon.fake();
-            const drawSpy = sinon.fake();
-            gameEngine.mainLoop = mainLoopSpy;
-            gameEngine.updateFpsDisplay = updateFpsDisplaySpy;
-            gameEngine.processFrames = processFramesSpy;
-            gameEngine.draw = drawSpy;
+            const mainLoopSpy = gameEngine.mainLoop = sinon.fake();
+            const updateFpsDisplaySpy = gameEngine.updateFpsDisplay = sinon.fake();
+            const processFramesSpy = gameEngine.processFrames = sinon.fake();
+            const drawSpy = gameEngine.draw = sinon.fake();
             gameEngine.elapsedMs = 10000;
             gameEngine.lastFrameTimeMs = 9000;
 
@@ -245,14 +224,10 @@ describe('gameEngine', ()=> {
         });
 
         it('will call updateFpsDisplay, processFrames, or draw if more than one timestep has passed since the last update', ()=> {
-            const mainLoopSpy = sinon.fake();
-            const updateFpsDisplaySpy = sinon.fake();
-            const processFramesSpy = sinon.fake();
-            const drawSpy = sinon.fake();
-            gameEngine.mainLoop = mainLoopSpy;
-            gameEngine.updateFpsDisplay = updateFpsDisplaySpy;
-            gameEngine.processFrames = processFramesSpy;
-            gameEngine.draw = drawSpy;
+            const mainLoopSpy = gameEngine.mainLoop = sinon.fake();
+            const updateFpsDisplaySpy = gameEngine.updateFpsDisplay = sinon.fake();
+            const processFramesSpy = gameEngine.processFrames = sinon.fake();
+            const drawSpy = gameEngine.draw = sinon.fake();
             gameEngine.elapsedMs = 10000;
             gameEngine.lastFrameTimeMs = 9000;
 
@@ -268,8 +243,7 @@ describe('gameEngine', ()=> {
 
     describe('mainLoop', ()=> {
         it('calls the engineCycle function with a timestamp', ()=> {
-            const engineCycleSpy = sinon.fake();
-            gameEngine.engineCycle = engineCycleSpy;
+            const engineCycleSpy = gameEngine.engineCycle = sinon.fake();
 
             gameEngine.mainLoop(1000);
             assert(engineCycleSpy.calledWith(1000));
