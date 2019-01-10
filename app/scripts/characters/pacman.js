@@ -108,6 +108,10 @@ class Pacman {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/pacman_${direction}.svg)`;
     }
 
+    /**
+     * Changes Pacman's desiredDirection, updates the PacmanArrow sprite, and sets moving to true
+     * @param {Event} e - The keydown event to evaluate
+     */
     changeDirection(e) {
         if(this.movementKeys[e.keyCode]) {
             this.desiredDirection = this.characterUtil.directions[this.movementKeys[e.keyCode]];

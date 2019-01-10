@@ -103,4 +103,66 @@ describe('pacman', () => {
             assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_right.svg)');
         });
     });
+
+    describe('changeDirection', ()=> {
+        it('should change Pacman\'s movement properties if a recognized keycode is pressed', ()=> {
+            assert.strictEqual(pacman.desiredDirection, 'left');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, undefined);
+            assert(!pacman.moving);
+
+            // Up Arrow
+            pacman.changeDirection({ keyCode: 38 });
+            assert.strictEqual(pacman.desiredDirection, 'up');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_up.svg)');
+            assert(pacman.moving);
+
+            // Down Arrow
+            pacman.changeDirection({ keyCode: 40 });
+            assert.strictEqual(pacman.desiredDirection, 'down');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_down.svg)');
+
+            // Left Arrow
+            pacman.changeDirection({ keyCode: 37 });
+            assert.strictEqual(pacman.desiredDirection, 'left');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_left.svg)');
+
+            // Left Arrow
+            pacman.changeDirection({ keyCode: 39 });
+            assert.strictEqual(pacman.desiredDirection, 'right');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_right.svg)');
+
+            // W Key
+            pacman.changeDirection({ keyCode: 38 });
+            assert.strictEqual(pacman.desiredDirection, 'up');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_up.svg)');
+            assert(pacman.moving);
+
+            // S Key
+            pacman.changeDirection({ keyCode: 40 });
+            assert.strictEqual(pacman.desiredDirection, 'down');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_down.svg)');
+
+            // A Key
+            pacman.changeDirection({ keyCode: 37 });
+            assert.strictEqual(pacman.desiredDirection, 'left');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_left.svg)');
+
+            // D Key
+            pacman.changeDirection({ keyCode: 39 });
+            assert.strictEqual(pacman.desiredDirection, 'right');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_right.svg)');
+        });
+
+        it('should not change anything if an unrecognized key is pressed', ()=> {
+            assert.strictEqual(pacman.desiredDirection, 'left');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, undefined);
+            assert(!pacman.moving);
+
+            // P Key
+            pacman.changeDirection({ keyCode: 80 });
+            assert.strictEqual(pacman.desiredDirection, 'left');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, undefined);
+            assert(!pacman.moving);
+        });
+    });
 });
