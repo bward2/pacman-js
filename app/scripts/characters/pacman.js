@@ -120,6 +120,11 @@ class Pacman {
         }
     }
 
+    /**
+     * Updates the position of the leading arrow in front of Pacman
+     * @param {({top: number, left: number})} position - Pacman's position during the current frame
+     * @param {number} scaledTileSize - The dimensions of a single tile
+     */
     updatePacmanArrowPosition(position, scaledTileSize) {
         this.pacmanArrow.style.top = `${position.top - scaledTileSize}px`;
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;

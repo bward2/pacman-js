@@ -165,4 +165,15 @@ describe('pacman', () => {
             assert(!pacman.moving);
         });
     });
+
+    describe('updatePacmanArrowPosition', ()=> {
+        it('should update the css positioning of the Pacman Arrow based on Pacman\'s position and the scaledTileSize', ()=> {
+            assert.strictEqual(pacman.pacmanArrow.style.top, undefined);
+            assert.strictEqual(pacman.pacmanArrow.style.left, undefined);
+
+            pacman.updatePacmanArrowPosition({ top: 100, left: 100 }, scaledTileSize);
+            assert.strictEqual(pacman.pacmanArrow.style.top, '92px');
+            assert.strictEqual(pacman.pacmanArrow.style.left, '92px');
+        });
+    });
 });
