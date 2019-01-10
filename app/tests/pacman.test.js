@@ -1,4 +1,5 @@
 const assert = require('assert');
+const sinon = require('sinon');
 const Pacman = require('../scripts/characters/pacman');
 const CharacterUtil = require('../scripts/utilities/characterUtil');
 
@@ -174,6 +175,24 @@ describe('pacman', () => {
             pacman.updatePacmanArrowPosition({ top: 100, left: 100 }, scaledTileSize);
             assert.strictEqual(pacman.pacmanArrow.style.top, '92px');
             assert.strictEqual(pacman.pacmanArrow.style.left, '92px');
+        });
+    });
+
+    describe('draw', ()=> {
+        it('should update various css properties and animate Pacman\'s spritesheet', ()=> {
+            const drawValueSpy = pacman.characterUtil.calculateNewDrawValue = sinon.fake.returns(100);
+            const stutterSpy = pacman.characterUtil.checkForStutter = sinon.fake.returns('visible');
+            const arrowSpy = pacman.updatePacmanArrowPosition = sinon.fake();
+            const spriteSpy = pacman.characterUtil.advanceSpriteSheet = sinon.fake();
+
+            pacman.draw(1);
+            assert.strictEqual(pacman.animationTarget.style.top, '100px');
+            assert.strictEqual(pacman.animationTarget.style.left, '100px');
+            assert.strictEqual(pacman.animationTarget.style.visibility, 'visible');
+            assert(drawValueSpy.calledTwice);
+            assert(stutterSpy.called);
+            assert(arrowSpy.called);
+            assert(spriteSpy.called);
         });
     });
 });
