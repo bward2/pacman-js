@@ -15,6 +15,10 @@ class Pacman {
         this.setSpriteSheet(this.direction);
     }
 
+    /**
+     * Sets various properties related to Pacman's movement
+     * @param {number} scaledTileSize - The dimensions of a single tile
+     */
     setMovementStats(scaledTileSize) {
         this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
         this.desiredDirection = this.characterUtil.directions.left;
@@ -22,6 +26,9 @@ class Pacman {
         this.moving = false;
     }
 
+    /**
+     * Sets values pertaining to Pacman's spritesheet animation
+     */
     setSpriteAnimationStats() {
         this.msBetweenSprites = 50;
         this.msSinceLastSprite = 0;
@@ -29,8 +36,12 @@ class Pacman {
         this.backgroundOffsetPixels = 0;
     }
 
+    /**
+     * Sets css property values for Pacman and Pacman's Arrow
+     * @param {number} scaledTileSize - The dimensions of a single tile
+     * @param {number} spriteFrames - The number of frames in Pacman's spritesheet
+     */
     setStyleMeasurements(scaledTileSize, spriteFrames) {
-        // Pacman is the size of 2x2 game tiles.
         this.measurement = scaledTileSize * 2;
 
         this.animationTarget.style.height = `${this.measurement}px`;
@@ -42,6 +53,10 @@ class Pacman {
         this.pacmanArrow.style.backgroundSize = `${this.measurement * 2}px`;
     }
 
+    /**
+     * Sets the default position and direction for Pacman at the game's start
+     * @param {number} scaledTileSize - The dimensions of a single tile 
+     */
     setDefaultPosition(scaledTileSize) {
         this.position = {
             top: scaledTileSize * 22.5,
@@ -52,6 +67,9 @@ class Pacman {
         this.animationTarget.style.left = `${this.position.left}px`;
     }
 
+    /**
+     * Sets the movement key options for Pacman and registers a keydown event listener
+     */
     setKeyListeners() {
         this.movementKeys = {
             // WASD
@@ -72,16 +90,28 @@ class Pacman {
         });
     }
 
+    /**
+     * Calculates how fast Pacman should move in a millisecond
+     * @param {number} scaledTileSize - The dimensions of a single tile
+     */
     calculateVelocityPerMs(scaledTileSize) {
         // In the original game, Pacman moved at 11 tiles per second.
         let velocityPerSecond = scaledTileSize * 11;
         return velocityPerSecond / 1000;
     }
 
+    /**
+     * Chooses a movement Spritesheet depending upon direction
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+     */
     setSpriteSheet(direction) {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/pacman_${direction}.svg)`;
     }
 
+    /**
+     * Changes Pacman's desiredDirection, updates the PacmanArrow sprite, and sets moving to true
+     * @param {Event} e - The keydown event to evaluate
+     */
     changeDirection(e) {
         if(this.movementKeys[e.keyCode]) {
             this.desiredDirection = this.characterUtil.directions[this.movementKeys[e.keyCode]];
@@ -90,11 +120,20 @@ class Pacman {
         }
     }
 
+    /**
+     * Updates the position of the leading arrow in front of Pacman
+     * @param {({top: number, left: number})} position - Pacman's position during the current frame
+     * @param {number} scaledTileSize - The dimensions of a single tile
+     */
     updatePacmanArrowPosition(position, scaledTileSize) {
         this.pacmanArrow.style.top = `${position.top - scaledTileSize}px`;
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
     }
 
+    /**
+     * Updates the css position of Pacman and the Pacman arrow, hides them if there is a stutter, and animates Pacman's spritesheet
+     * @param {number} interp - The percentage of accuracy between the desired and actual amount of time between updates
+     */
     draw(interp){
         this.animationTarget.style['top'] = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
         this.animationTarget.style['left'] = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;
@@ -103,17 +142,7 @@ class Pacman {
 
         this.updatePacmanArrowPosition(this.position, this.scaledTileSize);
 
-        if (this.msSinceLastSprite > this.msBetweenSprites && this.moving) {
-            this.msSinceLastSprite = 0;
-
-            this.animationTarget.style.backgroundPosition = `-${this.backgroundOffsetPixels}px 0px`;
-        
-            if (this.backgroundOffsetPixels < (this.measurement * (this.spriteFrames - 1))) {
-                this.backgroundOffsetPixels = this.backgroundOffsetPixels + this.measurement;
-            } else {
-                this.backgroundOffsetPixels = 0;
-            }
-        }
+        this.characterUtil.advanceSpriteSheet(this);
     }
     
     update(elapsedMs){

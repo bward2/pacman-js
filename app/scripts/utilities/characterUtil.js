@@ -207,6 +207,24 @@ class CharacterUtil {
 
         return newPosition;
     }
+
+    /**
+     * Checks the amount of time that has passed since the last spritesheet animation and advances by one frame if needed
+     * @param {Object} character - The character which needs to be animated
+     */
+    advanceSpriteSheet(character) {
+        if (character.msSinceLastSprite > character.msBetweenSprites && character.moving) {
+            character.msSinceLastSprite = 0;
+
+            character.animationTarget.style.backgroundPosition = `-${character.backgroundOffsetPixels}px 0px`;
+        
+            if (character.backgroundOffsetPixels < (character.measurement * (character.spriteFrames - 1))) {
+                character.backgroundOffsetPixels = character.backgroundOffsetPixels + character.measurement;
+            } else {
+                character.backgroundOffsetPixels = 0;
+            }
+        }
+    }
 }
 
 //removeIf(production)

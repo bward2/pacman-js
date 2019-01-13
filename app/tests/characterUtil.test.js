@@ -85,16 +85,16 @@ describe('characterUtil', () => {
 
     describe('turningAround', ()=> {
         it('should return TRUE if a character\'s direction and desired direction are opposites', ()=> {
-            assert.strictEqual(characterUtil.turningAround('up', 'down'), true);
-            assert.strictEqual(characterUtil.turningAround('down', 'up'), true);
-            assert.strictEqual(characterUtil.turningAround('left', 'right'), true);
-            assert.strictEqual(characterUtil.turningAround('right', 'left'), true);
+            assert(characterUtil.turningAround('up', 'down'));
+            assert(characterUtil.turningAround('down', 'up'));
+            assert(characterUtil.turningAround('left', 'right'));
+            assert(characterUtil.turningAround('right', 'left'));
         });
 
         it('should return FALSE if a character is continuing straight or turning to the side', ()=> {
-            assert.strictEqual(characterUtil.turningAround('up', 'up'), false);
-            assert.strictEqual(characterUtil.turningAround('up', 'left'), false);
-            assert.strictEqual(characterUtil.turningAround('up', 'right'), false);
+            assert(!characterUtil.turningAround('up', 'up'));
+            assert(!characterUtil.turningAround('up', 'left'));
+            assert(!characterUtil.turningAround('up', 'right'));
         });
     });
 
@@ -121,33 +121,33 @@ describe('characterUtil', () => {
 
     describe('changingGridPosition', ()=> {
         it('should return TRUE if the character is about to move to a new grid position on the maze', ()=> {
-            assert.strictEqual(characterUtil.changingGridPosition({x:0, y:0}, {x:0, y:1}), true);
-            assert.strictEqual(characterUtil.changingGridPosition({x:0, y:0}, {x:1, y:0}), true);
-            assert.strictEqual(characterUtil.changingGridPosition({x:0, y:0}, {x:1, y:1}), true);
+            assert(characterUtil.changingGridPosition({x:0, y:0}, {x:0, y:1}));
+            assert(characterUtil.changingGridPosition({x:0, y:0}, {x:1, y:0}));
+            assert(characterUtil.changingGridPosition({x:0, y:0}, {x:1, y:1}));
         });
 
         it('should return FALSE if the character will remain on the same maze tile', ()=> {
-            assert.strictEqual(characterUtil.changingGridPosition({x:0, y:0}, {x:0, y:0}), false);
-            assert.strictEqual(characterUtil.changingGridPosition({x:0, y:0}, {x:0.1, y:0.9}), false);
+            assert(!characterUtil.changingGridPosition({x:0, y:0}, {x:0, y:0}));
+            assert(!characterUtil.changingGridPosition({x:0, y:0}, {x:0.1, y:0.9}));
         });
     });
 
     describe('checkForWallCollision', ()=> {
         it('should return TRUE if the character is about to run into a wall', ()=> {
-            assert.strictEqual(characterUtil.checkForWallCollision({x:0, y:1}, mazeArray, 'left'), true);
-            assert.strictEqual(characterUtil.checkForWallCollision({x:1, y:0}, mazeArray, 'up'), true);
+            assert(characterUtil.checkForWallCollision({x:0, y:1}, mazeArray, 'left'));
+            assert(characterUtil.checkForWallCollision({x:1, y:0}, mazeArray, 'up'));
         });
 
         it('should return FALSE if the character is running to an unobstructed tile', ()=> {
-            assert.strictEqual(characterUtil.checkForWallCollision({x:2, y:1}, mazeArray, 'right'), false);
-            assert.strictEqual(characterUtil.checkForWallCollision({x:1, y:2}, mazeArray, 'down'), false);
-            assert.strictEqual(characterUtil.checkForWallCollision({x:1, y:1}, mazeArray, 'left'), false);
-            assert.strictEqual(characterUtil.checkForWallCollision({x:1, y:1}, mazeArray, 'up'), false);
+            assert(!characterUtil.checkForWallCollision({x:2, y:1}, mazeArray, 'right'));
+            assert(!characterUtil.checkForWallCollision({x:1, y:2}, mazeArray, 'down'));
+            assert(!characterUtil.checkForWallCollision({x:1, y:1}, mazeArray, 'left'));
+            assert(!characterUtil.checkForWallCollision({x:1, y:1}, mazeArray, 'up'));
         });
 
         it('should return FALSE if the character is moving to a tile outside of the maze', ()=> {
-            assert.strictEqual(characterUtil.checkForWallCollision({x:-1, y:-1}, mazeArray, 'right'), false);
-            assert.strictEqual(characterUtil.checkForWallCollision({x:Infinity, y:Infinity}, mazeArray, 'right'), false);
+            assert(!characterUtil.checkForWallCollision({x:-1, y:-1}, mazeArray, 'right'));
+            assert(!characterUtil.checkForWallCollision({x:Infinity, y:Infinity}, mazeArray, 'right'));
         });
     });
 
@@ -170,6 +170,54 @@ describe('characterUtil', () => {
 
         it('should not warp the character if they are within the left-right boundaries of the maze', ()=> {
             assert.deepEqual(characterUtil.handleWarp({top:0, left:0}, scaledTileSize, mazeArray), {top:0, left:0});
+        });
+    });
+
+    describe('advanceSpriteSheet', ()=> {
+        let character;
+
+        beforeEach(()=> {
+            character = {
+                msSinceLastSprite: 15,
+                msBetweenSprites: 10,
+                moving: true,
+                animationTarget: {
+                    style: {}
+                },
+                backgroundOffsetPixels: 50,
+                measurement: 25,
+                spriteFrames: 5
+            };
+        });
+
+        it('should advance animation by one frame if enough time has passed', ()=> {
+            characterUtil.advanceSpriteSheet(character);
+            assert.strictEqual(character.msSinceLastSprite, 0);
+            assert.strictEqual(character.animationTarget.style.backgroundPosition, '-50px 0px');
+            assert.strictEqual(character.backgroundOffsetPixels, 75);
+        });
+
+        it('should return to the first frame in the spritesheet if the end of the spritesheet is reached', ()=> {
+            character.backgroundOffsetPixels = 250;
+
+            characterUtil.advanceSpriteSheet(character);
+            assert.strictEqual(character.msSinceLastSprite, 0);
+            assert.strictEqual(character.animationTarget.style.backgroundPosition, '-250px 0px');
+            assert.strictEqual(character.backgroundOffsetPixels, 0);
+        });
+
+        it('should not advance animation if insufficient time has passed between sprites', ()=> {
+            character.msSinceLastSprite = 5;
+
+            characterUtil.advanceSpriteSheet(character);
+            assert.strictEqual(character.msSinceLastSprite, 5);
+        });
+
+        it('should not advance animation if the character is not moving', ()=> {
+            character.moving = false;
+
+            characterUtil.advanceSpriteSheet(character);
+            assert.strictEqual(character.msSinceLastSprite, 15);
         });
     });
 });

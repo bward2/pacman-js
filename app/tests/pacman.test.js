@@ -1,4 +1,5 @@
 const assert = require('assert');
+const sinon = require('sinon');
 const Pacman = require('../scripts/characters/pacman');
 const CharacterUtil = require('../scripts/utilities/characterUtil');
 
@@ -88,6 +89,110 @@ describe('pacman', () => {
             assert.strictEqual(pacman.calculateVelocityPerMs(8), 0.088);
             assert.strictEqual(pacman.calculateVelocityPerMs(64), 0.704);
             assert.strictEqual(pacman.calculateVelocityPerMs(200), 2.2);
+        });
+    });
+
+    describe('setSpriteSheet', ()=> {
+        it('should set the correct spritesheet for any given direction', ()=> {
+            pacman.setSpriteSheet('up');
+            assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_up.svg)');
+            pacman.setSpriteSheet('down');
+            assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_down.svg)');
+            pacman.setSpriteSheet('left');
+            assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_left.svg)');
+            pacman.setSpriteSheet('right');
+            assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_right.svg)');
+        });
+    });
+
+    describe('changeDirection', ()=> {
+        it('should change Pacman\'s movement properties if a recognized keycode is pressed', ()=> {
+            assert.strictEqual(pacman.desiredDirection, 'left');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, undefined);
+            assert(!pacman.moving);
+
+            // Up Arrow
+            pacman.changeDirection({ keyCode: 38 });
+            assert.strictEqual(pacman.desiredDirection, 'up');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_up.svg)');
+            assert(pacman.moving);
+
+            // Down Arrow
+            pacman.changeDirection({ keyCode: 40 });
+            assert.strictEqual(pacman.desiredDirection, 'down');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_down.svg)');
+
+            // Left Arrow
+            pacman.changeDirection({ keyCode: 37 });
+            assert.strictEqual(pacman.desiredDirection, 'left');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_left.svg)');
+
+            // Left Arrow
+            pacman.changeDirection({ keyCode: 39 });
+            assert.strictEqual(pacman.desiredDirection, 'right');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_right.svg)');
+
+            // W Key
+            pacman.changeDirection({ keyCode: 38 });
+            assert.strictEqual(pacman.desiredDirection, 'up');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_up.svg)');
+            assert(pacman.moving);
+
+            // S Key
+            pacman.changeDirection({ keyCode: 40 });
+            assert.strictEqual(pacman.desiredDirection, 'down');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_down.svg)');
+
+            // A Key
+            pacman.changeDirection({ keyCode: 37 });
+            assert.strictEqual(pacman.desiredDirection, 'left');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_left.svg)');
+
+            // D Key
+            pacman.changeDirection({ keyCode: 39 });
+            assert.strictEqual(pacman.desiredDirection, 'right');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_right.svg)');
+        });
+
+        it('should not change anything if an unrecognized key is pressed', ()=> {
+            assert.strictEqual(pacman.desiredDirection, 'left');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, undefined);
+            assert(!pacman.moving);
+
+            // P Key
+            pacman.changeDirection({ keyCode: 80 });
+            assert.strictEqual(pacman.desiredDirection, 'left');
+            assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, undefined);
+            assert(!pacman.moving);
+        });
+    });
+
+    describe('updatePacmanArrowPosition', ()=> {
+        it('should update the css positioning of the Pacman Arrow based on Pacman\'s position and the scaledTileSize', ()=> {
+            assert.strictEqual(pacman.pacmanArrow.style.top, undefined);
+            assert.strictEqual(pacman.pacmanArrow.style.left, undefined);
+
+            pacman.updatePacmanArrowPosition({ top: 100, left: 100 }, scaledTileSize);
+            assert.strictEqual(pacman.pacmanArrow.style.top, '92px');
+            assert.strictEqual(pacman.pacmanArrow.style.left, '92px');
+        });
+    });
+
+    describe('draw', ()=> {
+        it('should update various css properties and animate Pacman\'s spritesheet', ()=> {
+            const drawValueSpy = pacman.characterUtil.calculateNewDrawValue = sinon.fake.returns(100);
+            const stutterSpy = pacman.characterUtil.checkForStutter = sinon.fake.returns('visible');
+            const arrowSpy = pacman.updatePacmanArrowPosition = sinon.fake();
+            const spriteSpy = pacman.characterUtil.advanceSpriteSheet = sinon.fake();
+
+            pacman.draw(1);
+            assert.strictEqual(pacman.animationTarget.style.top, '100px');
+            assert.strictEqual(pacman.animationTarget.style.left, '100px');
+            assert.strictEqual(pacman.animationTarget.style.visibility, 'visible');
+            assert(drawValueSpy.calledTwice);
+            assert(stutterSpy.called);
+            assert(arrowSpy.called);
+            assert(spriteSpy.called);
         });
     });
 });
