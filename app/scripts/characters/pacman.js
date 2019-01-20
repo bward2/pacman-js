@@ -85,9 +85,7 @@ class Pacman {
             39: 'right'
         };
 
-        window.addEventListener('keydown', (e) => {
-            this.changeDirection(e);
-        });
+        window.addEventListener('keydown', this.changeDirection.bind(this));
     }
 
     /**
@@ -212,6 +210,6 @@ class Pacman {
     }
 }
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = Pacman;
-}
+//removeIf(production)
+module.exports = Pacman;
+//endRemoveIf(production)

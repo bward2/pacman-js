@@ -288,4 +288,38 @@ describe('pacman', () => {
             assert(spriteSpy.called);
         });
     });
+
+    describe('update', ()=> {
+        it('should call handleSnappedMovement if Pacman is moving and snapped to the x-y grid of the Maze Array', ()=> {
+            const snappedSpy = pacman.handleSnappedMovement = sinon.fake();
+            pacman.characterUtil.determineGridPosition = sinon.fake();
+            pacman.characterUtil.handleWarp = sinon.fake();
+            pacman.characterUtil.snapToGrid = sinon.fake.returns(pacman.position);
+            pacman.moving = true;
+
+            pacman.update();
+            assert(snappedSpy.called);
+        });
+
+        it('should call handleUnsnappedMovement if Pacman is moving and inbetween tiles on the x-y grid of the Maze Array', ()=> {
+            const unsnappedSpy = pacman.handleUnsnappedMovement = sinon.fake();
+            pacman.characterUtil.determineGridPosition = sinon.fake();
+            pacman.characterUtil.handleWarp = sinon.fake();
+            pacman.characterUtil.snapToGrid = sinon.fake.returns({});
+            pacman.moving = true;
+
+            pacman.update();
+            assert(unsnappedSpy.called);
+        });
+
+        it('should not call movement handlers if Pacman is not moving', ()=> {
+            const snappedSpy = pacman.handleSnappedMovement = sinon.fake();
+            const unsnappedSpy = pacman.handleUnsnappedMovement = sinon.fake();
+            pacman.moving = false;
+
+            pacman.update();
+            assert(!snappedSpy.called);
+            assert(!unsnappedSpy.called);
+        });
+    });
 });
