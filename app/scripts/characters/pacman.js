@@ -130,6 +130,11 @@ class Pacman {
         this.pacmanArrow.style.left = `${position.left - scaledTileSize}px`;
     }
 
+    /**
+     * Handle Pacman's movement and return a new position when Pacman is snapped to the x-y grid of the Maze Array
+     * @param {number} elapsedMs - The amount of MS that have passed since the last update
+     * @returns {({ top: number, left: number})}
+     */
     handleSnappedMovement(elapsedMs) {
         const desired = this.characterUtil.determineNewPositions(this.position, this.desiredDirection, this.velocityPerMs, elapsedMs, this.scaledTileSize);
         const alternate = this.characterUtil.determineNewPositions(this.position, this.direction, this.velocityPerMs, elapsedMs, this.scaledTileSize);
@@ -148,6 +153,12 @@ class Pacman {
         }
     }
 
+    /**
+     * Handle Pacman's movement and return a new position when Pacman is inbetween tiles on the x-y grid of the Maze Array
+     * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame 
+     * @param {number} elapsedMs - The amount of MS that have passed since the last update
+     * @returns {({ top: number, left: number})}
+     */
     handleUnsnappedMovement(gridPosition, elapsedMs) {
         const desired = this.characterUtil.determineNewPositions(this.position, this.desiredDirection, this.velocityPerMs, elapsedMs, this.scaledTileSize);
         const alternate = this.characterUtil.determineNewPositions(this.position, this.direction, this.velocityPerMs, elapsedMs, this.scaledTileSize);
@@ -178,6 +189,10 @@ class Pacman {
         this.characterUtil.advanceSpriteSheet(this);
     }
     
+    /**
+     * Handles movement logic for Pacman
+     * @param {number} elapsedMs - The amount of MS that have passed since the last update
+     */
     update(elapsedMs){
         this.oldPosition = Object.assign({}, this.position);
 
