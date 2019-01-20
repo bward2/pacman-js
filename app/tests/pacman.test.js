@@ -183,6 +183,8 @@ describe('pacman', () => {
         let alternatePosition;
 
         beforeEach(()=> {
+            pacman.direction = 'left';
+            pacman.desiredDirection = 'up';
             pacman.characterUtil.determineNewPositions = (position, direction)=> {
                 desiredPosition = { top:10, left:10 };
                 alternatePosition = { top:100, left:100 };
@@ -204,13 +206,35 @@ describe('pacman', () => {
         it('should set Pacman\'s direction, set his sprite sheet, and return the desired new position if his desired new position is clear', ()=> {
             const spriteSpy = pacman.setSpriteSheet = sinon.fake();
             pacman.characterUtil.checkForWallCollision = sinon.fake.returns(false);
-            pacman.direction = 'left';
-            pacman.desiredDirection = 'up';
 
             const newPosition = pacman.handleSnappedMovement();
             assert.strictEqual(pacman.direction, 'up');
             assert(spriteSpy.calledWith('up'));
             assert.deepEqual(newPosition, desiredPosition);
+        });
+
+        it('should return the alternate new position if Pacman\'s desired new position results in a wall collision but the alternate position is clear', ()=> {
+            let firstCall = true;
+            pacman.characterUtil.checkForWallCollision = ()=> {
+                if (firstCall) {
+                    firstCall = false;
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+
+            const newPosition = pacman.handleSnappedMovement();
+            assert.deepEqual(newPosition, alternatePosition);
+        });
+
+        it('should return Pacman\'s current position and set his movement to false if both of the potential new positions result in a wall collision', ()=> {
+            pacman.characterUtil.checkForWallCollision = sinon.fake.returns(true);
+            pacman.moving = true;
+
+            const newPosition = pacman.handleSnappedMovement();
+            assert.strictEqual(pacman.moving, false);
+            assert.deepEqual(newPosition, pacman.position);
         });
     });
 
