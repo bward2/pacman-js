@@ -178,6 +178,42 @@ describe('pacman', () => {
         });
     });
 
+    describe('handleSnappedMovement', ()=> {
+        let desiredPosition;
+        let alternatePosition;
+
+        beforeEach(()=> {
+            pacman.characterUtil.determineNewPositions = (position, direction)=> {
+                desiredPosition = { top:10, left:10 };
+                alternatePosition = { top:100, left:100 };
+
+                if (direction === 'up') {
+                    return {
+                        newPosition: desiredPosition,
+                        newGridPosition: { x:5, y:5}
+                    }
+                } else {
+                    return {
+                        newPosition: alternatePosition,
+                        newGridPosition: { x:50, y:50}
+                    }
+                }
+            }
+        });
+
+        it('should set Pacman\'s direction, set his sprite sheet, and return the desired new position if his desired new position is clear', ()=> {
+            const spriteSpy = pacman.setSpriteSheet = sinon.fake();
+            pacman.characterUtil.checkForWallCollision = sinon.fake.returns(false);
+            pacman.direction = 'left';
+            pacman.desiredDirection = 'up';
+
+            const newPosition = pacman.handleSnappedMovement();
+            assert.strictEqual(pacman.direction, 'up');
+            assert(spriteSpy.calledWith('up'));
+            assert.deepEqual(newPosition, desiredPosition);
+        });
+    });
+
     describe('draw', ()=> {
         it('should update various css properties and animate Pacman\'s spritesheet', ()=> {
             const drawValueSpy = pacman.characterUtil.calculateNewDrawValue = sinon.fake.returns(100);
