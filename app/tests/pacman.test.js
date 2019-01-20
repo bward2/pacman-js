@@ -178,9 +178,10 @@ describe('pacman', () => {
         });
     });
 
-    describe('handleSnappedMovement', ()=> {
+    describe('movement handlers', ()=> {
         let desiredPosition;
         let alternatePosition;
+        let snappedPosition;
 
         beforeEach(()=> {
             pacman.direction = 'left';
@@ -188,6 +189,7 @@ describe('pacman', () => {
             pacman.characterUtil.determineNewPositions = (position, direction)=> {
                 desiredPosition = { top:10, left:10 };
                 alternatePosition = { top:100, left:100 };
+                snappedPosition = { top:50, left: 50 };
 
                 if (direction === 'up') {
                     return {
@@ -203,38 +205,69 @@ describe('pacman', () => {
             }
         });
 
-        it('should set Pacman\'s direction, set his sprite sheet, and return the desired new position if his desired new position is clear', ()=> {
-            const spriteSpy = pacman.setSpriteSheet = sinon.fake();
-            pacman.characterUtil.checkForWallCollision = sinon.fake.returns(false);
-
-            const newPosition = pacman.handleSnappedMovement();
-            assert.strictEqual(pacman.direction, 'up');
-            assert(spriteSpy.calledWith('up'));
-            assert.deepEqual(newPosition, desiredPosition);
+        describe('handleSnappedMovement', ()=> {
+            it('should set Pacman\'s direction, set his sprite sheet, and return the desired new position if his desired new position is clear', ()=> {
+                const spriteSpy = pacman.setSpriteSheet = sinon.fake();
+                pacman.characterUtil.checkForWallCollision = sinon.fake.returns(false);
+    
+                const newPosition = pacman.handleSnappedMovement();
+                assert.strictEqual(pacman.direction, 'up');
+                assert(spriteSpy.calledWith('up'));
+                assert.deepEqual(newPosition, desiredPosition);
+            });
+    
+            it('should return the alternate new position if Pacman\'s desired new position results in a wall collision but the alternate position is clear', ()=> {
+                let firstCall = true;
+                pacman.characterUtil.checkForWallCollision = ()=> {
+                    if (firstCall) {
+                        firstCall = false;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                };
+    
+                const newPosition = pacman.handleSnappedMovement();
+                assert.deepEqual(newPosition, alternatePosition);
+            });
+    
+            it('should return Pacman\'s current position and set his movement to false if both of the potential new positions result in a wall collision', ()=> {
+                pacman.characterUtil.checkForWallCollision = sinon.fake.returns(true);
+                pacman.moving = true;
+    
+                const newPosition = pacman.handleSnappedMovement();
+                assert.strictEqual(pacman.moving, false);
+                assert.deepEqual(newPosition, pacman.position);
+            });
         });
+    
+        describe('handleUnsnappedMovement', ()=> {
+            it('should set Pacman\'s direction, set his sprite sheet, and return the desired new position if he is turning around', ()=> {
+                const spriteSpy = pacman.setSpriteSheet = sinon.fake();
+                pacman.characterUtil.turningAround = sinon.fake.returns(true);
 
-        it('should return the alternate new position if Pacman\'s desired new position results in a wall collision but the alternate position is clear', ()=> {
-            let firstCall = true;
-            pacman.characterUtil.checkForWallCollision = ()=> {
-                if (firstCall) {
-                    firstCall = false;
-                    return true;
-                } else {
-                    return false;
-                }
-            };
+                const newPosition = pacman.handleUnsnappedMovement();
+                assert.strictEqual(pacman.direction, 'up');
+                assert(spriteSpy.calledWith('up'));
+                assert.deepEqual(newPosition, desiredPosition);
+            });
 
-            const newPosition = pacman.handleSnappedMovement();
-            assert.deepEqual(newPosition, alternatePosition);
-        });
+            it('should return Pacman\'s current position, snapped to the grid, if he is changing grid positions', ()=> {
+                pacman.characterUtil.turningAround = sinon.fake.returns(false);
+                pacman.characterUtil.changingGridPosition = sinon.fake.returns(true);
+                pacman.characterUtil.snapToGrid = sinon.fake.returns(snappedPosition);
 
-        it('should return Pacman\'s current position and set his movement to false if both of the potential new positions result in a wall collision', ()=> {
-            pacman.characterUtil.checkForWallCollision = sinon.fake.returns(true);
-            pacman.moving = true;
+                const newPosition = pacman.handleUnsnappedMovement();
+                assert.deepEqual(newPosition, snappedPosition);
+            });
 
-            const newPosition = pacman.handleSnappedMovement();
-            assert.strictEqual(pacman.moving, false);
-            assert.deepEqual(newPosition, pacman.position);
+            it('should return the alternate position if Pacman is not turning around or changing grid positions', ()=> {
+                pacman.characterUtil.turningAround = sinon.fake.returns(false);
+                pacman.characterUtil.changingGridPosition = sinon.fake.returns(false);
+
+                const newPosition = pacman.handleUnsnappedMovement();
+                assert.deepEqual(newPosition, alternatePosition);
+            });
         });
     });
 
