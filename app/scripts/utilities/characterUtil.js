@@ -163,7 +163,7 @@ class CharacterUtil {
 
     /**
      * Returns an object containing the new position and grid position based upon a direction
-     * @param {({x: number, y: number})} position - The character's position during the current frame 
+     * @param {({top: number, left: number})} position - The character's css position during the current frame
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
      * @param {number} velocityPerMs - The distance the character should travel in a single millisecond
      * @param {number} elapsedMs - The amount of MS that have passed since the last update
