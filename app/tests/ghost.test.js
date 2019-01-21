@@ -186,4 +186,18 @@ describe('ghost', ()=> {
             assert.strictEqual(bestMove, undefined);
         });
     });
+
+    describe('determineBestMove', ()=> {
+        it('calls the correct functions given a ghost name', ()=> {
+            const blinkySpy = ghost.blinkyBestMove = sinon.fake();
+
+            ghost.determineBestMove('blinky');
+            assert(blinkySpy.called);
+        });
+
+        it('returns LEFT by default if no ghost name is given', ()=> {
+            const bestMove = ghost.determineBestMove();
+            assert.strictEqual(bestMove, 'left');
+        });
+    });
 });

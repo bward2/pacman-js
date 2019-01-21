@@ -181,13 +181,20 @@ class Ghost {
         return bestMove;
     }
 
+    /**
+     * 
+     * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+     * @param {Object} possibleMoves - An object containing all of moves the ghost could choose to make this turn
+     * @param {({x: number, y: number})} pacmanGridPosition - The current x-y position of Pacman on the 2D Maze Array
+     * @returns {('up'|'down'|'left'|'right')}
+     */
     determineBestMove(name, possibleMoves, pacmanGridPosition) {
         switch(name) {
             case 'blinky':
                 return this.blinkyBestMove(possibleMoves, pacmanGridPosition);
             default:
                 // TODO: Other ghosts
-                return 'left';
+                return this.direction;
         }
     }
 
