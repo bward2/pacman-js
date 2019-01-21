@@ -195,9 +195,35 @@ describe('ghost', ()=> {
             assert(blinkySpy.called);
         });
 
-        it('returns LEFT by default if no ghost name is given', ()=> {
+        it('returns the ghost\'s current direciton by default if no ghost name is given', ()=> {
+            ghost.direction = 'up';
             const bestMove = ghost.determineBestMove();
-            assert.strictEqual(bestMove, 'left');
+            assert.strictEqual(bestMove, 'up');
+        });
+    });
+
+    describe('determineDirection', ()=> {
+        it('returns the new direction if there is only one possible move', ()=> {
+            ghost.determinePossibleMoves = sinon.fake.returns({ up:'' });
+
+            const direction = ghost.determineDirection();
+            assert.strictEqual(direction, 'up');
+        });
+
+        it('calls determineBestMove if there are multiple possible moves', ()=> {
+            ghost.determinePossibleMoves = sinon.fake.returns({ up:'', down:'' });
+            const bestSpy = ghost.determineBestMove = sinon.fake.returns('down');
+
+            const direciton = ghost.determineDirection();
+            assert(bestSpy.called);
+            assert.strictEqual(direciton, 'down');
+        });
+
+        it('returns the ghost\'s default direction if there are no possible moves', ()=> {
+            ghost.determinePossibleMoves = sinon.fake.returns({});
+
+            const direciton = ghost.determineDirection(undefined, undefined, undefined, 'right');
+            assert.strictEqual(direciton, 'right');
         });
     });
 });

@@ -198,6 +198,15 @@ class Ghost {
         }
     }
 
+    /**
+     * Determines the best direction for the ghost to travel in during the current frame
+     * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+     * @param {({x: number, y: number})} gridPosition - The current x-y position of the ghost on the 2D Maze Array
+     * @param {({x: number, y: number})} pacmanGridPosition - The current x-y position of Pacman on the 2D Maze Array
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+     * @param {Array} mazeArray - 2D array representing the game board
+     * @returns {('up'|'down'|'left'|'right')}
+     */
     determineDirection(name, gridPosition, pacmanGridPosition, direction, mazeArray) {
         let newDirection = direction;
         const possibleMoves = this.determinePossibleMoves(gridPosition, direction, mazeArray);
