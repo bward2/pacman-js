@@ -220,6 +220,10 @@ class Ghost {
         return newDirection;
     }
 
+    /**
+     * Updates the css position of the ghost, hides it if there is a stutter, and animates the its spritesheet
+     * @param {number} interp - The percentage of accuracy between the desired and actual amount of time between updates
+     */
     draw(interp) {
         this.animationTarget.style['top'] = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
         this.animationTarget.style['left'] = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;

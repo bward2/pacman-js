@@ -226,4 +226,20 @@ describe('ghost', ()=> {
             assert.strictEqual(direciton, 'right');
         });
     });
+
+    describe('draw', ()=> {
+        it('should update various css properties and animate the ghost\'s spritesheet', ()=> {
+            const drawValueSpy = ghost.characterUtil.calculateNewDrawValue = sinon.fake.returns(100);
+            const stutterSpy = ghost.characterUtil.checkForStutter = sinon.fake.returns('visible');
+            const spriteSpy = ghost.characterUtil.advanceSpriteSheet = sinon.fake();
+
+            ghost.draw(1);
+            assert.strictEqual(ghost.animationTarget.style.top, '100px');
+            assert.strictEqual(ghost.animationTarget.style.left, '100px');
+            assert.strictEqual(ghost.animationTarget.style.visibility, 'visible');
+            assert(drawValueSpy.calledTwice);
+            assert(stutterSpy.called);
+            assert(spriteSpy.called);
+        });
+    });
 });
