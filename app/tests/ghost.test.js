@@ -155,4 +155,35 @@ describe('ghost', ()=> {
             assert.deepEqual(possibleMoves, {});
         });
     });
+
+    describe('calculateDistance', ()=> {
+        it('should use the Pythagorean Theorem to measure the distance between a given postion and Pacman', ()=> {
+            const distance = ghost.calculateDistance({ x:0, y:0 }, { x:3, y:4 });
+            assert.strictEqual(distance, 5);
+        });
+
+        it('should return zero if the two given positions are identical', ()=> {
+            const distance = ghost.calculateDistance({ x:0, y:0 }, { x:0, y:0 });
+            assert.strictEqual(distance, 0);
+        });
+    });
+
+    describe('blinkyBestMove', ()=> {
+        it('should return the move which moves Blinky the closest to Pacman', ()=> {
+            const possibleMoves = {
+                up: { x:1, y:0},
+                down: { x:1, y:2},
+                left: { x:0, y:1},
+                right: { x:2, y:1},
+            };
+
+            const bestMove = ghost.blinkyBestMove(possibleMoves, { x:3, y:1 });
+            assert.strictEqual(bestMove, 'right');
+        });
+
+        it('should return UNDEFINED if there are no possible moves', ()=> {
+            const bestMove = ghost.blinkyBestMove({}, { x:3, y:1 });
+            assert.strictEqual(bestMove, undefined);
+        });
+    });
 });

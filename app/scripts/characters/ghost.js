@@ -150,10 +150,22 @@ class Ghost {
         return possibleMoves;
     }
 
+    /**
+     * Uses the Pythagorean Theorem to measure the distance between a given postion and Pacman
+     * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
+     * @param {({x: number, y: number})} pacman - The current x-y position of Pacman on the 2D Maze Array
+     * @returns {number}
+     */
     calculateDistance(position, pacman) {
         return Math.sqrt(Math.pow(position['x'] - pacman['x'], 2) + Math.pow(position['y'] - pacman['y'], 2));
     }
 
+    /**
+     * Returns the best possible move for Blinky, who targets Pacman's current position
+     * @param {Object} possibleMoves - An object containing all of moves the ghost could choose to make this turn
+     * @param {({x: number, y: number})} pacmanGridPosition - The current x-y position of Pacman on the 2D Maze Array
+     * @returns {('up'|'down'|'left'|'right')}
+     */
     blinkyBestMove(possibleMoves, pacmanGridPosition) {
         let shortestDistance = Infinity;
         let bestMove;
