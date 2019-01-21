@@ -44,6 +44,11 @@ class Ghost {
         this.backgroundOffsetPixels = 0;
     }
 
+    /**
+     * Sets css property values for the ghost
+     * @param {number} scaledTileSize - The dimensions of a single tile
+     * @param {number} spriteFrames - The number of frames in the ghost's spritesheet
+     */
     setStyleMeasurements(scaledTileSize, spriteFrames) {
         // The ghosts are the size of 2x2 game tiles.
         this.measurement = scaledTileSize * 2;
