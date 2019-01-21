@@ -26,7 +26,7 @@ beforeEach(()=> {
         }
     };
 
-    ghost = new Ghost(scaledTileSize, undefined, pacman, 'blinky', new CharacterUtil());
+    ghost = new Ghost(scaledTileSize, undefined, pacman, undefined, new CharacterUtil());
 });
 
 describe('ghost', ()=> {
@@ -66,6 +66,24 @@ describe('ghost', ()=> {
                 width: '16px',
                 backgroundSize: '32px'
             });
+        });
+    });
+
+    describe('setDefaultPosition', ()=> {
+        it('should set the correct position for blinky', ()=> {
+            ghost.setDefaultPosition(scaledTileSize, 'blinky');
+            assert.deepEqual(ghost.position, { top: 84, left: 104 });
+            assert.deepEqual(ghost.oldPosition, { top: 84, left: 104 });
+            assert.strictEqual(ghost.animationTarget.style.top, '84px');
+            assert.strictEqual(ghost.animationTarget.style.left, '104px');
+        });
+
+        it('should set the correct default position if the name is missing', ()=> {
+            ghost.setDefaultPosition(scaledTileSize, undefined);
+            assert.deepEqual(ghost.position, { top: 0, left: 0 });
+            assert.deepEqual(ghost.oldPosition, { top: 0, left: 0 });
+            assert.strictEqual(ghost.animationTarget.style.top, '0px');
+            assert.strictEqual(ghost.animationTarget.style.left, '0px');
         });
     });
 });

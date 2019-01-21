@@ -58,6 +58,11 @@ class Ghost {
         this.animationTarget.style.backgroundSize = `${this.measurement * spriteFrames}px`;
     }
 
+    /**
+     * Sets the default position and direction for the ghosts at the game's start
+     * @param {number} scaledTileSize - The dimensions of a single tile 
+     * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+     */
     setDefaultPosition(scaledTileSize, name) {
         switch(name) {
             case 'blinky':
@@ -67,6 +72,10 @@ class Ghost {
                 };
                 break;
             default:
+                this.position = {
+                    top: 0,
+                    left: 0
+                };
                 break;
         }
         this.oldPosition = Object.assign({}, this.position);
