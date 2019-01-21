@@ -120,6 +120,13 @@ class Ghost {
         return tile;
     }
 
+    /**
+     * Returns a list of all of the possible moves for the ghost to make on the next turn
+     * @param {({x: number, y: number})} gridPosition - The current x-y position of the ghost on the 2D Maze Array
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+     * @param {Array} mazeArray - 2D array representing the game board
+     * @returns {object}
+     */
     determinePossibleMoves(gridPosition, direction, mazeArray) {
         const x = gridPosition.x;
         const y = gridPosition.y;
@@ -131,6 +138,7 @@ class Ghost {
             right: this.getTile(mazeArray, y, x + 1),
         };
 
+        // Ghosts are not allowed to turn around at crossroads
         possibleMoves[this.characterUtil.getOppositeDirection(direction)] = false;
 
         for (let tile in possibleMoves) {

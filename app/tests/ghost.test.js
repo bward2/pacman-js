@@ -133,4 +133,26 @@ describe('ghost', ()=> {
             assert.strictEqual(tile, false);
         });
     });
+
+    describe('determinePossibleMoves', ()=> {
+        it('should return a list of moves given valid coordinates on the Maze Array', ()=> {
+            const possibleMoves = ghost.determinePossibleMoves({ x:1, y:1 }, 'right', mazeArray);
+            assert.deepEqual(possibleMoves, {
+                down: { x: 1, y: 2 },
+                right: { x: 2, y: 1 }
+            });
+        });
+
+        it('should not allow the ghost to turn around at a crossroads', ()=> {
+            const possibleMoves = ghost.determinePossibleMoves({ x:1, y:1 }, 'up', mazeArray);
+            assert.deepEqual(possibleMoves, {
+                right: { x: 2, y: 1 }
+            });
+        });
+
+        it('should return an empty object if no moves are available', ()=> {
+            const possibleMoves = ghost.determinePossibleMoves({ x:-1, y:-1 }, 'up', mazeArray);
+            assert.deepEqual(possibleMoves, {});
+        });
+    });
 });
