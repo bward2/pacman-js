@@ -308,6 +308,17 @@ describe('ghost', ()=> {
             assert(unsnappedSpy.called);
         });
 
+        it('should not call movement handlers if the ghost is not moving', ()=> {
+            const snappedSpy = ghost.handleSnappedMovement = sinon.fake();
+            const unsnappedSpy = ghost.handleUnsnappedMovement = sinon.fake();
+            ghost.moving = false;
+            pacman.moving = false;
+
+            ghost.update();
+            assert(!snappedSpy.called);
+            assert(!unsnappedSpy.called);
+        });
+
         it('will not start the ghost\'s movement until Pacman begins to move', ()=> {
             pacman.moving = false;
             ghost.update();
