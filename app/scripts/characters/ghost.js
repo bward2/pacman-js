@@ -83,6 +83,11 @@ class Ghost {
         this.animationTarget.style.left = `${this.position.left}px`;
     }
 
+    /**
+     * Chooses a movement Spritesheet depending upon direction
+     * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+     */
     setSpriteSheet(name, direction) {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
     }
