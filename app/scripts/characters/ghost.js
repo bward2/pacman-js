@@ -220,6 +220,13 @@ class Ghost {
         return newDirection;
     }
 
+    /**
+     * Handle the ghost's movement and return a new position when it is snapped to the x-y grid of the Maze Array
+     * @param {number} elapsedMs - The amount of MS that have passed since the last update
+     * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame 
+     * @param {number} velocity - The distance the character should travel in a single millisecond
+     * @returns {({ top: number, left: number})}
+     */
     handleSnappedMovement(elapsedMs, gridPosition, velocity) {
         let newPosition = Object.assign({}, this.position);
 
@@ -231,6 +238,13 @@ class Ghost {
         return newPosition;
     }
 
+    /**
+     * Handle the ghost's movement and return a new position when it is inbetween tiles on the x-y grid of the Maze Array
+     * @param {number} elapsedMs - The amount of MS that have passed since the last update
+     * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame 
+     * @param {number} velocity - The distance the character should travel in a single millisecond
+     * @returns {({ top: number, left: number})}
+     */
     handleUnsnappedMovement(elapsedMs, gridPosition, velocity) {
         const desired = this.characterUtil.determineNewPositions(this.position, this.direction, velocity, elapsedMs, this.scaledTileSize);
 
