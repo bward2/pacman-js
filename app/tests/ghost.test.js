@@ -227,6 +227,21 @@ describe('ghost', ()=> {
         });
     });
 
+    describe('handleSnappedMovement', ()=> {
+        it('calls determineDirection to decide where to turn, sets the spritesheet, and returns a new position', ()=> {
+            ghost.characterUtil.determineGridPosition = sinon.fake();
+            const direcitonSpy = ghost.determineDirection = sinon.fake();
+            const spriteSpy = ghost.setSpriteSheet = sinon.fake();
+            ghost.characterUtil.getPropertyToChange = sinon.fake.returns('top');
+            ghost.characterUtil.getVelocity = sinon.fake.returns(10);
+
+            const position = ghost.handleSnappedMovement(50);
+            assert(direcitonSpy.called);
+            assert(spriteSpy.called);
+            assert.deepEqual(position, { top: 500, left: 0 });
+        });
+    });
+
     describe('draw', ()=> {
         it('should update various css properties and animate the ghost\'s spritesheet', ()=> {
             const drawValueSpy = ghost.characterUtil.calculateNewDrawValue = sinon.fake.returns(100);
