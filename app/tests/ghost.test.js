@@ -235,10 +235,35 @@ describe('ghost', ()=> {
             ghost.characterUtil.getPropertyToChange = sinon.fake.returns('top');
             ghost.characterUtil.getVelocity = sinon.fake.returns(10);
 
-            const position = ghost.handleSnappedMovement(50);
+            const newPosition = ghost.handleSnappedMovement(50);
             assert(direcitonSpy.called);
             assert(spriteSpy.called);
-            assert.deepEqual(position, { top: 500, left: 0 });
+            assert.deepEqual(newPosition, { top: 500, left: 0 });
+        });
+    });
+
+    describe('handleUnsnappedMovement', ()=> {
+        it('returns the desired new position if the ghost is not changing tiles on the grid', ()=> {
+            const desired = {
+                newPosition: { top: 25, left: 50 }
+            };
+            ghost.characterUtil.determineNewPositions = sinon.fake.returns(desired);
+            ghost.characterUtil.changingGridPosition = sinon.fake.returns(false);
+
+            const newPosition = ghost.handleUnsnappedMovement();
+            assert.deepEqual(newPosition, desired.newPosition)
+        });
+
+        it('returns a snapped position if the ghost is attempting to change tiles on the grid', ()=> {
+            const snappedPosition = { top:125, left:150 };
+            ghost.characterUtil.determineNewPositions = sinon.fake.returns({
+                newGridPosition:''
+            });
+            ghost.characterUtil.changingGridPosition = sinon.fake.returns(true);
+            ghost.characterUtil.snapToGrid = sinon.fake.returns(snappedPosition);
+
+            const newPosition = ghost.handleUnsnappedMovement();
+            assert.deepEqual(newPosition, snappedPosition);
         });
     });
 
