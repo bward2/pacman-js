@@ -100,6 +100,13 @@ class Ghost {
         return (gridPosition.y === 14 && (gridPosition.x < 6 || gridPosition.x > 21));
     }
 
+    /**
+     * Checks to see if the tile at the given coordinates of the Maze is an open position
+     * @param {Array} mazeArray - 2D array representing the game board
+     * @param {number} y - The target row
+     * @param {number} x - The target column
+     * @returns {(false | { x: number, y: number})} - Returns an x-y pair if the tile is free, otherwise returns false
+     */
     getTile(mazeArray, y, x) {
         let tile = false;
 

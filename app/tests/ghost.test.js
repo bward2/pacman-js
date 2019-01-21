@@ -4,6 +4,11 @@ const Ghost = require('../scripts/characters/ghost');
 const CharacterUtil = require('../scripts/utilities/characterUtil');
 
 const scaledTileSize = 8;
+const mazeArray = [
+    ['X','X','X'],
+    ['X',' ',' '],
+    ['X',' ','X'],
+];
 
 let pacman;
 let ghost;
@@ -109,6 +114,23 @@ describe('ghost', ()=> {
         it('should return FALSE if the ghost is away from the warp tunnels', ()=> {
             assert(!ghost.isInTunnel({ x:15, y:14 }));
             assert(!ghost.isInTunnel({ x:0, y:0 }));
+        });
+    });
+
+    describe('getTile', ()=> {
+        it('should return a tile if the given coordinates are free', ()=> {
+            const tile = ghost.getTile(mazeArray, 1, 1);
+            assert.deepEqual(tile, { x:1, y:1 });
+        });
+
+        it('should return FALSE if the given coordinates are a wall', ()=> {
+            const tile = ghost.getTile(mazeArray, 0, 0);
+            assert.strictEqual(tile, false);
+        });
+
+        it('should return FALSE if the given coordinates are not on the Maze Array', ()=> {
+            const tile = ghost.getTile(mazeArray, -1, -1);
+            assert.strictEqual(tile, false);
         });
     });
 });
