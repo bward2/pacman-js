@@ -14,6 +14,10 @@ class Ghost {
         this.setSpriteSheet(this.name, this.direction);
     }
 
+    /**
+     * Sets various properties related to the ghost's movement
+     * @param {Object} pacman - The character whose velocity will be used to set the ghost's various speeds
+     */
     setMovementStats(pacman) {
         const pacmanSpeed = pacman.velocityPerMs;
 
@@ -30,6 +34,9 @@ class Ghost {
         this.moving = false;
     }
 
+    /**
+     * Sets values pertaining to the ghost's spritesheet animation
+     */
     setSpriteAnimationStats() {
         this.msBetweenSprites = 250;
         this.msSinceLastSprite = 0;
@@ -192,6 +199,6 @@ class Ghost {
     }
 }
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = Ghost;
-}
+//removeIf(production)
+module.exports = Ghost;
+//endRemoveIf(production)
