@@ -220,6 +220,27 @@ class Ghost {
         return newDirection;
     }
 
+    handleSnappedMovement(elapsedMs, gridPosition, velocity) {
+        let newPosition = Object.assign({}, this.position);
+
+        const pacmanGridPosition = this.characterUtil.determineGridPosition(this.pacman.position, this.scaledTileSize);
+        this.direction = this.determineDirection(this.name, gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
+        this.setSpriteSheet(this.name, this.direction);
+        newPosition[this.characterUtil.getPropertyToChange(this.direction)] += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
+
+        return newPosition;
+    }
+
+    handleUnsnappedMovement(elapsedMs, gridPosition, velocity) {
+        const desired = this.characterUtil.determineNewPositions(this.position, this.direction, velocity, elapsedMs, this.scaledTileSize);
+
+        if (this.characterUtil.changingGridPosition(gridPosition, desired.newGridPosition)) {
+            return this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+        }
+
+        return desired.newPosition;
+    }
+
     /**
      * Updates the css position of the ghost, hides it if there is a stutter, and animates the its spritesheet
      * @param {number} interp - The percentage of accuracy between the desired and actual amount of time between updates
@@ -245,21 +266,9 @@ class Ghost {
             const velocity = this.isInTunnel(gridPosition) ? this.tunnelSpeed : this.velocityPerMs;
 
             if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
-                const pacmanGridPosition = this.characterUtil.determineGridPosition(this.pacman.position, this.scaledTileSize);
-                this.direction = this.determineDirection(this.name, gridPosition, pacmanGridPosition, this.direction, this.mazeArray);
-                this.setSpriteSheet(this.name, this.direction);
-
-                this.position[this.characterUtil.getPropertyToChange(this.direction)] += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
+                this.position = this.handleSnappedMovement(elapsedMs, gridPosition, velocity);
             } else {
-                const newPosition = Object.assign({}, this.position);
-                newPosition[this.characterUtil.getPropertyToChange(this.direction)] += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
-                const newGridPosition = this.characterUtil.determineGridPosition(newPosition, this.scaledTileSize);
-    
-                if (this.characterUtil.changingGridPosition(gridPosition, newGridPosition)) {
-                    this.position = this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
-                } else {
-                    this.position = newPosition;
-                }
+                this.position = this.handleUnsnappedMovement(elapsedMs, gridPosition, velocity);
             }
 
             this.position = this.characterUtil.handleWarp(this.position, this.scaledTileSize, this.mazeArray);
