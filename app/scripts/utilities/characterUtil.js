@@ -162,6 +162,26 @@ class CharacterUtil {
     }
 
     /**
+     * Returns an object containing the new position and grid position based upon a direction
+     * @param {({top: number, left: number})} position - The character's css position during the current frame
+     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+     * @param {number} velocityPerMs - The distance the character should travel in a single millisecond
+     * @param {number} elapsedMs - The amount of MS that have passed since the last update
+     * @param {number} scaledTileSize - The dimensions of a single tile
+     * @returns {object}
+     */
+    determineNewPositions(position, direction, velocityPerMs, elapsedMs, scaledTileSize) {
+        let newPosition = Object.assign({}, position);
+        newPosition[this.getPropertyToChange(direction)] += this.getVelocity(direction, velocityPerMs) * elapsedMs;
+        const newGridPosition = this.determineGridPosition(newPosition, scaledTileSize);
+
+        return {
+            newPosition,
+            newGridPosition
+        };
+    }
+
+    /**
      * Calculates the css position when snapping the character to an integer x-y value along the maze grid
      * @param {({x: number, y: number})} position - The character's position during the current frame 
      * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in

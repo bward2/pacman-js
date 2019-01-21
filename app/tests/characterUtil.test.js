@@ -151,6 +151,16 @@ describe('characterUtil', () => {
         });
     });
 
+    describe('determineNewPositions', ()=> {
+        it('should return an object containing a position and gridPosition given valid input', ()=> {
+            const newPositions = characterUtil.determineNewPositions({ top: 500, left: 500 }, 'up', 5, 20, scaledTileSize);
+            assert.deepEqual(newPositions, {
+                newPosition: { top: 400, left: 500 },
+                newGridPosition: { x: 63, y: 50.5 }
+            });
+        });
+    });
+
     describe('snapToGrid', ()=> {
         const unsnappedPosition = { x: 1.5, y: 1.5 };
 

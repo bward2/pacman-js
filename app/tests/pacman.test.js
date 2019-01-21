@@ -178,6 +178,99 @@ describe('pacman', () => {
         });
     });
 
+    describe('movement handlers', ()=> {
+        let desiredPosition;
+        let alternatePosition;
+        let snappedPosition;
+
+        beforeEach(()=> {
+            pacman.direction = 'left';
+            pacman.desiredDirection = 'up';
+            pacman.characterUtil.determineNewPositions = (position, direction)=> {
+                desiredPosition = { top:10, left:10 };
+                alternatePosition = { top:100, left:100 };
+                snappedPosition = { top:50, left: 50 };
+
+                if (direction === 'up') {
+                    return {
+                        newPosition: desiredPosition,
+                        newGridPosition: { x:5, y:5}
+                    }
+                } else {
+                    return {
+                        newPosition: alternatePosition,
+                        newGridPosition: { x:50, y:50}
+                    }
+                }
+            }
+        });
+
+        describe('handleSnappedMovement', ()=> {
+            it('should set Pacman\'s direction, set his sprite sheet, and return the desired new position if his desired new position is clear', ()=> {
+                const spriteSpy = pacman.setSpriteSheet = sinon.fake();
+                pacman.characterUtil.checkForWallCollision = sinon.fake.returns(false);
+    
+                const newPosition = pacman.handleSnappedMovement();
+                assert.strictEqual(pacman.direction, 'up');
+                assert(spriteSpy.calledWith('up'));
+                assert.deepEqual(newPosition, desiredPosition);
+            });
+    
+            it('should return the alternate new position if Pacman\'s desired new position results in a wall collision but the alternate position is clear', ()=> {
+                let firstCall = true;
+                pacman.characterUtil.checkForWallCollision = ()=> {
+                    if (firstCall) {
+                        firstCall = false;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                };
+    
+                const newPosition = pacman.handleSnappedMovement();
+                assert.deepEqual(newPosition, alternatePosition);
+            });
+    
+            it('should return Pacman\'s current position and set his movement to false if both of the potential new positions result in a wall collision', ()=> {
+                pacman.characterUtil.checkForWallCollision = sinon.fake.returns(true);
+                pacman.moving = true;
+    
+                const newPosition = pacman.handleSnappedMovement();
+                assert.strictEqual(pacman.moving, false);
+                assert.deepEqual(newPosition, pacman.position);
+            });
+        });
+    
+        describe('handleUnsnappedMovement', ()=> {
+            it('should set Pacman\'s direction, set his sprite sheet, and return the desired new position if he is turning around', ()=> {
+                const spriteSpy = pacman.setSpriteSheet = sinon.fake();
+                pacman.characterUtil.turningAround = sinon.fake.returns(true);
+
+                const newPosition = pacman.handleUnsnappedMovement();
+                assert.strictEqual(pacman.direction, 'up');
+                assert(spriteSpy.calledWith('up'));
+                assert.deepEqual(newPosition, desiredPosition);
+            });
+
+            it('should return Pacman\'s current position, snapped to the grid, if he is changing grid positions', ()=> {
+                pacman.characterUtil.turningAround = sinon.fake.returns(false);
+                pacman.characterUtil.changingGridPosition = sinon.fake.returns(true);
+                pacman.characterUtil.snapToGrid = sinon.fake.returns(snappedPosition);
+
+                const newPosition = pacman.handleUnsnappedMovement();
+                assert.deepEqual(newPosition, snappedPosition);
+            });
+
+            it('should return the alternate position if Pacman is not turning around or changing grid positions', ()=> {
+                pacman.characterUtil.turningAround = sinon.fake.returns(false);
+                pacman.characterUtil.changingGridPosition = sinon.fake.returns(false);
+
+                const newPosition = pacman.handleUnsnappedMovement();
+                assert.deepEqual(newPosition, alternatePosition);
+            });
+        });
+    });
+
     describe('draw', ()=> {
         it('should update various css properties and animate Pacman\'s spritesheet', ()=> {
             const drawValueSpy = pacman.characterUtil.calculateNewDrawValue = sinon.fake.returns(100);
@@ -193,6 +286,40 @@ describe('pacman', () => {
             assert(stutterSpy.called);
             assert(arrowSpy.called);
             assert(spriteSpy.called);
+        });
+    });
+
+    describe('update', ()=> {
+        it('should call handleSnappedMovement if Pacman is moving and snapped to the x-y grid of the Maze Array', ()=> {
+            const snappedSpy = pacman.handleSnappedMovement = sinon.fake();
+            pacman.characterUtil.determineGridPosition = sinon.fake();
+            pacman.characterUtil.handleWarp = sinon.fake();
+            pacman.characterUtil.snapToGrid = sinon.fake.returns(pacman.position);
+            pacman.moving = true;
+
+            pacman.update();
+            assert(snappedSpy.called);
+        });
+
+        it('should call handleUnsnappedMovement if Pacman is moving and inbetween tiles on the x-y grid of the Maze Array', ()=> {
+            const unsnappedSpy = pacman.handleUnsnappedMovement = sinon.fake();
+            pacman.characterUtil.determineGridPosition = sinon.fake();
+            pacman.characterUtil.handleWarp = sinon.fake();
+            pacman.characterUtil.snapToGrid = sinon.fake.returns({});
+            pacman.moving = true;
+
+            pacman.update();
+            assert(unsnappedSpy.called);
+        });
+
+        it('should not call movement handlers if Pacman is not moving', ()=> {
+            const snappedSpy = pacman.handleSnappedMovement = sinon.fake();
+            const unsnappedSpy = pacman.handleUnsnappedMovement = sinon.fake();
+            pacman.moving = false;
+
+            pacman.update();
+            assert(!snappedSpy.called);
+            assert(!unsnappedSpy.called);
         });
     });
 });
