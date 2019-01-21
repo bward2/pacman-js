@@ -92,6 +92,10 @@ class Ghost {
         this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
     }
 
+    /**
+     * Checks to see if the ghost is currently in the 'tunnels' on the outer edges of the maze
+     * @param {({x: number, y: number})} gridPosition - The current x-y position of the ghost on the 2D Maze Array
+     */
     isInTunnel(gridPosition) {
         return (gridPosition.y === 14 && (gridPosition.x < 6 || gridPosition.x > 21));
     }

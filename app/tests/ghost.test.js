@@ -99,4 +99,16 @@ describe('ghost', ()=> {
             assert.strictEqual(ghost.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/ghosts/blinky/blinky_right.svg)');
         });
     });
+
+    describe('isInTunnel', ()=> {
+        it('should return TRUE if the ghost is in either the left or right warp tunnel', ()=> {
+            assert(ghost.isInTunnel({ x:0, y:14 }));
+            assert(ghost.isInTunnel({ x:30, y:14 }));
+        });
+
+        it('should return FALSE if the ghost is away from the warp tunnels', ()=> {
+            assert(!ghost.isInTunnel({ x:15, y:14 }));
+            assert(!ghost.isInTunnel({ x:0, y:0 }));
+        });
+    });
 });
