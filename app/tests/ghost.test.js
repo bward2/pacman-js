@@ -282,4 +282,45 @@ describe('ghost', ()=> {
             assert(spriteSpy.called);
         });
     });
+
+    describe('update', ()=> {
+        it('calls handleSnappedMovement if Pacman is moving and the ghost is snapped to the x-y grid of the Maze Array', ()=> {
+            const snappedSpy = ghost.handleSnappedMovement = sinon.fake();
+            ghost.characterUtil.determineGridPosition = sinon.fake();
+            ghost.isInTunnel = sinon.fake();
+            ghost.characterUtil.handleWarp = sinon.fake();
+            ghost.characterUtil.snapToGrid = sinon.fake.returns(ghost.position);
+            pacman.moving = true;
+
+            ghost.update();
+            assert(snappedSpy.called);
+        });
+
+        it('calls handleUnsnappedMovement if Pacman is moving and the ghost is not snapped to the x-y grid of the Maze Array', ()=> {
+            const unsnappedSpy = ghost.handleUnsnappedMovement = sinon.fake();
+            ghost.characterUtil.determineGridPosition = sinon.fake();
+            ghost.isInTunnel = sinon.fake();
+            ghost.characterUtil.handleWarp = sinon.fake();
+            ghost.characterUtil.snapToGrid = sinon.fake();
+            pacman.moving = true;
+
+            ghost.update();
+            assert(unsnappedSpy.called);
+        });
+
+        it('will not start the ghost\'s movement until Pacman begins to move', ()=> {
+            pacman.moving = false;
+            ghost.update();
+            assert(!ghost.moving);
+        });
+
+        it('sets the ghost\'s velocity to tunnelSpeed if the ghost is in the warp tunnels', ()=> {
+            ghost.characterUtil.determineGridPosition = sinon.fake();
+            ghost.isInTunnel = sinon.fake.returns(true);
+            ghost.handleUnsnappedMovement = sinon.fake();
+            ghost.characterUtil.handleWarp = sinon.fake();
+
+            ghost.update();
+        });
+    });
 });

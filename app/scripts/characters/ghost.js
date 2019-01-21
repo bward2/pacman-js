@@ -268,6 +268,10 @@ class Ghost {
         this.characterUtil.advanceSpriteSheet(this);
     }
 
+    /**
+     * Handles movement logic for the ghost
+     * @param {number} elapsedMs - The amount of MS that have passed since the last update
+     */
     update(elapsedMs) {
         this.oldPosition = Object.assign({}, this.position);
 
