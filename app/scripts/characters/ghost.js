@@ -182,7 +182,7 @@ class Ghost {
     }
 
     /**
-     * 
+     * Calls the appropriate function to determine the best move depending on the ghost's name
      * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
      * @param {Object} possibleMoves - An object containing all of moves the ghost could choose to make this turn
      * @param {({x: number, y: number})} pacmanGridPosition - The current x-y position of Pacman on the 2D Maze Array
