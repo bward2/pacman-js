@@ -55,10 +55,10 @@ class GameCoordinator {
   }
 
   /**
-     * Adds HTML elements to draw on the webpage by iterating through the 2D maze array
-     * @param {Array} mazeArray - 2D array representing the game board
-     * @param {Array} entityList - List of entities (Pacman, Ghosts, etc.) to be used throughout the game
-     */
+   * Adds HTML elements to draw on the webpage by iterating through the 2D maze array
+   * @param {Array} mazeArray - 2D array representing the game board
+   * @param {Array} entityList - List of entities (Pacman, Ghosts, etc.) to be used throughout the game
+   */
   drawMaze(mazeArray, entityList) {
     const mazeDiv = document.getElementById('maze');
 

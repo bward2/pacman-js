@@ -15,9 +15,9 @@ class Ghost {
   }
 
   /**
-     * Sets various properties related to the ghost's movement
-     * @param {Object} pacman - The character whose velocity will be used to set the ghost's various speeds
-     */
+   * Sets various properties related to the ghost's movement
+   * @param {Object} pacman - The character whose velocity will be used to set the ghost's various speeds
+   */
   setMovementStats(pacman) {
     const pacmanSpeed = pacman.velocityPerMs;
 
@@ -35,8 +35,8 @@ class Ghost {
   }
 
   /**
-     * Sets values pertaining to the ghost's spritesheet animation
-     */
+   * Sets values pertaining to the ghost's spritesheet animation
+   */
   setSpriteAnimationStats() {
     this.msBetweenSprites = 250;
     this.msSinceLastSprite = 0;
@@ -45,10 +45,10 @@ class Ghost {
   }
 
   /**
-     * Sets css property values for the ghost
-     * @param {number} scaledTileSize - The dimensions of a single tile
-     * @param {number} spriteFrames - The number of frames in the ghost's spritesheet
-     */
+   * Sets css property values for the ghost
+   * @param {number} scaledTileSize - The dimensions of a single tile
+   * @param {number} spriteFrames - The number of frames in the ghost's spritesheet
+   */
   setStyleMeasurements(scaledTileSize, spriteFrames) {
     // The ghosts are the size of 2x2 game tiles.
     this.measurement = scaledTileSize * 2;
@@ -59,10 +59,10 @@ class Ghost {
   }
 
   /**
-     * Sets the default position and direction for the ghosts at the game's start
-     * @param {number} scaledTileSize - The dimensions of a single tile
-     * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
-     */
+   * Sets the default position and direction for the ghosts at the game's start
+   * @param {number} scaledTileSize - The dimensions of a single tile
+   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+   */
   setDefaultPosition(scaledTileSize, name) {
     switch (name) {
       case 'blinky':
@@ -84,29 +84,29 @@ class Ghost {
   }
 
   /**
-     * Chooses a movement Spritesheet depending upon direction
-     * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
-     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
-     */
+   * Chooses a movement Spritesheet depending upon direction
+   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   */
   setSpriteSheet(name, direction) {
     this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
   }
 
   /**
-     * Checks to see if the ghost is currently in the 'tunnels' on the outer edges of the maze
-     * @param {({x: number, y: number})} gridPosition - The current x-y position of the ghost on the 2D Maze Array
-     */
+   * Checks to see if the ghost is currently in the 'tunnels' on the outer edges of the maze
+   * @param {({x: number, y: number})} gridPosition - The current x-y position of the ghost on the 2D Maze Array
+   */
   isInTunnel(gridPosition) {
     return (gridPosition.y === 14 && (gridPosition.x < 6 || gridPosition.x > 21));
   }
 
   /**
-     * Checks to see if the tile at the given coordinates of the Maze is an open position
-     * @param {Array} mazeArray - 2D array representing the game board
-     * @param {number} y - The target row
-     * @param {number} x - The target column
-     * @returns {(false | { x: number, y: number})} - Returns an x-y pair if the tile is free, otherwise returns false
-     */
+   * Checks to see if the tile at the given coordinates of the Maze is an open position
+   * @param {Array} mazeArray - 2D array representing the game board
+   * @param {number} y - The target row
+   * @param {number} x - The target column
+   * @returns {(false | { x: number, y: number})} - Returns an x-y pair if the tile is free, otherwise returns false
+   */
   getTile(mazeArray, y, x) {
     let tile = false;
 
@@ -121,12 +121,12 @@ class Ghost {
   }
 
   /**
-     * Returns a list of all of the possible moves for the ghost to make on the next turn
-     * @param {({x: number, y: number})} gridPosition - The current x-y position of the ghost on the 2D Maze Array
-     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
-     * @param {Array} mazeArray - 2D array representing the game board
-     * @returns {object}
-     */
+   * Returns a list of all of the possible moves for the ghost to make on the next turn
+   * @param {({x: number, y: number})} gridPosition - The current x-y position of the ghost on the 2D Maze Array
+   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {Array} mazeArray - 2D array representing the game board
+   * @returns {object}
+   */
   determinePossibleMoves(gridPosition, direction, mazeArray) {
     const x = gridPosition.x;
     const y = gridPosition.y;
@@ -151,21 +151,21 @@ class Ghost {
   }
 
   /**
-     * Uses the Pythagorean Theorem to measure the distance between a given postion and Pacman
-     * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
-     * @param {({x: number, y: number})} pacman - The current x-y position of Pacman on the 2D Maze Array
-     * @returns {number}
-     */
+   * Uses the Pythagorean Theorem to measure the distance between a given postion and Pacman
+   * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
+   * @param {({x: number, y: number})} pacman - The current x-y position of Pacman on the 2D Maze Array
+   * @returns {number}
+   */
   calculateDistance(position, pacman) {
     return Math.sqrt(Math.pow(position.x - pacman.x, 2) + Math.pow(position.y - pacman.y, 2));
   }
 
   /**
-     * Returns the best possible move for Blinky, who targets Pacman's current position
-     * @param {Object} possibleMoves - An object containing all of moves the ghost could choose to make this turn
-     * @param {({x: number, y: number})} pacmanGridPosition - The current x-y position of Pacman on the 2D Maze Array
-     * @returns {('up'|'down'|'left'|'right')}
-     */
+   * Returns the best possible move for Blinky, who targets Pacman's current position
+   * @param {Object} possibleMoves - An object containing all of moves the ghost could choose to make this turn
+   * @param {({x: number, y: number})} pacmanGridPosition - The current x-y position of Pacman on the 2D Maze Array
+   * @returns {('up'|'down'|'left'|'right')}
+   */
   blinkyBestMove(possibleMoves, pacmanGridPosition) {
     let shortestDistance = Infinity;
     let bestMove;
@@ -182,12 +182,12 @@ class Ghost {
   }
 
   /**
-     * Calls the appropriate function to determine the best move depending on the ghost's name
-     * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
-     * @param {Object} possibleMoves - An object containing all of moves the ghost could choose to make this turn
-     * @param {({x: number, y: number})} pacmanGridPosition - The current x-y position of Pacman on the 2D Maze Array
-     * @returns {('up'|'down'|'left'|'right')}
-     */
+   * Calls the appropriate function to determine the best move depending on the ghost's name
+   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+   * @param {Object} possibleMoves - An object containing all of moves the ghost could choose to make this turn
+   * @param {({x: number, y: number})} pacmanGridPosition - The current x-y position of Pacman on the 2D Maze Array
+   * @returns {('up'|'down'|'left'|'right')}
+   */
   determineBestMove(name, possibleMoves, pacmanGridPosition) {
     switch (name) {
       case 'blinky':
@@ -199,14 +199,14 @@ class Ghost {
   }
 
   /**
-     * Determines the best direction for the ghost to travel in during the current frame
-     * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
-     * @param {({x: number, y: number})} gridPosition - The current x-y position of the ghost on the 2D Maze Array
-     * @param {({x: number, y: number})} pacmanGridPosition - The current x-y position of Pacman on the 2D Maze Array
-     * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
-     * @param {Array} mazeArray - 2D array representing the game board
-     * @returns {('up'|'down'|'left'|'right')}
-     */
+   * Determines the best direction for the ghost to travel in during the current frame
+   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+   * @param {({x: number, y: number})} gridPosition - The current x-y position of the ghost on the 2D Maze Array
+   * @param {({x: number, y: number})} pacmanGridPosition - The current x-y position of Pacman on the 2D Maze Array
+   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {Array} mazeArray - 2D array representing the game board
+   * @returns {('up'|'down'|'left'|'right')}
+   */
   determineDirection(name, gridPosition, pacmanGridPosition, direction, mazeArray) {
     let newDirection = direction;
     const possibleMoves = this.determinePossibleMoves(gridPosition, direction, mazeArray);
@@ -221,12 +221,12 @@ class Ghost {
   }
 
   /**
-     * Handle the ghost's movement and return a new position when it is snapped to the x-y grid of the Maze Array
-     * @param {number} elapsedMs - The amount of MS that have passed since the last update
-     * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame
-     * @param {number} velocity - The distance the character should travel in a single millisecond
-     * @returns {({ top: number, left: number})}
-     */
+   * Handle the ghost's movement and return a new position when it is snapped to the x-y grid of the Maze Array
+   * @param {number} elapsedMs - The amount of MS that have passed since the last update
+   * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame
+   * @param {number} velocity - The distance the character should travel in a single millisecond
+   * @returns {({ top: number, left: number})}
+   */
   handleSnappedMovement(elapsedMs, gridPosition, velocity) {
     const newPosition = Object.assign({}, this.position);
 
@@ -239,12 +239,12 @@ class Ghost {
   }
 
   /**
-     * Handle the ghost's movement and return a new position when it is inbetween tiles on the x-y grid of the Maze Array
-     * @param {number} elapsedMs - The amount of MS that have passed since the last update
-     * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame
-     * @param {number} velocity - The distance the character should travel in a single millisecond
-     * @returns {({ top: number, left: number})}
-     */
+   * Handle the ghost's movement and return a new position when it is inbetween tiles on the x-y grid of the Maze Array
+   * @param {number} elapsedMs - The amount of MS that have passed since the last update
+   * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame
+   * @param {number} velocity - The distance the character should travel in a single millisecond
+   * @returns {({ top: number, left: number})}
+   */
   handleUnsnappedMovement(elapsedMs, gridPosition, velocity) {
     const desired = this.characterUtil.determineNewPositions(this.position, this.direction, velocity, elapsedMs, this.scaledTileSize);
 
@@ -256,9 +256,9 @@ class Ghost {
   }
 
   /**
-     * Updates the css position of the ghost, hides it if there is a stutter, and animates the its spritesheet
-     * @param {number} interp - The percentage of accuracy between the desired and actual amount of time between updates
-     */
+   * Updates the css position of the ghost, hides it if there is a stutter, and animates the its spritesheet
+   * @param {number} interp - The percentage of accuracy between the desired and actual amount of time between updates
+   */
   draw(interp) {
     this.animationTarget.style.top = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
     this.animationTarget.style.left = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;
@@ -269,9 +269,9 @@ class Ghost {
   }
 
   /**
-     * Handles movement logic for the ghost
-     * @param {number} elapsedMs - The amount of MS that have passed since the last update
-     */
+   * Handles movement logic for the ghost
+   * @param {number} elapsedMs - The amount of MS that have passed since the last update
+   */
   update(elapsedMs) {
     this.oldPosition = Object.assign({}, this.position);
 
