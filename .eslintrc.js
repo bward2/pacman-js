@@ -1,6 +1,8 @@
 module.exports = {
     "extends": "airbnb-base",
     "rules": {
-        "no-undef": "off"
+        "no-undef": "off",
+        "class-methods-use-this": "off",
+        "max-len": ["error", { "ignoreComments": true }]
     }
 };

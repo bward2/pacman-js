@@ -17,9 +17,9 @@ class GameEngine {
   }
 
   /**
-     * Calls various functions given a keyup event
-     * @param {Event} e - The keyup event to evaluate
-     */
+   * Calls various functions given a keyup event
+   * @param {Event} e - The keyup event to evaluate
+   */
   handleKeyPress(e) {
     // ESC key
     if (e.keyCode === 27) {
@@ -28,9 +28,9 @@ class GameEngine {
   }
 
   /**
-     * Toggles the paused/running status of the game
-     * @param {Boolean} running - Whether the game is currently in motion
-     */
+   * Toggles the paused/running status of the game
+   * @param {Boolean} running - Whether the game is currently in motion
+   */
   changePausedState(running) {
     if (running) {
       this.stop();
@@ -40,64 +40,64 @@ class GameEngine {
   }
 
   /**
-     * Updates the on-screen FPS counter once per second
-     * @param {number} timestamp - The amount of time, in milliseconds, which have passed since starting the game engine
-     */
+   * Updates the on-screen FPS counter once per second
+   * @param {number} timestamp - The amount of time, in milliseconds, which have passed since starting the game engine
+   */
   updateFpsDisplay(timestamp) {
     if (timestamp > this.lastFpsUpdate + 1000) {
       this.fps = (this.framesThisSecond + this.fps) / 2;
       this.lastFpsUpdate = timestamp;
       this.framesThisSecond = 0;
     }
-    this.framesThisSecond++;
+    this.framesThisSecond += 1;
     this.fpsDisplay.textContent = `${Math.round(this.fps)} FPS`;
   }
 
   /**
-     * Calls the draw function for every member of the entityList
-     * @param {number} interp - The percentage of accuracy between the desired and actual amount of time between updates
-     * @param {Array} entityList - List of entities (Pacman, Ghosts, etc.) to be used throughout the game
-     */
+   * Calls the draw function for every member of the entityList
+   * @param {number} interp - The percentage of accuracy between the desired and actual amount of time between updates
+   * @param {Array} entityList - List of entities (Pacman, Ghosts, etc.) to be used throughout the game
+   */
   draw(interp, entityList) {
-    for (const entity in entityList) {
-      if (typeof entityList[entity].draw === 'function') {
-        entityList[entity].draw(interp);
+    entityList.forEach((entity) => {
+      if (typeof entity.draw === 'function') {
+        entity.draw(interp);
       }
-    }
+    });
   }
 
   /**
-     * Calls the update function for every member of the entityList
-     * @param {number} elapsedMs - The amount of MS that have passed since the last update
-     * @param {Array} entityList - List of entities (Pacman, Ghosts, etc.) to be used throughout the game
-     */
+   * Calls the update function for every member of the entityList
+   * @param {number} elapsedMs - The amount of MS that have passed since the last update
+   * @param {Array} entityList - List of entities (Pacman, Ghosts, etc.) to be used throughout the game
+   */
   update(elapsedMs, entityList) {
-    for (const entity in entityList) {
-      if (typeof entityList[entity].update === 'function') {
-        entityList[entity].update(elapsedMs);
+    entityList.forEach((entity) => {
+      if (typeof entity.update === 'function') {
+        entity.update(elapsedMs);
       }
-    }
+    });
   }
 
   /**
-     * In the event that a ton of unsimulated frames pile up, discard all of these frames to prevent crashing the game
-     */
+   * In the event that a ton of unsimulated frames pile up, discard all of these frames to prevent crashing the game
+   */
   panic() {
     this.elapsedMs = 0;
   }
 
   /**
-     * Draws an initial frame, resets a few tracking variables related to animation, and calls the mainLoop function to start the engine
-     */
+   * Draws an initial frame, resets a few tracking variables related to animation, and calls the mainLoop function to start the engine
+   */
   start() {
     if (!this.started) {
       this.started = true;
 
-      this.frameId = requestAnimationFrame((timestamp) => {
-        this.draw(1);
+      this.frameId = requestAnimationFrame((firstTimestamp) => {
+        this.draw(1, []);
         this.running = true;
-        this.lastFrameTimeMs = timestamp;
-        this.lastFpsUpdate = timestamp;
+        this.lastFrameTimeMs = firstTimestamp;
+        this.lastFpsUpdate = firstTimestamp;
         this.framesThisSecond = 0;
 
         this.frameId = requestAnimationFrame((timestamp) => {
@@ -108,8 +108,8 @@ class GameEngine {
   }
 
   /**
-     * Stops the engine and cancels the current animation frame
-     */
+   * Stops the engine and cancels the current animation frame
+   */
   stop() {
     this.running = false;
     this.started = false;
@@ -117,14 +117,15 @@ class GameEngine {
   }
 
   /**
-     * The loop which will process all necessary frames to update the game's entities prior to animating them
-     */
+   * The loop which will process all necessary frames to update the game's entities prior to animating them
+   */
   processFrames() {
     let numUpdateSteps = 0;
     while (this.elapsedMs >= this.timestep) {
       this.update(this.timestep, this.entityList);
       this.elapsedMs -= this.timestep;
-      if (++numUpdateSteps >= this.maxFps) {
+      numUpdateSteps += 1;
+      if (numUpdateSteps >= this.maxFps) {
         this.panic();
         break;
       }
@@ -132,14 +133,14 @@ class GameEngine {
   }
 
   /**
-     * A single cycle of the engine which checks to see if enough time has passed, and, if so, will kick off the loops to
-     * update and draw the game's entities.
-     * @param {number} timestamp - The amount of time, in milliseconds, which have passed since starting the game engine
-     */
+   * A single cycle of the engine which checks to see if enough time has passed, and, if so, will kick off the loops to
+   * update and draw the game's entities.
+   * @param {number} timestamp - The amount of time, in milliseconds, which have passed since starting the game engine
+   */
   engineCycle(timestamp) {
     if (timestamp < this.lastFrameTimeMs + (1000 / this.maxFps)) {
-      this.frameId = requestAnimationFrame((timestamp) => {
-        this.mainLoop(timestamp);
+      this.frameId = requestAnimationFrame((nextTimestamp) => {
+        this.mainLoop(nextTimestamp);
       });
       return;
     }
@@ -150,15 +151,15 @@ class GameEngine {
     this.processFrames();
     this.draw(this.elapsedMs / this.timestep, this.entityList);
 
-    this.frameId = requestAnimationFrame((timestamp) => {
-      this.mainLoop(timestamp);
+    this.frameId = requestAnimationFrame((nextTimestamp) => {
+      this.mainLoop(nextTimestamp);
     });
   }
 
   /**
-     * The endless loop which will kick off engine cycles so long as the game is running
-     * @param {number} timestamp - The amount of time, in milliseconds, which have passed since starting the game engine
-     */
+   * The endless loop which will kick off engine cycles so long as the game is running
+   * @param {number} timestamp - The amount of time, in milliseconds, which have passed since starting the game engine
+   */
   mainLoop(timestamp) {
     this.engineCycle(timestamp);
   }
