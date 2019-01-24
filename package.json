@@ -7,10 +7,14 @@
   },
   "scripts": {
     "test": "nyc mocha app/tests",
-    "coverage": "nyc report --reporter=text-lcov | node ./node_modules/coveralls/bin/coveralls.js"
+    "coverage": "nyc report --reporter=text-lcov | node ./node_modules/coveralls/bin/coveralls.js",
+    "lint": ".\\node_modules\\.bin\\eslint ."
   },
   "devDependencies": {
     "coveralls": "^3.0.2",
+    "eslint": "^5.12.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.15.0",
     "gulp": "^4.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-remove-code": "^3.0.4",
