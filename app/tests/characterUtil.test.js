@@ -78,8 +78,10 @@ describe('characterUtil', () => {
 
   describe('determineGridPosition', () => {
     it('should return an x-y object given a valid position', () => {
-      assert.deepEqual(characterUtil.determineGridPosition(oldPosition, scaledTileSize), { x: 0.5, y: 0.5 });
-      assert.deepEqual(characterUtil.determineGridPosition(position, scaledTileSize), { x: 13, y: 1.75 });
+      assert.deepEqual(characterUtil.determineGridPosition(oldPosition, scaledTileSize),
+        { x: 0.5, y: 0.5 });
+      assert.deepEqual(characterUtil.determineGridPosition(position, scaledTileSize),
+        { x: 13, y: 1.75 });
     });
   });
 
@@ -108,12 +110,12 @@ describe('characterUtil', () => {
   });
 
   describe('determineRoundingFunction', () => {
-    it('should return MATH.FLOOR if the character\s direction is UP or LEFT', () => {
+    it('should return MATH.FLOOR if the character\'s direction is UP or LEFT', () => {
       assert.strictEqual(characterUtil.determineRoundingFunction('up'), Math.floor);
       assert.strictEqual(characterUtil.determineRoundingFunction('left'), Math.floor);
     });
 
-    it('should return MATH.CEIL if the character\s direction is DOWN or RIGHT', () => {
+    it('should return MATH.CEIL if the character\'s direction is DOWN or RIGHT', () => {
       assert.strictEqual(characterUtil.determineRoundingFunction('down'), Math.ceil);
       assert.strictEqual(characterUtil.determineRoundingFunction('right'), Math.ceil);
     });
@@ -174,12 +176,15 @@ describe('characterUtil', () => {
 
   describe('handleWarp', () => {
     it('should warp the character if they travel too far to the left or right', () => {
-      assert.deepEqual(characterUtil.handleWarp({ top: 0, left: -100 }, scaledTileSize, mazeArray), { top: 0, left: 18 });
-      assert.deepEqual(characterUtil.handleWarp({ top: 0, left: 100 }, scaledTileSize, mazeArray), { top: 0, left: -10 });
+      assert.deepEqual(characterUtil.handleWarp({ top: 0, left: -100 }, scaledTileSize, mazeArray),
+        { top: 0, left: 18 });
+      assert.deepEqual(characterUtil.handleWarp({ top: 0, left: 100 }, scaledTileSize, mazeArray),
+        { top: 0, left: -10 });
     });
 
     it('should not warp the character if they are within the left-right boundaries of the maze', () => {
-      assert.deepEqual(characterUtil.handleWarp({ top: 0, left: 0 }, scaledTileSize, mazeArray), { top: 0, left: 0 });
+      assert.deepEqual(characterUtil.handleWarp({ top: 0, left: 0 }, scaledTileSize, mazeArray),
+        { top: 0, left: 0 });
     });
   });
 
