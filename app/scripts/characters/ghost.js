@@ -128,8 +128,7 @@ class Ghost {
    * @returns {object}
    */
   determinePossibleMoves(gridPosition, direction, mazeArray) {
-    const x = gridPosition.x;
-    const y = gridPosition.y;
+    const { x, y } = gridPosition;
 
     const possibleMoves = {
       up: this.getTile(mazeArray, y - 1, x),
@@ -141,11 +140,11 @@ class Ghost {
     // Ghosts are not allowed to turn around at crossroads
     possibleMoves[this.characterUtil.getOppositeDirection(direction)] = false;
 
-    for (const tile in possibleMoves) {
+    Object.keys(possibleMoves).forEach((tile) => {
       if (possibleMoves[tile] === false) {
         delete possibleMoves[tile];
       }
-    }
+    });
 
     return possibleMoves;
   }
@@ -157,7 +156,9 @@ class Ghost {
    * @returns {number}
    */
   calculateDistance(position, pacman) {
-    return Math.sqrt(Math.pow(position.x - pacman.x, 2) + Math.pow(position.y - pacman.y, 2));
+    return Math.sqrt(
+      ((position.x - pacman.x) ** 2) + ((position.y - pacman.y) ** 2),
+    );
   }
 
   /**
@@ -170,13 +171,13 @@ class Ghost {
     let shortestDistance = Infinity;
     let bestMove;
 
-    for (const move in possibleMoves) {
+    Object.keys(possibleMoves).forEach((move) => {
       const distance = this.calculateDistance(possibleMoves[move], pacmanGridPosition);
       if (distance < shortestDistance) {
         shortestDistance = distance;
         bestMove = move;
       }
-    }
+    });
 
     return bestMove;
   }
@@ -212,7 +213,7 @@ class Ghost {
     const possibleMoves = this.determinePossibleMoves(gridPosition, direction, mazeArray);
 
     if (Object.keys(possibleMoves).length === 1) {
-      newDirection = Object.keys(possibleMoves)[0];
+      [newDirection] = Object.keys(possibleMoves);
     } else if (Object.keys(possibleMoves).length > 1) {
       newDirection = this.determineBestMove(name, possibleMoves, pacmanGridPosition);
     }
@@ -223,7 +224,7 @@ class Ghost {
   /**
    * Handle the ghost's movement and return a new position when it is snapped to the x-y grid of the Maze Array
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
-   * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame
+   * @param {({x: number, y: number})} gridPosition - The character's maze grid position during the current frame
    * @param {number} velocity - The distance the character should travel in a single millisecond
    * @returns {({ top: number, left: number})}
    */
@@ -241,7 +242,7 @@ class Ghost {
   /**
    * Handle the ghost's movement and return a new position when it is inbetween tiles on the x-y grid of the Maze Array
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
-   * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame
+   * @param {({x: number, y: number})} gridPosition - The character's maze grid position during the current frame
    * @param {number} velocity - The distance the character should travel in a single millisecond
    * @returns {({ top: number, left: number})}
    */
