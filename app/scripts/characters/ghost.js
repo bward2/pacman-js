@@ -266,7 +266,10 @@ class Ghost {
 
     this.animationTarget.style.visibility = this.characterUtil.checkForStutter(this.position, this.oldPosition);
 
-    this.characterUtil.advanceSpriteSheet(this);
+    const updatedProperties = this.characterUtil.advanceSpriteSheet(this);
+    this.msSinceLastSprite = updatedProperties.msSinceLastSprite;
+    this.animationTarget = updatedProperties.animationTarget;
+    this.backgroundOffsetPixels = updatedProperties.backgroundOffsetPixels;
   }
 
   /**

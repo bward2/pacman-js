@@ -233,17 +233,30 @@ class CharacterUtil {
    * @param {Object} character - The character which needs to be animated
    */
   advanceSpriteSheet(character) {
-    if (character.msSinceLastSprite > character.msBetweenSprites && character.moving) {
-      character.msSinceLastSprite = 0;
+    const {
+      msSinceLastSprite,
+      animationTarget,
+      backgroundOffsetPixels,
+    } = character;
+    const updatedProperties = {
+      msSinceLastSprite,
+      animationTarget,
+      backgroundOffsetPixels,
+    };
 
-      character.animationTarget.style.backgroundPosition = `-${character.backgroundOffsetPixels}px 0px`;
+    if (character.msSinceLastSprite > character.msBetweenSprites && character.moving) {
+      updatedProperties.msSinceLastSprite = 0;
+
+      updatedProperties.animationTarget.style.backgroundPosition = `-${character.backgroundOffsetPixels}px 0px`;
 
       if (character.backgroundOffsetPixels < (character.measurement * (character.spriteFrames - 1))) {
-        character.backgroundOffsetPixels += character.measurement;
+        updatedProperties.backgroundOffsetPixels += character.measurement;
       } else {
-        character.backgroundOffsetPixels = 0;
+        updatedProperties.backgroundOffsetPixels = 0;
       }
     }
+
+    return updatedProperties;
   }
 }
 

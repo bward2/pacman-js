@@ -181,7 +181,10 @@ class Pacman {
 
     this.updatePacmanArrowPosition(this.position, this.scaledTileSize);
 
-    this.characterUtil.advanceSpriteSheet(this);
+    const updatedProperties = this.characterUtil.advanceSpriteSheet(this);
+    this.msSinceLastSprite = updatedProperties.msSinceLastSprite;
+    this.animationTarget = updatedProperties.animationTarget;
+    this.backgroundOffsetPixels = updatedProperties.backgroundOffsetPixels;
   }
 
   /**
