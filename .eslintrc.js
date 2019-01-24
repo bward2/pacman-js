@@ -4,6 +4,5 @@ module.exports = {
         "no-undef": "off",
         "class-methods-use-this": "off",
         "linebreak-style": "off",
-        "max-len": ["error", { "ignoreComments": true }]
     }
 };

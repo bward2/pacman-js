@@ -211,7 +211,7 @@ describe('pacman', () => {
         assert.deepEqual(newPosition, desiredPosition);
       });
 
-      it('should return the alternate new position if Pacman\'s desired new position results in a wall collision but the alternate position is clear', () => {
+      it('should return the alternate new position if the alternate position is clear', () => {
         let firstCall = true;
         pacman.characterUtil.checkForWallCollision = () => {
           if (firstCall) {
@@ -225,7 +225,7 @@ describe('pacman', () => {
         assert.deepEqual(newPosition, alternatePosition);
       });
 
-      it('should return Pacman\'s current position and set his movement to false if both of the potential new positions result in a wall collision', () => {
+      it('should return Pacman\'s current position and set his movement to false if both positions are collisions', () => {
         pacman.characterUtil.checkForWallCollision = sinon.fake.returns(true);
         pacman.moving = true;
 

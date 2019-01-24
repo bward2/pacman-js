@@ -93,13 +93,17 @@ describe('ghost', () => {
   describe('setSpriteSheet', () => {
     it('should set the correct spritesheet for any given direction', () => {
       ghost.setSpriteSheet('blinky', 'up');
-      assert.strictEqual(ghost.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/ghosts/blinky/blinky_up.svg)');
+      assert.strictEqual(ghost.animationTarget.style.backgroundImage,
+        'url(app/style/graphics/spriteSheets/characters/ghosts/blinky/blinky_up.svg)');
       ghost.setSpriteSheet('blinky', 'down');
-      assert.strictEqual(ghost.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/ghosts/blinky/blinky_down.svg)');
+      assert.strictEqual(ghost.animationTarget.style.backgroundImage,
+        'url(app/style/graphics/spriteSheets/characters/ghosts/blinky/blinky_down.svg)');
       ghost.setSpriteSheet('blinky', 'left');
-      assert.strictEqual(ghost.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/ghosts/blinky/blinky_left.svg)');
+      assert.strictEqual(ghost.animationTarget.style.backgroundImage,
+        'url(app/style/graphics/spriteSheets/characters/ghosts/blinky/blinky_left.svg)');
       ghost.setSpriteSheet('blinky', 'right');
-      assert.strictEqual(ghost.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/ghosts/blinky/blinky_right.svg)');
+      assert.strictEqual(ghost.animationTarget.style.backgroundImage,
+        'url(app/style/graphics/spriteSheets/characters/ghosts/blinky/blinky_right.svg)');
     });
   });
 

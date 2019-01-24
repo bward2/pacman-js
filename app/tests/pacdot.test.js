@@ -46,14 +46,14 @@ describe('pacdot', () => {
 
   describe('update', () => {
     it('should turn the Pacdot\'s visibility to HIDDEN if a collision with Pacman occurs', () => {
-      const collisionSpy = pacdot.checkForCollision = sinon.fake.returns(true);
+      pacdot.checkForCollision = sinon.fake.returns(true);
 
       pacdot.update();
       assert.strictEqual(pacdot.animationTarget.style.visibility, 'hidden');
     });
 
     it('should leave the Pacdot\'s visibility alone if a collision has not yet occured', () => {
-      const collisionSpy = pacdot.checkForCollision = sinon.fake.returns(false);
+      pacdot.checkForCollision = sinon.fake.returns(false);
 
       pacdot.update();
       assert.notStrictEqual(pacdot.animationTarget.style.visibility, 'hidden');
