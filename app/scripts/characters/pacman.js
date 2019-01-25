@@ -100,7 +100,7 @@ class Pacman {
 
   /**
    * Chooses a movement Spritesheet depending upon direction
-   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    */
   setSpriteSheet(direction) {
     this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/pacman_${direction}.svg)`;
@@ -129,7 +129,7 @@ class Pacman {
   }
 
   /**
-   * Handle Pacman's movement and return a new position when Pacman is snapped to the x-y grid of the Maze Array
+   * Handle Pacman's movement when he is snapped to the x-y grid of the Maze Array
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    * @returns {({ top: number, left: number})}
    */
@@ -150,7 +150,7 @@ class Pacman {
   }
 
   /**
-   * Handle Pacman's movement and return a new position when Pacman is inbetween tiles on the x-y grid of the Maze Array
+   * Handle Pacman's movement when he is inbetween tiles on the x-y grid of the Maze Array
    * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    * @returns {({ top: number, left: number})}
@@ -171,7 +171,7 @@ class Pacman {
 
   /**
    * Updates the css position of Pacman and the Pacman arrow, hides them if there is a stutter, and animates Pacman's spritesheet
-   * @param {number} interp - The percentage of accuracy between the desired and actual amount of time between updates
+   * @param {number} interp - The animation accuracy as a percentage
    */
   draw(interp) {
     this.animationTarget.style.top = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;

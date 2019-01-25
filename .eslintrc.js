@@ -3,7 +3,6 @@ module.exports = {
     "rules": {
         "no-undef": "off",
         "class-methods-use-this": "off",
-        "linebreak-style": "off",
-        "max-len": "off"
+        "linebreak-style": "off"
     }
 };

@@ -30,7 +30,7 @@ class CharacterUtil {
 
   /**
    * Check which CSS property needs to be changed given the character's current direction
-   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @returns {('top'|'left')}
    */
   getPropertyToChange(direction) {
@@ -45,7 +45,7 @@ class CharacterUtil {
 
   /**
    * Calculate the velocity for the character's next frame.
-   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @param {number} velocityPerMs - The distance the character should travel in a single millisecond
    * @returns {number} - New velocity. Since we are using css positioning, moving down or right is positive, while up or left is negative.
    */
@@ -73,7 +73,7 @@ class CharacterUtil {
 
   /**
    * Convert the character's css position to a row-column on the maze array
-   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @param {number} scaledTileSize - The dimensions of a single tile
    * @returns {({x: number, y: number})}
    */
@@ -86,7 +86,7 @@ class CharacterUtil {
 
   /**
    * Check to see if a character's disired direction results in turning around
-   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @param {('up'|'down'|'left'|'right')} desiredDirection - The direction the character wants to be traveling in
    * @returns {boolean}
    */
@@ -96,7 +96,7 @@ class CharacterUtil {
 
   /**
    * Calculate the opposite of a given direction
-   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @returns {('up'|'down'|'left'|'right')}
    */
   getOppositeDirection(direction) {
@@ -114,7 +114,7 @@ class CharacterUtil {
 
   /**
    * Calculate the proper rounding function, given the character's current direction, to assist with collision detection
-   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @returns {Function}
    */
   determineRoundingFunction(direction) {
@@ -144,7 +144,7 @@ class CharacterUtil {
    * Check to see if the character is attempting to run into a wall of the maze
    * @param {({x: number, y: number})} desiredNewGridPosition - The tile on the maze that the character wishes to move to
    * @param {Array} mazeArray - The 2D array representing the game's maze
-   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @returns {boolean}
    */
   checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
@@ -164,7 +164,7 @@ class CharacterUtil {
   /**
    * Returns an object containing the new position and grid position based upon a direction
    * @param {({top: number, left: number})} position - The character's css position during the current frame
-   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @param {number} velocityPerMs - The distance the character should travel in a single millisecond
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    * @param {number} scaledTileSize - The dimensions of a single tile
@@ -184,7 +184,7 @@ class CharacterUtil {
   /**
    * Calculates the css position when snapping the character to an integer x-y value along the maze grid
    * @param {({x: number, y: number})} position - The character's position during the current frame
-   * @param {('up'|'down'|'left'|'right')} direction - The direction the character is currently traveling in
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @param {number} scaledTileSize - The dimensions of a single tile
    * @returns {({top: number, left: number})}
    */

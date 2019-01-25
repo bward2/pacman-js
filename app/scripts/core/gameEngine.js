@@ -55,7 +55,7 @@ class GameEngine {
 
   /**
    * Calls the draw function for every member of the entityList
-   * @param {number} interp - The percentage of accuracy between the desired and actual amount of time between updates
+   * @param {number} interp - The animation accuracy as a percentage
    * @param {Array} entityList - List of entities (Pacman, Ghosts, etc.) to be used throughout the game
    */
   draw(interp, entityList) {
