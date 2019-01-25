@@ -270,12 +270,13 @@ describe('pacman', () => {
       const drawValueSpy = pacman.characterUtil.calculateNewDrawValue = sinon.fake.returns(100);
       const stutterSpy = pacman.characterUtil.checkForStutter = sinon.fake.returns('visible');
       const arrowSpy = pacman.updatePacmanArrowPosition = sinon.fake();
-      const spriteSpy = pacman.characterUtil.advanceSpriteSheet = sinon.fake();
+      const spriteSpy = pacman.characterUtil.advanceSpriteSheet = sinon.fake.returns({
+        msSinceLastSprite: '',
+        animationTarget: '',
+        backgroundOffsetPixels: '',
+      });
 
       pacman.draw(1);
-      assert.strictEqual(pacman.animationTarget.style.top, '100px');
-      assert.strictEqual(pacman.animationTarget.style.left, '100px');
-      assert.strictEqual(pacman.animationTarget.style.visibility, 'visible');
       assert(drawValueSpy.calledTwice);
       assert(stutterSpy.called);
       assert(arrowSpy.called);

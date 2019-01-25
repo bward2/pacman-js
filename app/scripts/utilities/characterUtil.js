@@ -249,7 +249,9 @@ class CharacterUtil {
 
       updatedProperties.animationTarget.style.backgroundPosition = `-${character.backgroundOffsetPixels}px 0px`;
 
-      if (character.backgroundOffsetPixels < (character.measurement * (character.spriteFrames - 1))) {
+      if (character.backgroundOffsetPixels < (character.measurement
+        * (character.spriteFrames - 1)
+      )) {
         updatedProperties.backgroundOffsetPixels += character.measurement;
       } else {
         updatedProperties.backgroundOffsetPixels = 0;
