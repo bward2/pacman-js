@@ -134,11 +134,19 @@ class Pacman {
    * @returns {({ top: number, left: number})}
    */
   handleSnappedMovement(elapsedMs) {
-    const desired = this.characterUtil.determineNewPositions(this.position, this.desiredDirection, this.velocityPerMs, elapsedMs, this.scaledTileSize);
-    const alternate = this.characterUtil.determineNewPositions(this.position, this.direction, this.velocityPerMs, elapsedMs, this.scaledTileSize);
+    const desired = this.characterUtil.determineNewPositions(
+      this.position, this.desiredDirection, this.velocityPerMs, elapsedMs, this.scaledTileSize,
+    );
+    const alternate = this.characterUtil.determineNewPositions(
+      this.position, this.direction, this.velocityPerMs, elapsedMs, this.scaledTileSize,
+    );
 
-    if (this.characterUtil.checkForWallCollision(desired.newGridPosition, this.mazeArray, this.desiredDirection)) {
-      if (this.characterUtil.checkForWallCollision(alternate.newGridPosition, this.mazeArray, this.direction)) {
+    if (this.characterUtil.checkForWallCollision(
+      desired.newGridPosition, this.mazeArray, this.desiredDirection,
+    )) {
+      if (this.characterUtil.checkForWallCollision(
+        alternate.newGridPosition, this.mazeArray, this.direction,
+      )) {
         this.moving = false;
         return this.position;
       }
@@ -156,8 +164,12 @@ class Pacman {
    * @returns {({ top: number, left: number})}
    */
   handleUnsnappedMovement(gridPosition, elapsedMs) {
-    const desired = this.characterUtil.determineNewPositions(this.position, this.desiredDirection, this.velocityPerMs, elapsedMs, this.scaledTileSize);
-    const alternate = this.characterUtil.determineNewPositions(this.position, this.direction, this.velocityPerMs, elapsedMs, this.scaledTileSize);
+    const desired = this.characterUtil.determineNewPositions(
+      this.position, this.desiredDirection, this.velocityPerMs, elapsedMs, this.scaledTileSize,
+    );
+    const alternate = this.characterUtil.determineNewPositions(
+      this.position, this.direction, this.velocityPerMs, elapsedMs, this.scaledTileSize,
+    );
 
     if (this.characterUtil.turningAround(this.direction, this.desiredDirection)) {
       this.direction = this.desiredDirection;
@@ -170,14 +182,16 @@ class Pacman {
   }
 
   /**
-   * Updates the css position of Pacman and the Pacman arrow, hides them if there is a stutter, and animates Pacman's spritesheet
+   * Updates the css position, hides if there is a stutter, and animates the spritesheet
    * @param {number} interp - The animation accuracy as a percentage
    */
   draw(interp) {
     this.animationTarget.style.top = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
     this.animationTarget.style.left = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;
 
-    this.animationTarget.style.visibility = this.characterUtil.checkForStutter(this.position, this.oldPosition);
+    this.animationTarget.style.visibility = this.characterUtil.checkForStutter(
+      this.position, this.oldPosition,
+    );
 
     this.updatePacmanArrowPosition(this.position, this.scaledTileSize);
 
@@ -195,15 +209,21 @@ class Pacman {
     this.oldPosition = Object.assign({}, this.position);
 
     if (this.moving) {
-      const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
+      const gridPosition = this.characterUtil.determineGridPosition(
+        this.position, this.scaledTileSize,
+      );
 
-      if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize))) {
+      if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(
+        gridPosition, this.direction, this.scaledTileSize,
+      ))) {
         this.position = this.handleSnappedMovement(elapsedMs);
       } else {
         this.position = this.handleUnsnappedMovement(gridPosition, elapsedMs);
       }
 
-      this.position = this.characterUtil.handleWarp(this.position, this.scaledTileSize, this.mazeArray);
+      this.position = this.characterUtil.handleWarp(
+        this.position, this.scaledTileSize, this.mazeArray,
+      );
 
       this.msSinceLastSprite += elapsedMs;
     }

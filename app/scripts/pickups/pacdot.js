@@ -15,7 +15,7 @@ class Pacdot {
   }
 
   /**
-   * Checks to see if the smaller Pacdot rectangle is completely contained within the larger Pacman rectangle
+   * Returns true if the Pacdot rectangle is contained within Pacman's rectangle
    * @param {number} dotX
    * @param {number} dotY
    * @param {number} dotSize
@@ -34,12 +34,16 @@ class Pacdot {
   }
 
   /**
-   * If the Pacdot is still visible, it checks to see if it is colliding with Pacman. It will turn itself invisible and cease
-   * collision-detection after the first collision with Pacman.
+   * If the Pacdot is still visible, it checks to see if it is colliding with Pacman.
+   * It will turn itself invisible and cease collision-detection after the first
+   * collision with Pacman.
    */
   update() {
     if (this.animationTarget.style.visibility !== 'hidden') {
-      if (this.checkForCollision(this.x, this.y, this.size, this.pacman.position.left, this.pacman.position.top, this.pacman.measurement)) {
+      if (this.checkForCollision(
+        this.x, this.y, this.size, this.pacman.position.left,
+        this.pacman.position.top, this.pacman.measurement,
+      )) {
         this.animationTarget.style.visibility = 'hidden';
       }
     }
