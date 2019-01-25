@@ -151,7 +151,7 @@ class Pacman {
 
   /**
    * Handle Pacman's movement when he is inbetween tiles on the x-y grid of the Maze Array
-   * @param {({x: number, y: number})} gridPosition  - The character's maze grid position during the current frame
+   * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    * @returns {({ top: number, left: number})}
    */
