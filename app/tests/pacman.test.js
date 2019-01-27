@@ -23,7 +23,7 @@ beforeEach(() => {
 
 describe('pacman', () => {
   describe('setStyleMeasurements', () => {
-    it('should set pacman\'s measurement, height, width, and backgroundSize properties', () => {
+    it('sets pacman\'s measurement properties', () => {
       pacman.animationTarget.style = {};
       pacman.setStyleMeasurements(scaledTileSize, 4);
       assert.strictEqual(pacman.measurement, 16);
@@ -34,7 +34,7 @@ describe('pacman', () => {
       });
     });
 
-    it('should always set pacman\'s measurement to the scaledTileSize times two', () => {
+    it('sets pacman\'s measurement to scaledTileSize times two', () => {
       pacman.setStyleMeasurements(1);
       assert.strictEqual(pacman.measurement, 2);
 
@@ -45,7 +45,7 @@ describe('pacman', () => {
       assert.strictEqual(pacman.measurement, 2000);
     });
 
-    it('should always set pacman\'s backgroundSize to the scaledTileSize times eight', () => {
+    it('sets pacman\'s backgroundSize to scaledTileSize times eight', () => {
       pacman.setStyleMeasurements(1, 4);
       assert.strictEqual(pacman.animationTarget.style.backgroundSize, '8px');
 
@@ -53,7 +53,9 @@ describe('pacman', () => {
       assert.strictEqual(pacman.animationTarget.style.backgroundSize, '64px');
 
       pacman.setStyleMeasurements(1000, 4);
-      assert.strictEqual(pacman.animationTarget.style.backgroundSize, '8000px');
+      assert.strictEqual(
+        pacman.animationTarget.style.backgroundSize, '8000px',
+      );
     });
   });
 
@@ -69,7 +71,7 @@ describe('pacman', () => {
   });
 
   describe('setDefaultPosition', () => {
-    it('should set the position and oldPosition with top and left properties', () => {
+    it('sets the position and oldPositions', () => {
       pacman.setDefaultPosition(scaledTileSize);
 
       assert.deepEqual(pacman.position, {
@@ -81,7 +83,7 @@ describe('pacman', () => {
   });
 
   describe('calculateVelocityPerMs', () => {
-    it('should return the input multiplied by 11, then divided by 1000', () => {
+    it('returns the input multiplied by 11, then divided by 1000', () => {
       assert.strictEqual(pacman.calculateVelocityPerMs(8), 0.088);
       assert.strictEqual(pacman.calculateVelocityPerMs(64), 0.704);
       assert.strictEqual(pacman.calculateVelocityPerMs(200), 2.2);
@@ -89,20 +91,36 @@ describe('pacman', () => {
   });
 
   describe('setSpriteSheet', () => {
-    it('should set the correct spritesheet for any given direction', () => {
+    const baseUrl = 'url(app/style/graphics/spriteSheets/characters/pacman/';
+
+    it('sets the correct spritesheet for any given direction', () => {
       pacman.setSpriteSheet('up');
-      assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_up.svg)');
+      assert.strictEqual(
+        pacman.animationTarget.style.backgroundImage,
+        `${baseUrl}pacman_up.svg)`,
+      );
       pacman.setSpriteSheet('down');
-      assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_down.svg)');
+      assert.strictEqual(
+        pacman.animationTarget.style.backgroundImage,
+        `${baseUrl}pacman_down.svg)`,
+      );
       pacman.setSpriteSheet('left');
-      assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_left.svg)');
+      assert.strictEqual(
+        pacman.animationTarget.style.backgroundImage,
+        `${baseUrl}pacman_left.svg)`,
+      );
       pacman.setSpriteSheet('right');
-      assert.strictEqual(pacman.animationTarget.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/pacman_right.svg)');
+      assert.strictEqual(
+        pacman.animationTarget.style.backgroundImage,
+        `${baseUrl}pacman_right.svg)`,
+      );
     });
   });
 
   describe('changeDirection', () => {
-    it('should change Pacman\'s movement properties if a recognized keycode is pressed', () => {
+    it('changes Pacman\'s movement if a valid key is pressed', () => {
+      const baseUrl = 'url(app/style/graphics/spriteSheets/characters/pacman/';
+
       assert.strictEqual(pacman.desiredDirection, 'left');
       assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, undefined);
       assert(!pacman.moving);
@@ -110,44 +128,68 @@ describe('pacman', () => {
       // Up Arrow
       pacman.changeDirection({ keyCode: 38 });
       assert.strictEqual(pacman.desiredDirection, 'up');
-      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_up.svg)');
+      assert.strictEqual(
+        pacman.pacmanArrow.style.backgroundImage,
+        `${baseUrl}arrow_up.svg)`,
+      );
       assert(pacman.moving);
 
       // Down Arrow
       pacman.changeDirection({ keyCode: 40 });
       assert.strictEqual(pacman.desiredDirection, 'down');
-      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_down.svg)');
+      assert.strictEqual(
+        pacman.pacmanArrow.style.backgroundImage,
+        `${baseUrl}arrow_down.svg)`,
+      );
 
       // Left Arrow
       pacman.changeDirection({ keyCode: 37 });
       assert.strictEqual(pacman.desiredDirection, 'left');
-      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_left.svg)');
+      assert.strictEqual(
+        pacman.pacmanArrow.style.backgroundImage,
+        `${baseUrl}arrow_left.svg)`,
+      );
 
       // Left Arrow
       pacman.changeDirection({ keyCode: 39 });
       assert.strictEqual(pacman.desiredDirection, 'right');
-      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_right.svg)');
+      assert.strictEqual(
+        pacman.pacmanArrow.style.backgroundImage,
+        `${baseUrl}arrow_right.svg)`,
+      );
 
       // W Key
       pacman.changeDirection({ keyCode: 38 });
       assert.strictEqual(pacman.desiredDirection, 'up');
-      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_up.svg)');
+      assert.strictEqual(
+        pacman.pacmanArrow.style.backgroundImage,
+        `${baseUrl}arrow_up.svg)`,
+      );
       assert(pacman.moving);
 
       // S Key
       pacman.changeDirection({ keyCode: 40 });
       assert.strictEqual(pacman.desiredDirection, 'down');
-      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_down.svg)');
+      assert.strictEqual(
+        pacman.pacmanArrow.style.backgroundImage,
+        `${baseUrl}arrow_down.svg)`,
+      );
 
       // A Key
       pacman.changeDirection({ keyCode: 37 });
       assert.strictEqual(pacman.desiredDirection, 'left');
-      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_left.svg)');
+      assert.strictEqual(
+        pacman.pacmanArrow.style.backgroundImage,
+        `${baseUrl}arrow_left.svg)`,
+      );
 
       // D Key
       pacman.changeDirection({ keyCode: 39 });
       assert.strictEqual(pacman.desiredDirection, 'right');
-      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/style/graphics/spriteSheets/characters/pacman/arrow_right.svg)');
+      assert.strictEqual(
+        pacman.pacmanArrow.style.backgroundImage,
+        `${baseUrl}arrow_right.svg)`,
+      );
     });
 
     it('should not change anything if an unrecognized key is pressed', () => {
@@ -164,11 +206,14 @@ describe('pacman', () => {
   });
 
   describe('updatePacmanArrowPosition', () => {
-    it('should update the css positioning of the Pacman Arrow based on Pacman\'s position and the scaledTileSize', () => {
+    it('updates the css positioning of the Pacman Arrow', () => {
       assert.strictEqual(pacman.pacmanArrow.style.top, undefined);
       assert.strictEqual(pacman.pacmanArrow.style.left, undefined);
 
-      pacman.updatePacmanArrowPosition({ top: 100, left: 100 }, scaledTileSize);
+      pacman.updatePacmanArrowPosition(
+        { top: 100, left: 100 },
+        scaledTileSize,
+      );
       assert.strictEqual(pacman.pacmanArrow.style.top, '92px');
       assert.strictEqual(pacman.pacmanArrow.style.left, '92px');
     });
@@ -201,7 +246,7 @@ describe('pacman', () => {
     });
 
     describe('handleSnappedMovement', () => {
-      it('should set Pacman\'s direction, set his sprite sheet, and return the desired new position if his desired new position is clear', () => {
+      it('sets Pacman\'s direction if his desired position is clear', () => {
         const spriteSpy = pacman.setSpriteSheet = sinon.fake();
         pacman.characterUtil.checkForWallCollision = sinon.fake.returns(false);
 
@@ -211,7 +256,7 @@ describe('pacman', () => {
         assert.deepEqual(newPosition, desiredPosition);
       });
 
-      it('should return the alternate new position if the alternate position is clear', () => {
+      it('returns the alternate new position if needed', () => {
         let firstCall = true;
         pacman.characterUtil.checkForWallCollision = () => {
           if (firstCall) {
@@ -225,7 +270,7 @@ describe('pacman', () => {
         assert.deepEqual(newPosition, alternatePosition);
       });
 
-      it('should return Pacman\'s current position and set his movement to false if both positions are collisions', () => {
+      it('returns Pacman\'s current position if he can\'t move', () => {
         pacman.characterUtil.checkForWallCollision = sinon.fake.returns(true);
         pacman.moving = true;
 
@@ -236,7 +281,7 @@ describe('pacman', () => {
     });
 
     describe('handleUnsnappedMovement', () => {
-      it('should set Pacman\'s direction, set his sprite sheet, and return the desired new position if he is turning around', () => {
+      it('sets Pacman\'s direction if he is turning around', () => {
         const spriteSpy = pacman.setSpriteSheet = sinon.fake();
         pacman.characterUtil.turningAround = sinon.fake.returns(true);
 
@@ -246,7 +291,7 @@ describe('pacman', () => {
         assert.deepEqual(newPosition, desiredPosition);
       });
 
-      it('should return Pacman\'s current position, snapped to the grid, if he is changing grid positions', () => {
+      it('returns Pacman\'s current position, snapped to the grid', () => {
         pacman.characterUtil.turningAround = sinon.fake.returns(false);
         pacman.characterUtil.changingGridPosition = sinon.fake.returns(true);
         pacman.characterUtil.snapToGrid = sinon.fake.returns(snappedPosition);
@@ -255,7 +300,7 @@ describe('pacman', () => {
         assert.deepEqual(newPosition, snappedPosition);
       });
 
-      it('should return the alternate position if Pacman is not turning around or changing grid positions', () => {
+      it('returns the alternate position', () => {
         pacman.characterUtil.turningAround = sinon.fake.returns(false);
         pacman.characterUtil.changingGridPosition = sinon.fake.returns(false);
 
@@ -266,15 +311,19 @@ describe('pacman', () => {
   });
 
   describe('draw', () => {
-    it('should update various css properties and animate Pacman\'s spritesheet', () => {
-      const drawValueSpy = pacman.characterUtil.calculateNewDrawValue = sinon.fake.returns(100);
-      const stutterSpy = pacman.characterUtil.checkForStutter = sinon.fake.returns('visible');
-      const arrowSpy = pacman.updatePacmanArrowPosition = sinon.fake();
-      const spriteSpy = pacman.characterUtil.advanceSpriteSheet = sinon.fake.returns({
+    it('updates css properties and animate Pacman\'s spritesheet', () => {
+      const drawValueSpy = sinon.fake.returns(100);
+      const stutterSpy = sinon.fake.returns('visible');
+      const arrowSpy = sinon.fake();
+      const spriteSpy = sinon.fake.returns({
         msSinceLastSprite: '',
         animationTarget: '',
         backgroundOffsetPixels: '',
       });
+      pacman.characterUtil.calculateNewDrawValue = drawValueSpy;
+      pacman.characterUtil.checkForStutter = stutterSpy;
+      pacman.updatePacmanArrowPosition = arrowSpy;
+      pacman.characterUtil.advanceSpriteSheet = spriteSpy;
 
       pacman.draw(1);
       assert(drawValueSpy.calledTwice);
@@ -285,7 +334,7 @@ describe('pacman', () => {
   });
 
   describe('update', () => {
-    it('should call handleSnappedMovement if Pacman is moving and snapped to the x-y grid of the Maze Array', () => {
+    it('calls handleSnappedMovement if Pacman is snapped', () => {
       const snappedSpy = pacman.handleSnappedMovement = sinon.fake();
       pacman.characterUtil.determineGridPosition = sinon.fake();
       pacman.characterUtil.handleWarp = sinon.fake();
@@ -296,7 +345,7 @@ describe('pacman', () => {
       assert(snappedSpy.called);
     });
 
-    it('should call handleUnsnappedMovement if Pacman is moving and inbetween tiles on the x-y grid of the Maze Array', () => {
+    it('calls handleUnsnappedMovement if Pacman is unsapped', () => {
       const unsnappedSpy = pacman.handleUnsnappedMovement = sinon.fake();
       pacman.characterUtil.determineGridPosition = sinon.fake();
       pacman.characterUtil.handleWarp = sinon.fake();
