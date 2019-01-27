@@ -31,35 +31,35 @@ beforeEach(() => {
 
 describe('pacdot', () => {
   describe('checkForCollision', () => {
-    it('should return TRUE if the Pacdot is contained within Pacman\'s dimensions', () => {
+    it('returns TRUE if the Pacdot is colliding', () => {
       assert.strictEqual(pacdot.checkForCollision(1, 1, 1, 0, 0, 10), true);
     });
 
-    it('should return FALSE if the Pacdot is not touching the Pacman object', () => {
+    it('returns FALSE if it is not', () => {
       assert.strictEqual(pacdot.checkForCollision(0, 0, 1, 10, 10, 10), false);
     });
 
-    it('should return FALSE if the Pacdot is only partially overlapping Pacman', () => {
+    it('returns FALSE if the Pacdot is only partially colliding', () => {
       assert.strictEqual(pacdot.checkForCollision(0, 0, 5, 1, 1, 10), false);
     });
   });
 
   describe('update', () => {
-    it('should turn the Pacdot\'s visibility to HIDDEN if a collision with Pacman occurs', () => {
+    it('turns the Pacdot\'s visibility to HIDDEN after collision', () => {
       pacdot.checkForCollision = sinon.fake.returns(true);
 
       pacdot.update();
       assert.strictEqual(pacdot.animationTarget.style.visibility, 'hidden');
     });
 
-    it('should leave the Pacdot\'s visibility alone if a collision has not yet occured', () => {
+    it('leaves the Pacdot\'s visibility until collision', () => {
       pacdot.checkForCollision = sinon.fake.returns(false);
 
       pacdot.update();
       assert.notStrictEqual(pacdot.animationTarget.style.visibility, 'hidden');
     });
 
-    it('should not perform collision-detection if the Pacdot is already hidden', () => {
+    it('only performs collision-detection once', () => {
       const collisionSpy = pacdot.checkForCollision = sinon.fake();
 
       pacdot.animationTarget.style.visibility = 'hidden';
