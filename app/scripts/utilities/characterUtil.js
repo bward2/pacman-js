@@ -149,7 +149,9 @@ class CharacterUtil {
    * @returns {boolean}
    */
   checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
-    const roundingFunction = this.determineRoundingFunction(direction, this.directions);
+    const roundingFunction = this.determineRoundingFunction(
+      direction, this.directions,
+    );
 
     const desiredX = roundingFunction(desiredNewGridPosition.x);
     const desiredY = roundingFunction(desiredNewGridPosition.y);
@@ -171,11 +173,15 @@ class CharacterUtil {
    * @param {number} scaledTileSize - The dimensions of a single tile
    * @returns {object}
    */
-  determineNewPositions(position, direction, velocityPerMs, elapsedMs, scaledTileSize) {
+  determineNewPositions(
+    position, direction, velocityPerMs, elapsedMs, scaledTileSize,
+  ) {
     const newPosition = Object.assign({}, position);
     newPosition[this.getPropertyToChange(direction)]
       += this.getVelocity(direction, velocityPerMs) * elapsedMs;
-    const newGridPosition = this.determineGridPosition(newPosition, scaledTileSize);
+    const newGridPosition = this.determineGridPosition(
+      newPosition, scaledTileSize,
+    );
 
     return {
       newPosition,
@@ -192,7 +198,9 @@ class CharacterUtil {
    */
   snapToGrid(position, direction, scaledTileSize) {
     const newPosition = Object.assign({}, position);
-    const roundingFunction = this.determineRoundingFunction(direction, this.directions);
+    const roundingFunction = this.determineRoundingFunction(
+      direction, this.directions,
+    );
 
     switch (direction) {
       case this.directions.up:
@@ -246,10 +254,13 @@ class CharacterUtil {
       backgroundOffsetPixels,
     };
 
-    if (character.msSinceLastSprite > character.msBetweenSprites && character.moving) {
+    if (character.msSinceLastSprite
+      > (character.msBetweenSprites && character.moving)
+    ) {
       updatedProperties.msSinceLastSprite = 0;
 
-      updatedProperties.animationTarget.style.backgroundPosition = `-${character.backgroundOffsetPixels}px 0px`;
+      const style = `-${character.backgroundOffsetPixels}px 0px`;
+      updatedProperties.animationTarget.style.backgroundPosition = style;
 
       if (character.backgroundOffsetPixels < (character.measurement
         * (character.spriteFrames - 1)
