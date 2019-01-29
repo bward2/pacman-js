@@ -46,7 +46,9 @@ class Pacman {
 
     this.animationTarget.style.height = `${this.measurement}px`;
     this.animationTarget.style.width = `${this.measurement}px`;
-    this.animationTarget.style.backgroundSize = `${this.measurement * spriteFrames}px`;
+    this.animationTarget.style.backgroundSize = `${
+      this.measurement * spriteFrames
+    }px`;
 
     this.pacmanArrow.style.height = `${this.measurement * 2}px`;
     this.pacmanArrow.style.width = `${this.measurement * 2}px`;
@@ -103,7 +105,8 @@ class Pacman {
    * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    */
   setSpriteSheet(direction) {
-    this.animationTarget.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/pacman_${direction}.svg)`;
+    this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
+      + `spriteSheets/characters/pacman/pacman_${direction}.svg)`;
   }
 
   /**
@@ -112,8 +115,11 @@ class Pacman {
    */
   changeDirection(e) {
     if (this.movementKeys[e.keyCode]) {
-      this.desiredDirection = this.characterUtil.directions[this.movementKeys[e.keyCode]];
-      this.pacmanArrow.style.backgroundImage = `url(app/style/graphics/spriteSheets/characters/pacman/arrow_${this.desiredDirection}.svg)`;
+      this.desiredDirection = this.characterUtil.directions[
+        this.movementKeys[e.keyCode]
+      ];
+      this.pacmanArrow.style.backgroundImage = 'url(app/style/graphics/'
+        + `spriteSheets/characters/pacman/arrow_${this.desiredDirection}.svg)`;
       this.moving = true;
     }
   }
@@ -135,10 +141,12 @@ class Pacman {
    */
   handleSnappedMovement(elapsedMs) {
     const desired = this.characterUtil.determineNewPositions(
-      this.position, this.desiredDirection, this.velocityPerMs, elapsedMs, this.scaledTileSize,
+      this.position, this.desiredDirection, this.velocityPerMs,
+      elapsedMs, this.scaledTileSize,
     );
     const alternate = this.characterUtil.determineNewPositions(
-      this.position, this.direction, this.velocityPerMs, elapsedMs, this.scaledTileSize,
+      this.position, this.direction, this.velocityPerMs,
+      elapsedMs, this.scaledTileSize,
     );
 
     if (this.characterUtil.checkForWallCollision(
@@ -165,18 +173,26 @@ class Pacman {
    */
   handleUnsnappedMovement(gridPosition, elapsedMs) {
     const desired = this.characterUtil.determineNewPositions(
-      this.position, this.desiredDirection, this.velocityPerMs, elapsedMs, this.scaledTileSize,
+      this.position, this.desiredDirection, this.velocityPerMs,
+      elapsedMs, this.scaledTileSize,
     );
     const alternate = this.characterUtil.determineNewPositions(
-      this.position, this.direction, this.velocityPerMs, elapsedMs, this.scaledTileSize,
+      this.position, this.direction, this.velocityPerMs,
+      elapsedMs, this.scaledTileSize,
     );
 
-    if (this.characterUtil.turningAround(this.direction, this.desiredDirection)) {
+    if (this.characterUtil.turningAround(
+      this.direction, this.desiredDirection,
+    )) {
       this.direction = this.desiredDirection;
       this.setSpriteSheet(this.direction);
       return desired.newPosition;
-    } if (this.characterUtil.changingGridPosition(gridPosition, alternate.newGridPosition)) {
-      return this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
+    } if (this.characterUtil.changingGridPosition(
+      gridPosition, alternate.newGridPosition,
+    )) {
+      return this.characterUtil.snapToGrid(
+        gridPosition, this.direction, this.scaledTileSize,
+      );
     }
     return alternate.newPosition;
   }
@@ -186,8 +202,14 @@ class Pacman {
    * @param {number} interp - The animation accuracy as a percentage
    */
   draw(interp) {
-    this.animationTarget.style.top = `${this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position)}px`;
-    this.animationTarget.style.left = `${this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position)}px`;
+    const newTop = this.characterUtil.calculateNewDrawValue(
+      interp, 'top', this.oldPosition, this.position,
+    );
+    const newLeft = this.characterUtil.calculateNewDrawValue(
+      interp, 'left', this.oldPosition, this.position,
+    );
+    this.animationTarget.style.top = `${newTop}px`;
+    this.animationTarget.style.left = `${newLeft}px`;
 
     this.animationTarget.style.visibility = this.characterUtil.checkForStutter(
       this.position, this.oldPosition,
@@ -213,9 +235,11 @@ class Pacman {
         this.position, this.scaledTileSize,
       );
 
-      if (JSON.stringify(this.position) === JSON.stringify(this.characterUtil.snapToGrid(
-        gridPosition, this.direction, this.scaledTileSize,
-      ))) {
+      if (JSON.stringify(this.position) === JSON.stringify(
+        this.characterUtil.snapToGrid(
+          gridPosition, this.direction, this.scaledTileSize,
+        ),
+      )) {
         this.position = this.handleSnappedMovement(elapsedMs);
       } else {
         this.position = this.handleUnsnappedMovement(gridPosition, elapsedMs);

@@ -254,9 +254,8 @@ class CharacterUtil {
       backgroundOffsetPixels,
     };
 
-    if (character.msSinceLastSprite
-      > (character.msBetweenSprites && character.moving)
-    ) {
+    const ready = character.msSinceLastSprite > character.msBetweenSprites;
+    if (ready && character.moving) {
       updatedProperties.msSinceLastSprite = 0;
 
       const style = `-${character.backgroundOffsetPixels}px 0px`;
