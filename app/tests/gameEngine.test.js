@@ -32,7 +32,7 @@ describe('gameEngine', () => {
       assert(pauseSpy.called);
     });
 
-    it('does not call changePausedState unless the escape key is pressed', () => {
+    it('does not call changePausedState unless escape is pressed', () => {
       const pauseSpy = gameEngine.changePausedState = sinon.fake();
 
       gameEngine.handleKeyPress({
@@ -43,13 +43,13 @@ describe('gameEngine', () => {
   });
 
   describe('changePausedState', () => {
-    it('should pause the game if it is running', () => {
+    it('pauses the game if it is running', () => {
       const stopSpy = gameEngine.stop = sinon.fake();
       gameEngine.changePausedState(true);
       assert(stopSpy.called);
     });
 
-    it('should resume the game if it is paused', () => {
+    it('resumes the game if it is paused', () => {
       const startSpy = gameEngine.start = sinon.fake();
       gameEngine.changePausedState(false);
       assert(startSpy.called);
@@ -57,7 +57,7 @@ describe('gameEngine', () => {
   });
 
   describe('updateFpsDisplay', () => {
-    it('should update the FPS display if more than one second has passed since the last update', () => {
+    it('updates the FPS display if more than one second has passed', () => {
       gameEngine.framesThisSecond = maxFps;
 
       gameEngine.updateFpsDisplay(1001);
@@ -67,7 +67,7 @@ describe('gameEngine', () => {
       assert.strictEqual(gameEngine.fpsDisplay.textContent, '120 FPS');
     });
 
-    it('should calculate the FPS display as the average of the last second and current second\'s FPS', () => {
+    it('calculates the FPS display as an average', () => {
       gameEngine.framesThisSecond = 60;
 
       gameEngine.updateFpsDisplay(1001);
@@ -77,7 +77,7 @@ describe('gameEngine', () => {
       assert.strictEqual(gameEngine.fpsDisplay.textContent, '90 FPS');
     });
 
-    it('should not update the FPS until more than one second has passed', () => {
+    it('doesn\'t update the FPS until a second has passed', () => {
       gameEngine.framesThisSecond = 60;
 
       gameEngine.updateFpsDisplay(1000);
@@ -89,7 +89,7 @@ describe('gameEngine', () => {
   });
 
   describe('draw', () => {
-    it('should call the DRAW function and pass in the interp value for every member of the given entity list', () => {
+    it('calls the DRAW function for each entity', () => {
       const drawSpy1 = sinon.fake();
       const drawSpy2 = sinon.fake();
       const entityList = [
@@ -102,7 +102,7 @@ describe('gameEngine', () => {
       assert(drawSpy2.calledWith(50));
     });
 
-    it('will not crash if the DRAW property is missing or not a function', () => {
+    it('won\'t crash if the DRAW property is not a function', () => {
       const entityList = [
         { draw: 123 },
         {},
@@ -113,7 +113,7 @@ describe('gameEngine', () => {
   });
 
   describe('update', () => {
-    it('should call the UPDATE function and pass in the elapsedMs value for every member of the given entity list', () => {
+    it('calls the UPDATE function for each entity', () => {
       const updateSpy1 = sinon.fake();
       const updateSpy2 = sinon.fake();
       const entityList = [
@@ -126,7 +126,7 @@ describe('gameEngine', () => {
       assert(updateSpy2.calledWith(100));
     });
 
-    it('will not crash if the UPDATE property is missing or not a function', () => {
+    it('won\'t crash if the UPDATE property is not a function', () => {
       const entityList = [
         { update: 123 },
         {},
@@ -145,7 +145,7 @@ describe('gameEngine', () => {
   });
 
   describe('start', () => {
-    it('calls the mainLoop function if the engine is not currently running', () => {
+    it('calls the mainLoop function to start the engine', () => {
       const mainLoopSpy = gameEngine.mainLoop = sinon.fake();
       const drawSpy = gameEngine.draw = sinon.fake();
 
@@ -160,7 +160,7 @@ describe('gameEngine', () => {
       assert(mainLoopSpy.called);
     });
 
-    it('does not call the mainLoop function once the engine is already running', () => {
+    it('doesn\'t call the mainLoop again once the engine starts', () => {
       const mainLoopSpy = gameEngine.mainLoop = sinon.fake();
 
       gameEngine.started = true;
@@ -183,7 +183,7 @@ describe('gameEngine', () => {
   });
 
   describe('processFrames', () => {
-    it('calls the update function once per timestep passed since the last update', () => {
+    it('calls the update function once per queued timestep', () => {
       const updateSpy = gameEngine.update = sinon.fake();
 
       gameEngine.elapsedMs = 3;
@@ -192,7 +192,7 @@ describe('gameEngine', () => {
       assert(updateSpy.calledThrice);
     });
 
-    it('calls the panic function and stops calling update if more than a second\'s worth of frames have elapsed', () => {
+    it('calls the panic function if blocked for over a second', () => {
       const updateSpy = gameEngine.update = sinon.fake();
       const panicSpy = gameEngine.panic = sinon.fake();
 
@@ -204,7 +204,7 @@ describe('gameEngine', () => {
   });
 
   describe('engineCycle', () => {
-    it('will not call updateFpsDisplay, processFrames, or draw if less than one timestep has passed since the last update', () => {
+    it('won\'t call functions until a timestep passes', () => {
       const mainLoopSpy = gameEngine.mainLoop = sinon.fake();
       const updateFpsDisplaySpy = gameEngine.updateFpsDisplay = sinon.fake();
       const processFramesSpy = gameEngine.processFrames = sinon.fake();
@@ -221,7 +221,7 @@ describe('gameEngine', () => {
       assert.strictEqual(gameEngine.lastFrameTimeMs, 9000);
     });
 
-    it('will call updateFpsDisplay, processFrames, or draw if more than one timestep has passed since the last update', () => {
+    it('calls functions after a timestep passes', () => {
       const mainLoopSpy = gameEngine.mainLoop = sinon.fake();
       const updateFpsDisplaySpy = gameEngine.updateFpsDisplay = sinon.fake();
       const processFramesSpy = gameEngine.processFrames = sinon.fake();
