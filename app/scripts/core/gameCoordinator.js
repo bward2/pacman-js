@@ -44,8 +44,13 @@ class GameCoordinator {
     });
 
     this.entityList = [
-      this.pacman = new Pacman(this.scaledTileSize, this.mazeArray, new CharacterUtil()),
-      this.blinky = new Ghost(this.scaledTileSize, this.mazeArray, this.pacman, 'blinky', new CharacterUtil()),
+      this.pacman = new Pacman(
+        this.scaledTileSize, this.mazeArray, new CharacterUtil(),
+      ),
+      this.blinky = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
+        new CharacterUtil(),
+      ),
     ];
 
     this.drawMaze(this.mazeArray, this.entityList);
