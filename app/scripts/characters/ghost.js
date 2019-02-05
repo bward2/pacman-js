@@ -238,14 +238,12 @@ class Ghost {
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
    * @param {number} velocity - The distance the character should travel in a single millisecond
+   * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
    * @returns {({ top: number, left: number})}
    */
-  handleSnappedMovement(elapsedMs, gridPosition, velocity) {
+  handleSnappedMovement(elapsedMs, gridPosition, velocity, pacmanGridPosition) {
     const newPosition = Object.assign({}, this.position);
 
-    const pacmanGridPosition = this.characterUtil.determineGridPosition(
-      this.pacman.position, this.scaledTileSize,
-    );
     this.direction = this.determineDirection(
       this.name, gridPosition, pacmanGridPosition, this.direction,
       this.mazeArray,
@@ -278,6 +276,17 @@ class Ghost {
     }
 
     return desired.newPosition;
+  }
+
+  /**
+   * Checks if the ghost contacts Pacman - starts the death sequence if so
+   * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
+   * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array
+   */
+  checkCollision(position, pacman) {
+    if (this.calculateDistance(position, pacman) < 1) {
+      this.moving = false;
+    }
   }
 
   /**
@@ -319,6 +328,9 @@ class Ghost {
       const gridPosition = this.characterUtil.determineGridPosition(
         this.position, this.scaledTileSize,
       );
+      const pacmanGridPosition = this.characterUtil.determineGridPosition(
+        this.pacman.position, this.scaledTileSize,
+      );
       const velocity = this.isInTunnel(gridPosition)
         ? this.tunnelSpeed : this.velocityPerMs;
 
@@ -328,7 +340,7 @@ class Ghost {
         ),
       )) {
         this.position = this.handleSnappedMovement(
-          elapsedMs, gridPosition, velocity,
+          elapsedMs, gridPosition, velocity, pacmanGridPosition,
         );
       } else {
         this.position = this.handleUnsnappedMovement(
@@ -339,6 +351,8 @@ class Ghost {
       this.position = this.characterUtil.handleWarp(
         this.position, this.scaledTileSize, this.mazeArray,
       );
+
+      this.checkCollision(gridPosition, pacmanGridPosition);
 
       this.msSinceLastSprite += elapsedMs;
     }

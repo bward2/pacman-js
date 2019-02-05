@@ -323,6 +323,7 @@ describe('ghost', () => {
       ghost.isInTunnel = sinon.fake();
       ghost.characterUtil.handleWarp = sinon.fake();
       ghost.characterUtil.snapToGrid = sinon.fake.returns(ghost.position);
+      ghost.checkCollision = sinon.fake();
       pacman.moving = true;
 
       ghost.update();
@@ -335,6 +336,7 @@ describe('ghost', () => {
       ghost.isInTunnel = sinon.fake();
       ghost.characterUtil.handleWarp = sinon.fake();
       ghost.characterUtil.snapToGrid = sinon.fake();
+      ghost.checkCollision = sinon.fake();
       pacman.moving = true;
 
       ghost.update();
@@ -363,6 +365,7 @@ describe('ghost', () => {
       ghost.isInTunnel = sinon.fake.returns(true);
       ghost.handleUnsnappedMovement = sinon.fake();
       ghost.characterUtil.handleWarp = sinon.fake();
+      ghost.checkCollision = sinon.fake();
 
       ghost.update();
     });
