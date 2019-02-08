@@ -1,4 +1,5 @@
 const assert = require('assert');
+const sinon = require('sinon');
 const GameCoordinator = require('../scripts/core/gameCoordinator');
 
 let gameCoordinator;
@@ -39,6 +40,19 @@ describe('gameCoordinator', () => {
       const entityList = [];
       gameCoordinator.drawMaze(mazeArray, entityList);
       assert.strictEqual(entityList.length, 1);
+    });
+  });
+
+  describe('registerEventListeners', () => {
+    it('registers listeners for various game events', () => {
+      const listenerSpy = sinon.fake();
+      global.window = {
+        addEventListener: listenerSpy,
+      };
+
+      gameCoordinator.registerEventListeners();
+      assert(listenerSpy.calledWith('keydown'));
+      assert(listenerSpy.calledWith('deathSequence'));
     });
   });
 });
