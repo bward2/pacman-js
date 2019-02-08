@@ -136,6 +136,8 @@ class GameCoordinator {
    * has remaining lives.
    */
   deathSequence() {
+    this.eventInProgress = true;
+
     this.pacman.moving = false;
     this.blinky.moving = false;
   }

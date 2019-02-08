@@ -140,10 +140,12 @@ describe('gameCoordinator', () => {
 
   describe('deathSequence', () => {
     it('does stuff', () => {
+      gameCoordinator.eventInProgress = false;
       gameCoordinator.pacman.moving = true;
       gameCoordinator.blinky.moving = true;
 
       gameCoordinator.deathSequence();
+      assert(gameCoordinator.eventInProgress);
       assert(!gameCoordinator.pacman.moving);
       assert(!gameCoordinator.blinky.moving);
     });
