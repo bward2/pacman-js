@@ -10,7 +10,6 @@ class Pacman {
     this.setSpriteAnimationStats();
     this.setStyleMeasurements(scaledTileSize, this.spriteFrames);
     this.setDefaultPosition(scaledTileSize);
-    this.setKeyListeners();
 
     this.setSpriteSheet(this.direction);
   }
@@ -70,27 +69,6 @@ class Pacman {
   }
 
   /**
-   * Sets the movement key options for Pacman and registers a keydown event listener
-   */
-  setKeyListeners() {
-    this.movementKeys = {
-      // WASD
-      87: 'up',
-      83: 'down',
-      65: 'left',
-      68: 'right',
-
-      // Arrow Keys
-      38: 'up',
-      40: 'down',
-      37: 'left',
-      39: 'right',
-    };
-
-    window.addEventListener('keydown', this.changeDirection.bind(this));
-  }
-
-  /**
    * Calculates how fast Pacman should move in a millisecond
    * @param {number} scaledTileSize - The dimensions of a single tile
    */
@@ -113,15 +91,11 @@ class Pacman {
    * Changes Pacman's desiredDirection, updates the PacmanArrow sprite, and sets moving to true
    * @param {Event} e - The keydown event to evaluate
    */
-  changeDirection(e) {
-    if (this.movementKeys[e.keyCode]) {
-      this.desiredDirection = this.characterUtil.directions[
-        this.movementKeys[e.keyCode]
-      ];
-      this.pacmanArrow.style.backgroundImage = 'url(app/style/graphics/'
-        + `spriteSheets/characters/pacman/arrow_${this.desiredDirection}.svg)`;
-      this.moving = true;
-    }
+  changeDirection(newDirection) {
+    this.desiredDirection = newDirection;
+    this.pacmanArrow.style.backgroundImage = 'url(app/style/graphics/'
+      + `spriteSheets/characters/pacman/arrow_${this.desiredDirection}.svg)`;
+    this.moving = true;
   }
 
   /**

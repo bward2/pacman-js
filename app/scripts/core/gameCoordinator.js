@@ -5,6 +5,22 @@ class GameCoordinator {
     this.scale = 3;
     this.scaledTileSize = this.tileSize * this.scale;
 
+    this.movementKeys = {
+      // WASD
+      87: 'up',
+      83: 'down',
+      65: 'left',
+      68: 'right',
+
+      // Arrow Keys
+      38: 'up',
+      40: 'down',
+      37: 'left',
+      39: 'right',
+    };
+
+    this.eventInProgress = false;
+
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
       ['XooooooooooooXXooooooooooooX'],
@@ -53,6 +69,8 @@ class GameCoordinator {
       ),
     ];
 
+    this.registerEventListeners();
+
     this.drawMaze(this.mazeArray, this.entityList);
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
@@ -86,6 +104,40 @@ class GameCoordinator {
       });
       mazeDiv.appendChild(rowDiv);
     });
+  }
+
+  /**
+   * Register listeners for various game sequences
+   */
+  registerEventListeners() {
+    window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    window.addEventListener('deathSequence', this.deathSequence.bind(this));
+  }
+
+  /**
+   * Calls various class functions depending upon the pressed key
+   * @param {Event} e - The keydown event to evaluate 
+   */
+  handleKeyDown(e) {
+    if (!this.eventInProgress) {
+      // ESC key
+      if (e.keyCode === 27) {
+        this.gameEngine.changePausedState(this.gameEngine.running);
+      } else if (this.movementKeys[e.keyCode]){
+        if (this.gameEngine.running) {
+          this.pacman.changeDirection(this.movementKeys[e.keyCode]);
+        }
+      }
+    }
+  }
+
+  /**
+   * Animates Pacman's death, subtracts a life, and resets character positions if the player
+   * has remaining lives.
+   */
+  deathSequence() {
+    this.pacman.moving = false;
+    this.blinky.moving = false;
   }
 }
 

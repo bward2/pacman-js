@@ -285,7 +285,7 @@ class Ghost {
    */
   checkCollision(position, pacman) {
     if (this.calculateDistance(position, pacman) < 1) {
-      this.moving = false;
+      window.dispatchEvent(new Event('deathSequence'));
     }
   }
 

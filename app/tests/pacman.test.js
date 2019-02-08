@@ -117,7 +117,7 @@ describe('pacman', () => {
     });
   });
 
-  describe('changeDirection', () => {
+  xdescribe('changeDirection', () => {
     it('changes Pacman\'s movement if a valid key is pressed', () => {
       const baseUrl = 'url(app/style/graphics/spriteSheets/characters/pacman/';
 
