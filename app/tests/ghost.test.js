@@ -297,17 +297,17 @@ describe('ghost', () => {
   });
 
   describe('checkCollision', () => {
-    it('emits the deathSequence event when <1 tile away from Pacman', ()=> {
+    it('emits the deathSequence event when <1 tile away from Pacman', () => {
       const dispatchSpy = sinon.fake();
       global.window = {
-        dispatchEvent: dispatchSpy
+        dispatchEvent: dispatchSpy,
       };
       global.Event = sinon.fake();
 
-      ghost.checkCollision({ x: 0, y: 0 }, { x: 1, y: 0});
+      ghost.checkCollision({ x: 0, y: 0 }, { x: 1, y: 0 });
       assert(!dispatchSpy.called);
 
-      ghost.checkCollision({ x: 0, y: 0 }, { x: 0.9, y: 0});
+      ghost.checkCollision({ x: 0, y: 0 }, { x: 0.9, y: 0 });
       assert(dispatchSpy.called);
     });
   });

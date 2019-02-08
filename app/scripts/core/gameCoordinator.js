@@ -116,14 +116,14 @@ class GameCoordinator {
 
   /**
    * Calls various class functions depending upon the pressed key
-   * @param {Event} e - The keydown event to evaluate 
+   * @param {Event} e - The keydown event to evaluate
    */
   handleKeyDown(e) {
     if (!this.eventInProgress) {
       // ESC key
       if (e.keyCode === 27) {
         this.gameEngine.changePausedState(this.gameEngine.running);
-      } else if (this.movementKeys[e.keyCode]){
+      } else if (this.movementKeys[e.keyCode]) {
         if (this.gameEngine.running) {
           this.pacman.changeDirection(this.movementKeys[e.keyCode]);
         }
