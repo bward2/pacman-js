@@ -21,7 +21,8 @@ class Pacman {
   setMovementStats(scaledTileSize) {
     this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
     this.desiredDirection = this.characterUtil.directions.left;
-    this.direction = this.characterUtil.directions.left;
+    this.defaultDirection = this.characterUtil.directions.left;
+    this.direction = this.defaultDirection;
     this.moving = false;
   }
 
@@ -59,10 +60,11 @@ class Pacman {
    * @param {number} scaledTileSize - The dimensions of a single tile
    */
   setDefaultPosition(scaledTileSize) {
-    this.position = {
+    this.defaultPosition = {
       top: scaledTileSize * 22.5,
       left: scaledTileSize * 13,
     };
+    this.position = Object.assign({}, this.defaultPosition);
     this.oldPosition = Object.assign({}, this.position);
     this.animationTarget.style.top = `${this.position.top}px`;
     this.animationTarget.style.left = `${this.position.left}px`;
@@ -85,6 +87,18 @@ class Pacman {
   setSpriteSheet(direction) {
     this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
       + `spriteSheets/characters/pacman/pacman_${direction}.svg)`;
+  }
+
+  /**
+   * Rests the character to its default state
+   */
+  reset() {
+    this.position = this.defaultPosition;
+    this.desiredDirection = this.defaultDirection;
+    this.direction = this.defaultDirection;
+    this.setSpriteSheet(this.direction);
+    this.pacmanArrow.style.backgroundImage = '';
+    this.backgroundOffsetPixels = 0;
   }
 
   /**

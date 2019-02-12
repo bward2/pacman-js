@@ -8,6 +8,7 @@ const mazeArray = [
   ['X', 'o', ' '],
   ['X', ' ', 'X'],
 ];
+let clock;
 
 describe('gameCoordinator', () => {
   beforeEach(() => {
@@ -32,7 +33,12 @@ describe('gameCoordinator', () => {
       }),
     };
 
+    clock = sinon.useFakeTimers();
     gameCoordinator = new GameCoordinator();
+  });
+
+  afterEach(() => {
+    clock.restore();
   });
 
   describe('drawMaze', () => {
@@ -139,15 +145,25 @@ describe('gameCoordinator', () => {
   });
 
   describe('deathSequence', () => {
-    it('does stuff', () => {
+    it('kills Pacman, subtracts a life, and resets the characters', () => {
       gameCoordinator.eventInProgress = false;
+      gameCoordinator.blinky.display = true;
       gameCoordinator.pacman.moving = true;
       gameCoordinator.blinky.moving = true;
+      gameCoordinator.pacman.reset = sinon.fake();
+      gameCoordinator.blinky.reset = sinon.fake();
 
       gameCoordinator.deathSequence();
       assert(gameCoordinator.eventInProgress);
       assert(!gameCoordinator.pacman.moving);
       assert(!gameCoordinator.blinky.moving);
+
+      clock.tick(750);
+      assert(!gameCoordinator.blinky.display);
+
+      clock.tick(1000);
+      assert(gameCoordinator.pacman.reset.called);
+      assert(gameCoordinator.blinky.reset.called);
     });
   });
 });

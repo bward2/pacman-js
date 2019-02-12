@@ -44,8 +44,15 @@ describe('ghost', () => {
       assert.strictEqual(ghost.tunnelSpeed, 0.5);
       assert.strictEqual(ghost.eyeSpeed, 3);
       assert.strictEqual(ghost.velocityPerMs, 0.75);
+      assert.strictEqual(ghost.defaultDirection, 'left');
       assert.strictEqual(ghost.direction, 'left');
       assert.strictEqual(ghost.moving, false);
+    });
+
+    it('sets Blinky\'s defaultDirection to LEFT', () => {
+      ghost.setMovementStats(pacman, 'blinky');
+      assert.strictEqual(ghost.defaultDirection, 'left');
+      assert.strictEqual(ghost.direction, 'left');
     });
   });
 
@@ -76,6 +83,7 @@ describe('ghost', () => {
   describe('setDefaultPosition', () => {
     it('sets the correct position for blinky', () => {
       ghost.setDefaultPosition(scaledTileSize, 'blinky');
+      assert.deepEqual(ghost.defaultPosition, { top: 84, left: 104 });
       assert.deepEqual(ghost.position, { top: 84, left: 104 });
       assert.deepEqual(ghost.oldPosition, { top: 84, left: 104 });
       assert.strictEqual(ghost.animationTarget.style.top, '84px');
@@ -84,6 +92,7 @@ describe('ghost', () => {
 
     it('sets the correct default position if the name is missing', () => {
       ghost.setDefaultPosition(scaledTileSize, undefined);
+      assert.deepEqual(ghost.defaultPosition, { top: 0, left: 0 });
       assert.deepEqual(ghost.position, { top: 0, left: 0 });
       assert.deepEqual(ghost.oldPosition, { top: 0, left: 0 });
       assert.strictEqual(ghost.animationTarget.style.top, '0px');
@@ -115,6 +124,24 @@ describe('ghost', () => {
         ghost.animationTarget.style.backgroundImage,
         `${bUrl}blinky/blinky_right.svg)`,
       );
+    });
+  });
+
+  describe('reset', () => {
+    it('resets the character to its default state', () => {
+      ghost.name = 'blinky';
+      ghost.position = '';
+      ghost.direciton = '';
+      ghost.animationTarget.style.backgroundImage = '';
+      ghost.backgroundOffsetPixels = '';
+
+      ghost.reset();
+      assert.deepEqual(ghost.position, ghost.defaultPosition);
+      assert.strictEqual(ghost.direction, ghost.defaultDirection);
+      assert.strictEqual(ghost.animationTarget.style.backgroundImage,
+        'url(app/style/graphics/spriteSheets/characters/ghosts/blinky'
+        + '/blinky_left.svg)');
+      assert.strictEqual(ghost.backgroundOffsetPixels, 0);
     });
   });
 
@@ -329,6 +356,15 @@ describe('ghost', () => {
       assert(drawValueSpy.calledTwice);
       assert(stutterSpy.called);
       assert(spriteSpy.called);
+    });
+
+    it('won\'t call checkForStutter if display is FALSE', () => {
+      const stutterSpy = sinon.fake();
+      ghost.characterUtil.checkForStutter = stutterSpy;
+      ghost.display = false;
+
+      ghost.draw(1);
+      assert(!stutterSpy.called);
     });
   });
 

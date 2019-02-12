@@ -71,13 +71,14 @@ describe('pacman', () => {
   });
 
   describe('setDefaultPosition', () => {
-    it('sets the position and oldPositions', () => {
+    it('sets the defaultPosition, position, and oldPositions', () => {
       pacman.setDefaultPosition(scaledTileSize);
 
-      assert.deepEqual(pacman.position, {
+      assert.deepEqual(pacman.defaultPosition, {
         left: 104,
         top: 180,
       });
+      assert.deepEqual(pacman.position, pacman.defaultPosition);
       assert.deepEqual(pacman.position, pacman.oldPosition);
     });
   });
@@ -114,6 +115,27 @@ describe('pacman', () => {
         pacman.animationTarget.style.backgroundImage,
         `${baseUrl}pacman_right.svg)`,
       );
+    });
+  });
+
+  describe('reset', () => {
+    it('resets the character to its default state', () => {
+      pacman.position = '';
+      pacman.desiredDirection = '';
+      pacman.direction = '';
+      pacman.animationTarget.style.backgroundImage = '';
+      pacman.pacmanArrow.style.backgroundImage = 'blah';
+      pacman.backgroundOffsetPixels = '';
+
+      pacman.reset();
+      assert.deepEqual(pacman.position, pacman.defaultPosition);
+      assert.strictEqual(pacman.desiredDirection, pacman.defaultDirection);
+      assert.strictEqual(pacman.direction, pacman.defaultDirection);
+      assert.strictEqual(pacman.animationTarget.style.backgroundImage,
+        'url(app/style/graphics/spriteSheets/characters/pacman/'
+        + 'pacman_left.svg)');
+      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, '');
+      assert.strictEqual(pacman.backgroundOffsetPixels, 0);
     });
   });
 

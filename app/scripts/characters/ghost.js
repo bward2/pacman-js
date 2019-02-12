@@ -6,8 +6,9 @@ class Ghost {
     this.name = name;
     this.characterUtil = characterUtil;
     this.animationTarget = document.getElementById(name);
+    this.display = true;
 
-    this.setMovementStats(pacman);
+    this.setMovementStats(pacman, this.name);
     this.setSpriteAnimationStats();
     this.setStyleMeasurements(scaledTileSize, this.spriteFrames);
     this.setDefaultPosition(scaledTileSize, name);
@@ -17,8 +18,9 @@ class Ghost {
   /**
    * Sets various properties related to the ghost's movement
    * @param {Object} pacman - Pacman's speed is used as the base for the ghosts' speeds
+   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    */
-  setMovementStats(pacman) {
+  setMovementStats(pacman, name) {
     const pacmanSpeed = pacman.velocityPerMs;
 
     this.slowSpeed = pacmanSpeed * 0.75;
@@ -30,8 +32,17 @@ class Ghost {
     this.eyeSpeed = pacmanSpeed * 3;
 
     this.velocityPerMs = this.slowSpeed;
-    this.direction = this.characterUtil.directions.left;
     this.moving = false;
+
+    switch (name) {
+      case 'blinky':
+        this.defaultDirection = this.characterUtil.directions.left;
+        break;
+      default:
+        this.defaultDirection = this.characterUtil.directions.left;
+        break;
+    }
+    this.direction = this.defaultDirection;
   }
 
   /**
@@ -67,18 +78,19 @@ class Ghost {
   setDefaultPosition(scaledTileSize, name) {
     switch (name) {
       case 'blinky':
-        this.position = {
+        this.defaultPosition = {
           top: scaledTileSize * 10.5,
           left: scaledTileSize * 13,
         };
         break;
       default:
-        this.position = {
+        this.defaultPosition = {
           top: 0,
           left: 0,
         };
         break;
     }
+    this.position = Object.assign({}, this.defaultPosition);
     this.oldPosition = Object.assign({}, this.position);
     this.animationTarget.style.top = `${this.position.top}px`;
     this.animationTarget.style.left = `${this.position.left}px`;
@@ -92,6 +104,16 @@ class Ghost {
   setSpriteSheet(name, direction) {
     this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
     + `spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
+  }
+
+  /**
+   * Rests the character to its default state
+   */
+  reset() {
+    this.position = Object.assign({}, this.defaultPosition);
+    this.direction = this.defaultDirection;
+    this.setSpriteSheet(this.name, this.direction);
+    this.backgroundOffsetPixels = 0;
   }
 
   /**
@@ -303,9 +325,9 @@ class Ghost {
     this.animationTarget.style.top = `${newTop}px`;
     this.animationTarget.style.left = `${newLeft}px`;
 
-    this.animationTarget.style.visibility = this.characterUtil.checkForStutter(
-      this.position, this.oldPosition,
-    );
+    this.animationTarget.style.visibility = this.display
+      ? this.characterUtil.checkForStutter(this.position, this.oldPosition)
+      : 'hidden';
 
     const updatedProperties = this.characterUtil.advanceSpriteSheet(this);
     this.msSinceLastSprite = updatedProperties.msSinceLastSprite;

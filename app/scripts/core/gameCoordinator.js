@@ -140,6 +140,19 @@ class GameCoordinator {
 
     this.pacman.moving = false;
     this.blinky.moving = false;
+
+    setTimeout(() => {
+      this.blinky.display = false;
+
+      setTimeout(() => {
+        this.pacman.reset();
+        this.blinky.reset();
+
+        this.blinky.display = true;
+
+        this.eventInProgress = false;
+      }, 1000);
+    }, 750);
   }
 }
 
