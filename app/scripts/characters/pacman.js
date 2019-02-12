@@ -99,6 +99,7 @@ class Pacman {
     this.setSpriteSheet(this.direction);
     this.pacmanArrow.style.backgroundImage = '';
     this.backgroundOffsetPixels = 0;
+    this.animationTarget.style.backgroundPosition = '0px 0px';
   }
 
   /**

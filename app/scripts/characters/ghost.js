@@ -114,6 +114,7 @@ class Ghost {
     this.direction = this.defaultDirection;
     this.setSpriteSheet(this.name, this.direction);
     this.backgroundOffsetPixels = 0;
+    this.animationTarget.style.backgroundPosition = '0px 0px';
   }
 
   /**

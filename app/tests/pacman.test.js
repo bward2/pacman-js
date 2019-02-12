@@ -126,6 +126,7 @@ describe('pacman', () => {
       pacman.animationTarget.style.backgroundImage = '';
       pacman.pacmanArrow.style.backgroundImage = 'blah';
       pacman.backgroundOffsetPixels = '';
+      pacman.animationTarget.style.backgroundPosition = '';
 
       pacman.reset();
       assert.deepEqual(pacman.position, pacman.defaultPosition);
@@ -136,6 +137,8 @@ describe('pacman', () => {
         + 'pacman_left.svg)');
       assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, '');
       assert.strictEqual(pacman.backgroundOffsetPixels, 0);
+      assert.strictEqual(pacman.animationTarget.style.backgroundPosition,
+        '0px 0px');
     });
   });
 

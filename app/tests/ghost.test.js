@@ -134,6 +134,7 @@ describe('ghost', () => {
       ghost.direciton = '';
       ghost.animationTarget.style.backgroundImage = '';
       ghost.backgroundOffsetPixels = '';
+      ghost.animationTarget.style.backgroundPosition = '';
 
       ghost.reset();
       assert.deepEqual(ghost.position, ghost.defaultPosition);
@@ -142,6 +143,8 @@ describe('ghost', () => {
         'url(app/style/graphics/spriteSheets/characters/ghosts/blinky'
         + '/blinky_left.svg)');
       assert.strictEqual(ghost.backgroundOffsetPixels, 0);
+      assert.strictEqual(ghost.animationTarget.style.backgroundPosition,
+        '0px 0px');
     });
   });
 
