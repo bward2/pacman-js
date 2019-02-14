@@ -143,15 +143,17 @@ class GameCoordinator {
 
     setTimeout(() => {
       this.blinky.display = false;
+      this.pacman.prepDeathAnimation();
 
       setTimeout(() => {
+        this.pacman.specialAnimation = false;
         this.pacman.reset();
         this.blinky.reset();
 
         this.blinky.display = true;
 
         this.eventInProgress = false;
-      }, 1000);
+      }, 2000);
     }, 750);
   }
 }

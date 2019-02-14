@@ -8,10 +8,17 @@ class Ghost {
     this.animationTarget = document.getElementById(name);
     this.display = true;
 
-    this.setMovementStats(pacman, this.name);
+    this.reset();
+  }
+
+  /**
+   * Rests the character to its default state
+   */
+  reset() {
+    this.setMovementStats(this.pacman, this.name);
     this.setSpriteAnimationStats();
-    this.setStyleMeasurements(scaledTileSize, this.spriteFrames);
-    this.setDefaultPosition(scaledTileSize, name);
+    this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
+    this.setDefaultPosition(this.scaledTileSize, this.name);
     this.setSpriteSheet(this.name, this.direction);
   }
 
@@ -49,10 +56,12 @@ class Ghost {
    * Sets values pertaining to the ghost's spritesheet animation
    */
   setSpriteAnimationStats() {
+    this.loopAnimation = true;
     this.msBetweenSprites = 250;
     this.msSinceLastSprite = 0;
     this.spriteFrames = 2;
     this.backgroundOffsetPixels = 0;
+    this.animationTarget.style.backgroundPosition = '0px 0px';
   }
 
   /**
@@ -104,17 +113,6 @@ class Ghost {
   setSpriteSheet(name, direction) {
     this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
     + `spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
-  }
-
-  /**
-   * Rests the character to its default state
-   */
-  reset() {
-    this.position = Object.assign({}, this.defaultPosition);
-    this.direction = this.defaultDirection;
-    this.setSpriteSheet(this.name, this.direction);
-    this.backgroundOffsetPixels = 0;
-    this.animationTarget.style.backgroundPosition = '0px 0px';
   }
 
   /**

@@ -266,6 +266,7 @@ describe('characterUtil', () => {
 
     beforeEach(() => {
       character = {
+        loopAnimation: true,
         msSinceLastSprite: 15,
         msBetweenSprites: 10,
         moving: true,
@@ -311,6 +312,14 @@ describe('characterUtil', () => {
 
       characterUtil.advanceSpriteSheet(character);
       assert.strictEqual(character.msSinceLastSprite, 15);
+    });
+
+    it('only loops animation if loopAnimation is true', () => {
+      character.loopAnimation = false;
+      character.backgroundOffsetPixels = 250;
+
+      const updatedProperties = characterUtil.advanceSpriteSheet(character);
+      assert.strictEqual(updatedProperties.backgroundOffsetPixels, 250);
     });
   });
 });

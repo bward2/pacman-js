@@ -6,11 +6,17 @@ class Pacman {
     this.animationTarget = document.getElementById('pacman');
     this.pacmanArrow = document.getElementById('pacman-arrow');
 
-    this.setMovementStats(scaledTileSize);
-    this.setSpriteAnimationStats();
-    this.setStyleMeasurements(scaledTileSize, this.spriteFrames);
-    this.setDefaultPosition(scaledTileSize);
+    this.reset();
+  }
 
+  /**
+   * Rests the character to its default state
+   */
+  reset() {
+    this.setMovementStats(this.scaledTileSize);
+    this.setSpriteAnimationStats();
+    this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
+    this.setDefaultPosition(this.scaledTileSize);
     this.setSpriteSheet(this.direction);
   }
 
@@ -30,10 +36,12 @@ class Pacman {
    * Sets values pertaining to Pacman's spritesheet animation
    */
   setSpriteAnimationStats() {
+    this.loopAnimation = true;
     this.msBetweenSprites = 50;
     this.msSinceLastSprite = 0;
     this.spriteFrames = 4;
     this.backgroundOffsetPixels = 0;
+    this.animationTarget.style.backgroundPosition = '0px 0px';
   }
 
   /**
@@ -89,17 +97,16 @@ class Pacman {
       + `spriteSheets/characters/pacman/pacman_${direction}.svg)`;
   }
 
-  /**
-   * Rests the character to its default state
-   */
-  reset() {
-    this.position = this.defaultPosition;
-    this.desiredDirection = this.defaultDirection;
-    this.direction = this.defaultDirection;
-    this.setSpriteSheet(this.direction);
+  prepDeathAnimation() {
+    this.loopAnimation = false;
+    this.msBetweenSprites = 125;
+    this.spriteFrames = 12;
+    this.specialAnimation = true;
+    const bgSize = this.measurement * this.spriteFrames;
+    this.animationTarget.style.backgroundSize = `${bgSize}px`;
+    this.animationTarget.style.backgroundImage = 'url(app/style/'
+      + 'graphics/spriteSheets/characters/pacman/pacman_death.svg)';
     this.pacmanArrow.style.backgroundImage = '';
-    this.backgroundOffsetPixels = 0;
-    this.animationTarget.style.backgroundPosition = '0px 0px';
   }
 
   /**
@@ -237,7 +244,9 @@ class Pacman {
       this.position = this.characterUtil.handleWarp(
         this.position, this.scaledTileSize, this.mazeArray,
       );
+    }
 
+    if (this.moving || this.specialAnimation) {
       this.msSinceLastSprite += elapsedMs;
     }
   }

@@ -22,6 +22,25 @@ beforeEach(() => {
 });
 
 describe('pacman', () => {
+  describe('reset', () => {
+    it('resets the character to its default state', () => {
+      pacman.setMovementStats = sinon.fake();
+      pacman.setSpriteAnimationStats = sinon.fake();
+      pacman.setStyleMeasurements = sinon.fake();
+      pacman.setDefaultPosition = sinon.fake();
+      pacman.setSpriteSheet = sinon.fake();
+
+      pacman.reset();
+      assert(pacman.setMovementStats.calledWith(pacman.scaledTileSize));
+      assert(pacman.setSpriteAnimationStats.called);
+      assert(pacman.setStyleMeasurements.calledWith(
+        pacman.scaledTileSize, pacman.spriteFrames,
+      ));
+      assert(pacman.setDefaultPosition.calledWith(pacman.scaledTileSize));
+      assert(pacman.setSpriteSheet.calledWith(pacman.direction));
+    });
+  });
+
   describe('setStyleMeasurements', () => {
     it('sets pacman\'s measurement properties', () => {
       pacman.animationTarget.style = {};
@@ -60,7 +79,7 @@ describe('pacman', () => {
   });
 
   describe('setSpriteAnimationStats', () => {
-    it('should set various stats for pacman\'s sprite animation', () => {
+    it('sets various stats for pacman\'s sprite animation', () => {
       pacman.setSpriteAnimationStats();
 
       assert.strictEqual(pacman.msBetweenSprites, 50);
@@ -118,27 +137,20 @@ describe('pacman', () => {
     });
   });
 
-  describe('reset', () => {
-    it('resets the character to its default state', () => {
-      pacman.position = '';
-      pacman.desiredDirection = '';
-      pacman.direction = '';
-      pacman.animationTarget.style.backgroundImage = '';
-      pacman.pacmanArrow.style.backgroundImage = 'blah';
-      pacman.backgroundOffsetPixels = '';
-      pacman.animationTarget.style.backgroundPosition = '';
+  describe('prepDeathAnimation', () => {
+    it('sets properties to prep the animation', () => {
+      pacman.prepDeathAnimation();
 
-      pacman.reset();
-      assert.deepEqual(pacman.position, pacman.defaultPosition);
-      assert.strictEqual(pacman.desiredDirection, pacman.defaultDirection);
-      assert.strictEqual(pacman.direction, pacman.defaultDirection);
+      assert(!pacman.loopAnimation);
+      assert.strictEqual(pacman.msBetweenSprites, 125);
+      assert.strictEqual(pacman.spriteFrames, 12);
+      assert(pacman.specialAnimation);
+      assert.strictEqual(pacman.animationTarget.style.backgroundSize,
+        `${pacman.measurement * pacman.spriteFrames}px`);
       assert.strictEqual(pacman.animationTarget.style.backgroundImage,
         'url(app/style/graphics/spriteSheets/characters/pacman/'
-        + 'pacman_left.svg)');
+        + 'pacman_death.svg)');
       assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, '');
-      assert.strictEqual(pacman.backgroundOffsetPixels, 0);
-      assert.strictEqual(pacman.animationTarget.style.backgroundPosition,
-        '0px 0px');
     });
   });
 
@@ -307,7 +319,7 @@ describe('pacman', () => {
       assert(unsnappedSpy.called);
     });
 
-    it('should not call movement handlers if Pacman is not moving', () => {
+    it('won\'t call movement handlers unless Pacman is moving', () => {
       const snappedSpy = pacman.handleSnappedMovement = sinon.fake();
       const unsnappedSpy = pacman.handleUnsnappedMovement = sinon.fake();
       pacman.moving = false;
