@@ -151,8 +151,8 @@ class GameCoordinator {
           this.mazeCover.style.visibility = 'hidden';
           this.pacman.reset();
           this.blinky.reset();
-        }, 400);
-      }, 2000);
+        }, 500);
+      }, 2250);
     }, 750);
   }
 }

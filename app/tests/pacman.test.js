@@ -145,11 +145,14 @@ describe('pacman', () => {
       assert.strictEqual(pacman.msBetweenSprites, 125);
       assert.strictEqual(pacman.spriteFrames, 12);
       assert(pacman.specialAnimation);
+      assert.strictEqual(pacman.backgroundOffsetPixels, 0);
       assert.strictEqual(pacman.animationTarget.style.backgroundSize,
         `${pacman.measurement * pacman.spriteFrames}px`);
       assert.strictEqual(pacman.animationTarget.style.backgroundImage,
         'url(app/style/graphics/spriteSheets/characters/pacman/'
         + 'pacman_death.svg)');
+      assert.strictEqual(pacman.animationTarget.style.backgroundPosition,
+        '0px 0px');
       assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, '');
     });
   });

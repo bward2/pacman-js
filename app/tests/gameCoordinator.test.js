@@ -166,11 +166,11 @@ describe('gameCoordinator', () => {
       assert(!gameCoordinator.blinky.display);
       assert(gameCoordinator.pacman.prepDeathAnimation.called);
 
-      clock.tick(2000);
+      clock.tick(2250);
       assert.strictEqual(gameCoordinator.mazeCover.style.visibility,
         'visible');
 
-      clock.tick(400);
+      clock.tick(500);
       assert(!gameCoordinator.eventInProgress);
       assert.strictEqual(gameCoordinator.mazeCover.style.visibility,
         'hidden');
