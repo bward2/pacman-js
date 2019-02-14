@@ -9,6 +9,15 @@
     height: 100%;
 }
 
+#maze-cover {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: black;
+  z-index: 100;
+  visibility: hidden;
+}
+
 #maze {
     margin: 0 auto;
     position: relative;

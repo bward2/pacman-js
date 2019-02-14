@@ -150,6 +150,9 @@ describe('gameCoordinator', () => {
       gameCoordinator.blinky.display = true;
       gameCoordinator.pacman.moving = true;
       gameCoordinator.blinky.moving = true;
+      gameCoordinator.mazeCover.style = {
+        visibility: 'hidden',
+      };
       gameCoordinator.pacman.prepDeathAnimation = sinon.fake();
       gameCoordinator.pacman.reset = sinon.fake();
       gameCoordinator.blinky.reset = sinon.fake();
@@ -164,6 +167,13 @@ describe('gameCoordinator', () => {
       assert(gameCoordinator.pacman.prepDeathAnimation.called);
 
       clock.tick(2000);
+      assert.strictEqual(gameCoordinator.mazeCover.style.visibility,
+        'visible');
+
+      clock.tick(400);
+      assert(!gameCoordinator.eventInProgress);
+      assert.strictEqual(gameCoordinator.mazeCover.style.visibility,
+        'hidden');
       assert(gameCoordinator.pacman.reset.called);
       assert(gameCoordinator.blinky.reset.called);
     });

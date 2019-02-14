@@ -1,5 +1,8 @@
 class GameCoordinator {
   constructor() {
+    this.mazeDiv = document.getElementById('maze');
+    this.mazeCover = document.getElementById('maze-cover');
+
     this.maxFps = 120;
     this.tileSize = 8;
     this.scale = 3;
@@ -83,8 +86,6 @@ class GameCoordinator {
    * @param {Array} entityList - List of entities to be used throughout the game
    */
   drawMaze(mazeArray, entityList) {
-    const mazeDiv = document.getElementById('maze');
-
     mazeArray.forEach((row, rowIndex) => {
       const rowDiv = document.createElement('div');
       rowDiv.classList.add('maze-row');
@@ -96,13 +97,14 @@ class GameCoordinator {
 
         if (block === 'o') {
           entityList.push(new Pacdot(
-            this.scaledTileSize, columnIndex, rowIndex, this.pacman, mazeDiv,
+            this.scaledTileSize, columnIndex, rowIndex,
+            this.pacman, this.mazeDiv,
           ));
         }
 
         rowDiv.appendChild(mazeBlock);
       });
-      mazeDiv.appendChild(rowDiv);
+      this.mazeDiv.appendChild(rowDiv);
     });
   }
 
@@ -137,22 +139,19 @@ class GameCoordinator {
    */
   deathSequence() {
     this.eventInProgress = true;
-
     this.pacman.moving = false;
     this.blinky.moving = false;
-
     setTimeout(() => {
       this.blinky.display = false;
       this.pacman.prepDeathAnimation();
-
       setTimeout(() => {
-        this.pacman.specialAnimation = false;
-        this.pacman.reset();
-        this.blinky.reset();
-
-        this.blinky.display = true;
-
-        this.eventInProgress = false;
+        this.mazeCover.style.visibility = 'visible';
+        setTimeout(() => {
+          this.eventInProgress = false;
+          this.mazeCover.style.visibility = 'hidden';
+          this.pacman.reset();
+          this.blinky.reset();
+        }, 400);
       }, 2000);
     }, 750);
   }

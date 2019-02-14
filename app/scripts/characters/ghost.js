@@ -6,7 +6,6 @@ class Ghost {
     this.name = name;
     this.characterUtil = characterUtil;
     this.animationTarget = document.getElementById(name);
-    this.display = true;
 
     this.reset();
   }
@@ -56,6 +55,7 @@ class Ghost {
    * Sets values pertaining to the ghost's spritesheet animation
    */
   setSpriteAnimationStats() {
+    this.display = true;
     this.loopAnimation = true;
     this.msBetweenSprites = 250;
     this.msSinceLastSprite = 0;

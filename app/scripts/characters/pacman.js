@@ -36,6 +36,7 @@ class Pacman {
    * Sets values pertaining to Pacman's spritesheet animation
    */
   setSpriteAnimationStats() {
+    this.specialAnimation = false;
     this.loopAnimation = true;
     this.msBetweenSprites = 50;
     this.msSinceLastSprite = 0;
