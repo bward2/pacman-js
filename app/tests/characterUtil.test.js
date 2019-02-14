@@ -283,7 +283,7 @@ describe('characterUtil', () => {
       const updatedProperties = characterUtil.advanceSpriteSheet(character);
       assert.strictEqual(updatedProperties.msSinceLastSprite, 0);
       assert.strictEqual(
-        updatedProperties.animationTarget.style.backgroundPosition, '-50px 0px',
+        updatedProperties.animationTarget.style.backgroundPosition, '-75px 0px',
       );
       assert.strictEqual(updatedProperties.backgroundOffsetPixels, 75);
     });
@@ -295,7 +295,7 @@ describe('characterUtil', () => {
       assert.strictEqual(updatedProperties.msSinceLastSprite, 0);
       assert.strictEqual(
         updatedProperties.animationTarget.style.backgroundPosition,
-        '-250px 0px',
+        '-0px 0px',
       );
       assert.strictEqual(updatedProperties.backgroundOffsetPixels, 0);
     });
