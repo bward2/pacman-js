@@ -255,19 +255,19 @@ class CharacterUtil {
     };
 
     const ready = character.msSinceLastSprite > character.msBetweenSprites;
-    if (ready && character.moving) {
+    if (ready) {
       updatedProperties.msSinceLastSprite = 0;
 
-      const style = `-${character.backgroundOffsetPixels}px 0px`;
-      updatedProperties.animationTarget.style.backgroundPosition = style;
-
-      if (character.backgroundOffsetPixels < (character.measurement
-        * (character.spriteFrames - 1)
-      )) {
+      if (character.backgroundOffsetPixels
+        < (character.measurement * (character.spriteFrames - 1))
+      ) {
         updatedProperties.backgroundOffsetPixels += character.measurement;
-      } else {
+      } else if (character.loopAnimation) {
         updatedProperties.backgroundOffsetPixels = 0;
       }
+
+      const style = `-${updatedProperties.backgroundOffsetPixels}px 0px`;
+      updatedProperties.animationTarget.style.backgroundPosition = style;
     }
 
     return updatedProperties;

@@ -7,18 +7,26 @@ class Ghost {
     this.characterUtil = characterUtil;
     this.animationTarget = document.getElementById(name);
 
-    this.setMovementStats(pacman);
+    this.reset();
+  }
+
+  /**
+   * Rests the character to its default state
+   */
+  reset() {
+    this.setMovementStats(this.pacman, this.name);
     this.setSpriteAnimationStats();
-    this.setStyleMeasurements(scaledTileSize, this.spriteFrames);
-    this.setDefaultPosition(scaledTileSize, name);
+    this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
+    this.setDefaultPosition(this.scaledTileSize, this.name);
     this.setSpriteSheet(this.name, this.direction);
   }
 
   /**
    * Sets various properties related to the ghost's movement
    * @param {Object} pacman - Pacman's speed is used as the base for the ghosts' speeds
+   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    */
-  setMovementStats(pacman) {
+  setMovementStats(pacman, name) {
     const pacmanSpeed = pacman.velocityPerMs;
 
     this.slowSpeed = pacmanSpeed * 0.75;
@@ -30,18 +38,30 @@ class Ghost {
     this.eyeSpeed = pacmanSpeed * 3;
 
     this.velocityPerMs = this.slowSpeed;
-    this.direction = this.characterUtil.directions.left;
     this.moving = false;
+
+    switch (name) {
+      case 'blinky':
+        this.defaultDirection = this.characterUtil.directions.left;
+        break;
+      default:
+        this.defaultDirection = this.characterUtil.directions.left;
+        break;
+    }
+    this.direction = this.defaultDirection;
   }
 
   /**
    * Sets values pertaining to the ghost's spritesheet animation
    */
   setSpriteAnimationStats() {
+    this.display = true;
+    this.loopAnimation = true;
     this.msBetweenSprites = 250;
     this.msSinceLastSprite = 0;
     this.spriteFrames = 2;
     this.backgroundOffsetPixels = 0;
+    this.animationTarget.style.backgroundPosition = '0px 0px';
   }
 
   /**
@@ -67,18 +87,19 @@ class Ghost {
   setDefaultPosition(scaledTileSize, name) {
     switch (name) {
       case 'blinky':
-        this.position = {
+        this.defaultPosition = {
           top: scaledTileSize * 10.5,
           left: scaledTileSize * 13,
         };
         break;
       default:
-        this.position = {
+        this.defaultPosition = {
           top: 0,
           left: 0,
         };
         break;
     }
+    this.position = Object.assign({}, this.defaultPosition);
     this.oldPosition = Object.assign({}, this.position);
     this.animationTarget.style.top = `${this.position.top}px`;
     this.animationTarget.style.left = `${this.position.left}px`;
@@ -238,14 +259,12 @@ class Ghost {
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
    * @param {number} velocity - The distance the character should travel in a single millisecond
+   * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
    * @returns {({ top: number, left: number})}
    */
-  handleSnappedMovement(elapsedMs, gridPosition, velocity) {
+  handleSnappedMovement(elapsedMs, gridPosition, velocity, pacmanGridPosition) {
     const newPosition = Object.assign({}, this.position);
 
-    const pacmanGridPosition = this.characterUtil.determineGridPosition(
-      this.pacman.position, this.scaledTileSize,
-    );
     this.direction = this.determineDirection(
       this.name, gridPosition, pacmanGridPosition, this.direction,
       this.mazeArray,
@@ -281,6 +300,17 @@ class Ghost {
   }
 
   /**
+   * Checks if the ghost contacts Pacman - starts the death sequence if so
+   * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
+   * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array
+   */
+  checkCollision(position, pacman) {
+    if (this.calculateDistance(position, pacman) < 1) {
+      window.dispatchEvent(new Event('deathSequence'));
+    }
+  }
+
+  /**
    * Updates the css position, hides if there is a stutter, and animates the spritesheet
    * @param {number} interp - The animation accuracy as a percentage
    */
@@ -294,9 +324,9 @@ class Ghost {
     this.animationTarget.style.top = `${newTop}px`;
     this.animationTarget.style.left = `${newLeft}px`;
 
-    this.animationTarget.style.visibility = this.characterUtil.checkForStutter(
-      this.position, this.oldPosition,
-    );
+    this.animationTarget.style.visibility = this.display
+      ? this.characterUtil.checkForStutter(this.position, this.oldPosition)
+      : 'hidden';
 
     const updatedProperties = this.characterUtil.advanceSpriteSheet(this);
     this.msSinceLastSprite = updatedProperties.msSinceLastSprite;
@@ -319,6 +349,9 @@ class Ghost {
       const gridPosition = this.characterUtil.determineGridPosition(
         this.position, this.scaledTileSize,
       );
+      const pacmanGridPosition = this.characterUtil.determineGridPosition(
+        this.pacman.position, this.scaledTileSize,
+      );
       const velocity = this.isInTunnel(gridPosition)
         ? this.tunnelSpeed : this.velocityPerMs;
 
@@ -328,7 +361,7 @@ class Ghost {
         ),
       )) {
         this.position = this.handleSnappedMovement(
-          elapsedMs, gridPosition, velocity,
+          elapsedMs, gridPosition, velocity, pacmanGridPosition,
         );
       } else {
         this.position = this.handleUnsnappedMovement(
@@ -339,6 +372,8 @@ class Ghost {
       this.position = this.characterUtil.handleWarp(
         this.position, this.scaledTileSize, this.mazeArray,
       );
+
+      this.checkCollision(gridPosition, pacmanGridPosition);
 
       this.msSinceLastSprite += elapsedMs;
     }

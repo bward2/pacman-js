@@ -22,26 +22,6 @@ beforeEach(() => {
 });
 
 describe('gameEngine', () => {
-  describe('handleKeyPress', () => {
-    it('calls changePausedState if the escape key is pressed', () => {
-      const pauseSpy = gameEngine.changePausedState = sinon.fake();
-
-      gameEngine.handleKeyPress({
-        keyCode: 27,
-      });
-      assert(pauseSpy.called);
-    });
-
-    it('does not call changePausedState unless escape is pressed', () => {
-      const pauseSpy = gameEngine.changePausedState = sinon.fake();
-
-      gameEngine.handleKeyPress({
-        keyCode: 1,
-      });
-      assert(!pauseSpy.called);
-    });
-  });
-
   describe('changePausedState', () => {
     it('pauses the game if it is running', () => {
       const stopSpy = gameEngine.stop = sinon.fake();

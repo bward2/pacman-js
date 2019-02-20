@@ -6,12 +6,17 @@ class Pacman {
     this.animationTarget = document.getElementById('pacman');
     this.pacmanArrow = document.getElementById('pacman-arrow');
 
-    this.setMovementStats(scaledTileSize);
-    this.setSpriteAnimationStats();
-    this.setStyleMeasurements(scaledTileSize, this.spriteFrames);
-    this.setDefaultPosition(scaledTileSize);
-    this.setKeyListeners();
+    this.reset();
+  }
 
+  /**
+   * Rests the character to its default state
+   */
+  reset() {
+    this.setMovementStats(this.scaledTileSize);
+    this.setSpriteAnimationStats();
+    this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
+    this.setDefaultPosition(this.scaledTileSize);
     this.setSpriteSheet(this.direction);
   }
 
@@ -22,7 +27,8 @@ class Pacman {
   setMovementStats(scaledTileSize) {
     this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
     this.desiredDirection = this.characterUtil.directions.left;
-    this.direction = this.characterUtil.directions.left;
+    this.defaultDirection = this.characterUtil.directions.left;
+    this.direction = this.defaultDirection;
     this.moving = false;
   }
 
@@ -30,10 +36,13 @@ class Pacman {
    * Sets values pertaining to Pacman's spritesheet animation
    */
   setSpriteAnimationStats() {
+    this.specialAnimation = false;
+    this.loopAnimation = true;
     this.msBetweenSprites = 50;
     this.msSinceLastSprite = 0;
     this.spriteFrames = 4;
     this.backgroundOffsetPixels = 0;
+    this.animationTarget.style.backgroundPosition = '0px 0px';
   }
 
   /**
@@ -60,34 +69,14 @@ class Pacman {
    * @param {number} scaledTileSize - The dimensions of a single tile
    */
   setDefaultPosition(scaledTileSize) {
-    this.position = {
+    this.defaultPosition = {
       top: scaledTileSize * 22.5,
       left: scaledTileSize * 13,
     };
+    this.position = Object.assign({}, this.defaultPosition);
     this.oldPosition = Object.assign({}, this.position);
     this.animationTarget.style.top = `${this.position.top}px`;
     this.animationTarget.style.left = `${this.position.left}px`;
-  }
-
-  /**
-   * Sets the movement key options for Pacman and registers a keydown event listener
-   */
-  setKeyListeners() {
-    this.movementKeys = {
-      // WASD
-      87: 'up',
-      83: 'down',
-      65: 'left',
-      68: 'right',
-
-      // Arrow Keys
-      38: 'up',
-      40: 'down',
-      37: 'left',
-      39: 'right',
-    };
-
-    window.addEventListener('keydown', this.changeDirection.bind(this));
   }
 
   /**
@@ -109,19 +98,29 @@ class Pacman {
       + `spriteSheets/characters/pacman/pacman_${direction}.svg)`;
   }
 
+  prepDeathAnimation() {
+    this.loopAnimation = false;
+    this.msBetweenSprites = 125;
+    this.spriteFrames = 12;
+    this.specialAnimation = true;
+    this.backgroundOffsetPixels = 0;
+    const bgSize = this.measurement * this.spriteFrames;
+    this.animationTarget.style.backgroundSize = `${bgSize}px`;
+    this.animationTarget.style.backgroundImage = 'url(app/style/'
+      + 'graphics/spriteSheets/characters/pacman/pacman_death.svg)';
+    this.animationTarget.style.backgroundPosition = '0px 0px';
+    this.pacmanArrow.style.backgroundImage = '';
+  }
+
   /**
    * Changes Pacman's desiredDirection, updates the PacmanArrow sprite, and sets moving to true
    * @param {Event} e - The keydown event to evaluate
    */
-  changeDirection(e) {
-    if (this.movementKeys[e.keyCode]) {
-      this.desiredDirection = this.characterUtil.directions[
-        this.movementKeys[e.keyCode]
-      ];
-      this.pacmanArrow.style.backgroundImage = 'url(app/style/graphics/'
-        + `spriteSheets/characters/pacman/arrow_${this.desiredDirection}.svg)`;
-      this.moving = true;
-    }
+  changeDirection(newDirection) {
+    this.desiredDirection = newDirection;
+    this.pacmanArrow.style.backgroundImage = 'url(app/style/graphics/'
+      + `spriteSheets/characters/pacman/arrow_${this.desiredDirection}.svg)`;
+    this.moving = true;
   }
 
   /**
@@ -248,7 +247,9 @@ class Pacman {
       this.position = this.characterUtil.handleWarp(
         this.position, this.scaledTileSize, this.mazeArray,
       );
+    }
 
+    if (this.moving || this.specialAnimation) {
       this.msSinceLastSprite += elapsedMs;
     }
   }

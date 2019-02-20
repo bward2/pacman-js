@@ -266,6 +266,7 @@ describe('characterUtil', () => {
 
     beforeEach(() => {
       character = {
+        loopAnimation: true,
         msSinceLastSprite: 15,
         msBetweenSprites: 10,
         moving: true,
@@ -282,7 +283,7 @@ describe('characterUtil', () => {
       const updatedProperties = characterUtil.advanceSpriteSheet(character);
       assert.strictEqual(updatedProperties.msSinceLastSprite, 0);
       assert.strictEqual(
-        updatedProperties.animationTarget.style.backgroundPosition, '-50px 0px',
+        updatedProperties.animationTarget.style.backgroundPosition, '-75px 0px',
       );
       assert.strictEqual(updatedProperties.backgroundOffsetPixels, 75);
     });
@@ -294,7 +295,7 @@ describe('characterUtil', () => {
       assert.strictEqual(updatedProperties.msSinceLastSprite, 0);
       assert.strictEqual(
         updatedProperties.animationTarget.style.backgroundPosition,
-        '-250px 0px',
+        '-0px 0px',
       );
       assert.strictEqual(updatedProperties.backgroundOffsetPixels, 0);
     });
@@ -311,6 +312,14 @@ describe('characterUtil', () => {
 
       characterUtil.advanceSpriteSheet(character);
       assert.strictEqual(character.msSinceLastSprite, 15);
+    });
+
+    it('only loops animation if loopAnimation is true', () => {
+      character.loopAnimation = false;
+      character.backgroundOffsetPixels = 250;
+
+      const updatedProperties = characterUtil.advanceSpriteSheet(character);
+      assert.strictEqual(updatedProperties.backgroundOffsetPixels, 250);
     });
   });
 });
