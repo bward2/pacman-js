@@ -96,7 +96,7 @@ class GameCoordinator {
         mazeBlock.style.background = block === 'X' ? 'black' : 'gray';
 
         if (block === 'o') {
-          entityList.push(new Pacdot(
+          entityList.push(new Pickup(
             this.scaledTileSize, columnIndex, rowIndex,
             this.pacman, this.mazeDiv,
           ));

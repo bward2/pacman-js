@@ -15,7 +15,7 @@ describe('gameCoordinator', () => {
     global.Pacman = class {};
     global.CharacterUtil = class {};
     global.Ghost = class {};
-    global.Pacdot = class {};
+    global.Pickup = class {};
     global.GameEngine = class {
       start() { }
     };

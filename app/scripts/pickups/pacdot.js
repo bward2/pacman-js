@@ -1,4 +1,4 @@
-class Pacdot {
+class Pickup {
   constructor(scaledTileSize, column, row, pacman, mazeDiv) {
     this.size = scaledTileSize * 0.25;
     this.x = (column * scaledTileSize) + ((scaledTileSize / 8) * 3);
@@ -27,9 +27,9 @@ class Pacdot {
   checkForCollision(dotX, dotY, dotSize, pacmanX, pacmanY, pacmanSize) {
     return (
       dotX > pacmanX
-            && dotY > pacmanY
-            && (dotX + dotSize) < (pacmanX + pacmanSize)
-            && (dotY + dotSize) < (pacmanY + pacmanSize)
+      && dotY > pacmanY
+      && (dotX + dotSize) < (pacmanX + pacmanSize)
+      && (dotY + dotSize) < (pacmanY + pacmanSize)
     );
   }
 
@@ -51,5 +51,5 @@ class Pacdot {
 }
 
 // removeIf(production)
-module.exports = Pacdot;
+module.exports = Pickup;
 // endRemoveIf(production)
