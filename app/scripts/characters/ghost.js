@@ -306,6 +306,10 @@ class Ghost {
     return desired.newPosition;
   }
 
+  /**
+   * Sets the ghost's mode to SCARED, turns the ghost around,
+   * and changes spritesheets accordingly
+   */
   becomeScared() {
     this.mode = 'scared';
     this.direction = this.characterUtil.getOppositeDirection(this.direction);

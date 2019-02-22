@@ -101,6 +101,16 @@ describe('ghost', () => {
   });
 
   describe('setSpriteSheet', () => {
+    it('sets the correct spritesheet if the ghost is scared', () => {
+      ghost.mode = 'scared';
+      ghost.setSpriteSheet(undefined, undefined, 'scared');
+      assert.strictEqual(
+        ghost.animationTarget.style.backgroundImage,
+        'url(app/style/graphics/spriteSheets/characters/ghosts/'
+        + 'scared_blue.svg)',
+      );
+    });
+
     it('sets the correct spritesheet for any given direction', () => {
       const bUrl = 'url(app/style/graphics/spriteSheets/characters/ghosts/';
 
@@ -326,19 +336,43 @@ describe('ghost', () => {
     });
   });
 
+  describe('becomeScared', () => {
+    it('starts the ghost\'s scared behavior', () => {
+      ghost.name = 'blinky';
+      ghost.mode = '';
+      ghost.characterUtil.getOppositeDirection = sinon.fake.returns('down');
+      ghost.setSpriteSheet = sinon.fake();
+
+      ghost.becomeScared();
+      assert.strictEqual(ghost.mode, 'scared');
+      assert(ghost.characterUtil.getOppositeDirection.called);
+      assert(ghost.setSpriteSheet.calledWith(
+        'blinky', 'down', 'scared',
+      ));
+    });
+  });
+
   describe('checkCollision', () => {
     it('emits the deathSequence event when <1 tile away from Pacman', () => {
-      const dispatchSpy = sinon.fake();
       global.window = {
-        dispatchEvent: dispatchSpy,
+        dispatchEvent: sinon.fake(),
       };
       global.Event = sinon.fake();
 
       ghost.checkCollision({ x: 0, y: 0 }, { x: 1, y: 0 });
-      assert(!dispatchSpy.called);
+      assert(!global.window.dispatchEvent.called);
 
       ghost.checkCollision({ x: 0, y: 0 }, { x: 0.9, y: 0 });
-      assert(dispatchSpy.called);
+      assert(global.window.dispatchEvent.calledWith(
+        new Event('deathSequence'),
+      ));
+    });
+
+    // TODO: Add tests here when scared collision is ready
+    it('does other stuff if the ghost is scared', () => {
+      ghost.mode = 'scared';
+
+      ghost.checkCollision({ x: 0, y: 0 }, { x: 0.9, y: 0 });
     });
   });
 

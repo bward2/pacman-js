@@ -106,5 +106,16 @@ describe('pickup', () => {
       pickup.update();
       assert(collisionSpy.notCalled);
     });
+
+    it('emits powerUp event if a powerPellet collides with Pacman', () => {
+      pickup.type = 'powerPellet';
+      pickup.checkForCollision = sinon.fake.returns(true);
+      global.window = {
+        dispatchEvent: sinon.fake(),
+      };
+
+      pickup.update();
+      assert(global.window.dispatchEvent.calledWith(new Event('powerUp')));
+    });
   });
 });

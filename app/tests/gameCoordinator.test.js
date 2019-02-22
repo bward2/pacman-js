@@ -178,4 +178,13 @@ describe('gameCoordinator', () => {
       assert(gameCoordinator.blinky.reset.called);
     });
   });
+
+  describe('powerUp', () => {
+    // TODO: Add tests here
+    it('does stuff', () => {
+      gameCoordinator.blinky.becomeScared = sinon.fake();
+      gameCoordinator.powerUp();
+      assert(gameCoordinator.blinky.becomeScared.called);
+    });
+  });
 });
