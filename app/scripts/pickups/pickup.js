@@ -1,17 +1,33 @@
 class Pickup {
-  constructor(scaledTileSize, column, row, pacman, mazeDiv) {
-    this.size = scaledTileSize * 0.25;
-    this.x = (column * scaledTileSize) + ((scaledTileSize / 8) * 3);
-    this.y = (row * scaledTileSize) + ((scaledTileSize / 8) * 3);
+  constructor(type, scaledTileSize, column, row, pacman, mazeDiv) {
+    this.type = type;
     this.pacman = pacman;
+    this.mazeDiv = mazeDiv;
+
+    this.setStyleMeasurements(type, scaledTileSize, column, row);
+  }
+
+  setStyleMeasurements(type, scaledTileSize, column, row) {
+    if (type === 'pacdot') {
+      this.size = scaledTileSize * 0.25;
+      this.x = (column * scaledTileSize) + ((scaledTileSize / 8) * 3);
+      this.y = (row * scaledTileSize) + ((scaledTileSize / 8) * 3);
+    } else {
+      this.size = scaledTileSize;
+      this.x = (column * scaledTileSize);
+      this.y = (row * scaledTileSize);
+    }
 
     this.animationTarget = document.createElement('div');
-    this.animationTarget.classList.add('pacdot');
+    this.animationTarget.style.position = 'absolute';
+    this.animationTarget.style.backgroundSize = `${this.size}px`;
+    this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
+      + `spriteSheets/pickups/${type}.svg`;
     this.animationTarget.style.height = `${this.size}px`;
     this.animationTarget.style.width = `${this.size}px`;
     this.animationTarget.style.top = `${this.y}px`;
     this.animationTarget.style.left = `${this.x}px`;
-    mazeDiv.appendChild(this.animationTarget);
+    this.mazeDiv.appendChild(this.animationTarget);
   }
 
   /**

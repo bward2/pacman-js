@@ -28,7 +28,7 @@ class GameCoordinator {
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
       ['XooooooooooooXXooooooooooooX'],
       ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
-      ['X XXXXoXXXXXoXXoXXXXXoXXXX X'],
+      ['XOXXXXoXXXXXoXXoXXXXXoXXXXOX'],
       ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
       ['XooooooooooooooooooooooooooX'],
       ['XoXXXXoXXoXXXXXXXXoXXoXXXXoX'],
@@ -48,7 +48,7 @@ class GameCoordinator {
       ['XooooooooooooXXooooooooooooX'],
       ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
       ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
-      ['X ooXXooooooo  oooooooXXoo X'],
+      ['XOooXXooooooo  oooooooXXooOX'],
       ['XXXoXXoXXoXXXXXXXXoXXoXXoXXX'],
       ['XXXoXXoXXoXXXXXXXXoXXoXXoXXX'],
       ['XooooooXXooooXXooooXXooooooX'],
@@ -97,8 +97,13 @@ class GameCoordinator {
 
         if (block === 'o') {
           entityList.push(new Pickup(
-            this.scaledTileSize, columnIndex, rowIndex,
-            this.pacman, this.mazeDiv,
+            'pacdot', this.scaledTileSize, columnIndex,
+            rowIndex, this.pacman, this.mazeDiv,
+          ));
+        } else if (block === 'O') {
+          entityList.push(new Pickup(
+            'powerPellet', this.scaledTileSize, columnIndex,
+            rowIndex, this.pacman, this.mazeDiv,
           ));
         }
 
