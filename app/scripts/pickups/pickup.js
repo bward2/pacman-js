@@ -7,6 +7,13 @@ class Pickup {
     this.setStyleMeasurements(type, scaledTileSize, column, row);
   }
 
+  /**
+   * Sets various style measurements for the pickup depending on its type
+   * @param {('pacdot'|'powerPellet'|'fruit')} type - The classification of pickup
+   * @param {number} scaledTileSize
+   * @param {number} column
+   * @param {number} row
+   */
   setStyleMeasurements(type, scaledTileSize, column, row) {
     if (type === 'pacdot') {
       this.size = scaledTileSize * 0.25;

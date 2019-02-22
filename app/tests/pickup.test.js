@@ -3,6 +3,8 @@ const sinon = require('sinon');
 const Pickup = require('../scripts/pickups/pickup');
 
 let pickup;
+let pacman;
+let mazeDiv;
 
 beforeEach(() => {
   global.document = {
@@ -14,7 +16,7 @@ beforeEach(() => {
     }),
   };
 
-  const pacman = {
+  pacman = {
     position: {
       top: 10,
       left: 10,
@@ -22,14 +24,52 @@ beforeEach(() => {
     measurement: 16,
   };
 
-  const mazeDiv = {
+  mazeDiv = {
     appendChild: () => { },
   };
 
-  pickup = new Pickup(8, 1, 1, pacman, mazeDiv);
+  pickup = new Pickup('pacdot', 8, 1, 1, pacman, mazeDiv);
 });
 
 describe('pickup', () => {
+  describe('setStyleMeasurements', () => {
+    it('sets measurements for pacdots', () => {
+      pickup.setStyleMeasurements('pacdot', 8, 1, 1, pacman, mazeDiv);
+
+      assert.strictEqual(pickup.size, 2);
+      assert.strictEqual(pickup.x, 11);
+      assert.strictEqual(pickup.y, 11);
+      assert.deepEqual(pickup.animationTarget.style, {
+        backgroundImage: 'url(app/style/graphics/spriteSheets/pickups/'
+          + 'pacdot.svg',
+        backgroundSize: '2px',
+        height: '2px',
+        left: '11px',
+        position: 'absolute',
+        top: '11px',
+        width: '2px',
+      });
+    });
+
+    it('sets measurements for powerPellets', () => {
+      pickup.setStyleMeasurements('powerPellet', 8, 1, 1, pacman, mazeDiv);
+
+      assert.strictEqual(pickup.size, 8);
+      assert.strictEqual(pickup.x, 8);
+      assert.strictEqual(pickup.y, 8);
+      assert.deepEqual(pickup.animationTarget.style, {
+        backgroundImage: 'url(app/style/graphics/spriteSheets/pickups/'
+         + 'powerPellet.svg',
+        backgroundSize: '8px',
+        height: '8px',
+        left: '8px',
+        position: 'absolute',
+        top: '8px',
+        width: '8px',
+      });
+    });
+  });
+
   describe('checkForCollision', () => {
     it('returns TRUE if the Pickup is colliding', () => {
       assert.strictEqual(pickup.checkForCollision(1, 1, 1, 0, 0, 10), true);
