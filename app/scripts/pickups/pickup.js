@@ -68,6 +68,9 @@ class Pickup {
         this.pacman.position.top, this.pacman.measurement,
       )) {
         this.animationTarget.style.visibility = 'hidden';
+        if (this.type === 'powerPellet') {
+          window.dispatchEvent(new Event('powerUp'));
+        }
       }
     }
   }

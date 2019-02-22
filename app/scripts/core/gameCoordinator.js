@@ -119,6 +119,7 @@ class GameCoordinator {
   registerEventListeners() {
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
+    window.addEventListener('powerUp', this.powerUp.bind(this));
   }
 
   /**
@@ -159,6 +160,13 @@ class GameCoordinator {
         }, 500);
       }, 2250);
     }, 750);
+  }
+
+  /**
+   * Upon eating a power pellet, sets the ghosts to 'scared' mode
+   */
+  powerUp() {
+    this.blinky.becomeScared();
   }
 }
 

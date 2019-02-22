@@ -14,11 +14,12 @@ class Ghost {
    * Rests the character to its default state
    */
   reset() {
+    this.mode = 'chase';
     this.setMovementStats(this.pacman, this.name);
     this.setSpriteAnimationStats();
     this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
     this.setDefaultPosition(this.scaledTileSize, this.name);
-    this.setSpriteSheet(this.name, this.direction);
+    this.setSpriteSheet(this.name, this.direction, this.mode);
   }
 
   /**
@@ -109,10 +110,16 @@ class Ghost {
    * Chooses a movement Spritesheet depending upon direction
    * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    */
-  setSpriteSheet(name, direction) {
-    this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
-    + `spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
+  setSpriteSheet(name, direction, mode) {
+    if (mode === 'scared') {
+      this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
+        + 'spriteSheets/characters/ghosts/scared_blue.svg)';
+    } else {
+      this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
+        + `spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
+    }
   }
 
   /**
@@ -269,7 +276,7 @@ class Ghost {
       this.name, gridPosition, pacmanGridPosition, this.direction,
       this.mazeArray,
     );
-    this.setSpriteSheet(this.name, this.direction);
+    this.setSpriteSheet(this.name, this.direction, this.mode);
     newPosition[this.characterUtil.getPropertyToChange(this.direction)]
       += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
 
@@ -299,6 +306,12 @@ class Ghost {
     return desired.newPosition;
   }
 
+  becomeScared() {
+    this.mode = 'scared';
+    this.direction = this.characterUtil.getOppositeDirection(this.direction);
+    this.setSpriteSheet(this.name, this.direction, this.mode);
+  }
+
   /**
    * Checks if the ghost contacts Pacman - starts the death sequence if so
    * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
@@ -306,7 +319,9 @@ class Ghost {
    */
   checkCollision(position, pacman) {
     if (this.calculateDistance(position, pacman) < 1) {
-      window.dispatchEvent(new Event('deathSequence'));
+      if (this.mode !== 'scared') {
+        window.dispatchEvent(new Event('deathSequence'));
+      }
     }
   }
 
