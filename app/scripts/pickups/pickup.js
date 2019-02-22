@@ -15,7 +15,7 @@ class Pickup {
   }
 
   /**
-   * Returns true if the Pacdot rectangle is contained within Pacman's rectangle
+   * Returns true if the Pickup rectangle is contained within Pacman's rectangle
    * @param {number} dotX
    * @param {number} dotY
    * @param {number} dotSize
@@ -34,7 +34,7 @@ class Pickup {
   }
 
   /**
-   * If the Pacdot is still visible, it checks to see if it is colliding with Pacman.
+   * If the Pickup is still visible, it checks to see if it is colliding with Pacman.
    * It will turn itself invisible and cease collision-detection after the first
    * collision with Pacman.
    */
