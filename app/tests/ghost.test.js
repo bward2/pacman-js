@@ -231,41 +231,65 @@ describe('ghost', () => {
     });
   });
 
-  describe('blinkyBestMove', () => {
-    it('returns the move which moves Blinky closest to Pacman', () => {
-      const possibleMoves = {
+  describe('getTarget', () => {
+    it('returns the ghost-house\'s door for eyes mode', () => {
+      const result = ghost.getTarget(undefined, undefined, 'eyes');
+      assert.deepEqual(result, { x: 13.5, y: 10 });
+    });
+
+    it('returns Pacman\'s position for scared mode', () => {
+      const pacmanPos = { x: 1, y: 1 };
+      const result = ghost.getTarget(undefined, pacmanPos, 'scared');
+      assert.deepEqual(result, pacmanPos);
+    });
+
+    it('returns Pacman\'s position for Blinky', () => {
+      const pacmanPos = { x: 1, y: 1 };
+      const result = ghost.getTarget('blinky', pacmanPos, 'chase');
+      assert.deepEqual(result, pacmanPos);
+    });
+
+    it('returns Pacman\'s position by default', () => {
+      const pacmanPos = { x: 1, y: 1 };
+      const result = ghost.getTarget(undefined, pacmanPos, 'chase');
+      assert.deepEqual(result, pacmanPos);
+    });
+  });
+
+  describe('determineBestMove', () => {
+    let possibleMoves;
+    let pacmanPos;
+
+    beforeEach(() => {
+      possibleMoves = {
         up: { x: 1, y: 0 },
         down: { x: 1, y: 2 },
         left: { x: 0, y: 1 },
         right: { x: 2, y: 1 },
       };
+      pacmanPos = { x: 3, y: 1 };
+      ghost.getTarget = sinon.fake.returns(pacmanPos);
+    });
 
-      const bestMove = ghost.blinkyBestMove(
-        possibleMoves, { x: 3, y: 1 },
+    it('returns the greatest distance from Pacman when scared', () => {
+      const result = ghost.determineBestMove(
+        'blinky', possibleMoves, pacmanPos, 'scared',
       );
-      assert.strictEqual(bestMove, 'right');
+      assert.strictEqual(result, 'left');
+    });
+
+    it('returns the shortest distance to the target otherwise', () => {
+      const result = ghost.determineBestMove(
+        'blinky', possibleMoves, pacmanPos, 'chase',
+      );
+      assert.strictEqual(result, 'right');
     });
 
     it('returns UNDEFINED if there are no possible moves', () => {
-      const bestMove = ghost.blinkyBestMove(
-        {}, { x: 3, y: 1 },
+      const result = ghost.determineBestMove(
+        'blinky', {}, pacmanPos, 'chase',
       );
-      assert.strictEqual(bestMove, undefined);
-    });
-  });
-
-  describe('determineBestMove', () => {
-    it('calls the correct functions given a ghost name', () => {
-      const blinkySpy = ghost.blinkyBestMove = sinon.fake();
-
-      ghost.determineBestMove('blinky');
-      assert(blinkySpy.called);
-    });
-
-    it('returns the ghost\'s current direciton by default', () => {
-      ghost.direction = 'up';
-      const bestMove = ghost.determineBestMove();
-      assert.strictEqual(bestMove, 'up');
+      assert.strictEqual(result, undefined);
     });
   });
 

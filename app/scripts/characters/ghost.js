@@ -194,26 +194,31 @@ class Ghost {
   }
 
   /**
-   * Returns the best possible move for Blinky, who targets Pacman's current position
-   * @param {Object} possibleMoves - All of the moves the ghost could choose to make this turn
+   *
+   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
-   * @returns {('up'|'down'|'left'|'right')}
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
+   * @returns {({x: number, y: number})}
    */
-  blinkyBestMove(possibleMoves, pacmanGridPosition) {
-    let shortestDistance = Infinity;
-    let bestMove;
+  getTarget(name, pacmanGridPosition, mode) {
+    // Ghosts return to the ghost-house after eaten
+    if (mode === 'eyes') {
+      return { x: 13.5, y: 10 };
+    }
 
-    Object.keys(possibleMoves).forEach((move) => {
-      const distance = this.calculateDistance(
-        possibleMoves[move], pacmanGridPosition,
-      );
-      if (distance < shortestDistance) {
-        shortestDistance = distance;
-        bestMove = move;
-      }
-    });
+    // Ghosts run from Pacman if scared
+    if (mode === 'scared') {
+      return pacmanGridPosition;
+    }
 
-    return bestMove;
+    switch (name) {
+      // Blinky goes after Pacman's position
+      case 'blinky':
+        return pacmanGridPosition;
+      default:
+        // TODO: Other ghosts
+        return pacmanGridPosition;
+    }
   }
 
   /**
@@ -221,16 +226,29 @@ class Ghost {
    * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {Object} possibleMoves - All of the moves the ghost could choose to make this turn
    * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {('up'|'down'|'left'|'right')}
    */
-  determineBestMove(name, possibleMoves, pacmanGridPosition) {
-    switch (name) {
-      case 'blinky':
-        return this.blinkyBestMove(possibleMoves, pacmanGridPosition);
-      default:
-        // TODO: Other ghosts
-        return this.direction;
-    }
+  determineBestMove(name, possibleMoves, pacmanGridPosition, mode) {
+    let bestDistance = (mode === 'scared') ? 0 : Infinity;
+    let bestMove;
+    const target = this.getTarget(name, pacmanGridPosition, mode);
+
+    Object.keys(possibleMoves).forEach((move) => {
+      const distance = this.calculateDistance(
+        possibleMoves[move], target,
+      );
+      const betterMove = (mode === 'scared')
+        ? (distance > bestDistance)
+        : (distance < bestDistance);
+
+      if (betterMove) {
+        bestDistance = distance;
+        bestMove = move;
+      }
+    });
+
+    return bestMove;
   }
 
   /**
@@ -240,10 +258,11 @@ class Ghost {
    * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
    * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @param {Array} mazeArray - 2D array representing the game board
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {('up'|'down'|'left'|'right')}
    */
   determineDirection(
-    name, gridPosition, pacmanGridPosition, direction, mazeArray,
+    name, gridPosition, pacmanGridPosition, direction, mazeArray, mode,
   ) {
     let newDirection = direction;
     const possibleMoves = this.determinePossibleMoves(
@@ -254,7 +273,7 @@ class Ghost {
       [newDirection] = Object.keys(possibleMoves);
     } else if (Object.keys(possibleMoves).length > 1) {
       newDirection = this.determineBestMove(
-        name, possibleMoves, pacmanGridPosition,
+        name, possibleMoves, pacmanGridPosition, mode,
       );
     }
 
@@ -274,7 +293,7 @@ class Ghost {
 
     this.direction = this.determineDirection(
       this.name, gridPosition, pacmanGridPosition, this.direction,
-      this.mazeArray,
+      this.mazeArray, this.mode,
     );
     this.setSpriteSheet(this.name, this.direction, this.mode);
     newPosition[this.characterUtil.getPropertyToChange(this.direction)]
