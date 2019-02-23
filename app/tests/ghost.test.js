@@ -40,7 +40,7 @@ describe('ghost', () => {
       assert.strictEqual(ghost.slowSpeed, 0.75);
       assert.strictEqual(ghost.mediumSpeed, 0.90);
       assert.strictEqual(ghost.fastSpeed, 1.05);
-      assert.strictEqual(ghost.chasedSpeed, 0.5);
+      assert.strictEqual(ghost.scaredSpeed, 0.5);
       assert.strictEqual(ghost.tunnelSpeed, 0.5);
       assert.strictEqual(ghost.eyeSpeed, 3);
       assert.strictEqual(ghost.velocityPerMs, 0.75);
@@ -397,6 +397,35 @@ describe('ghost', () => {
       ghost.mode = 'scared';
 
       ghost.checkCollision({ x: 0, y: 0 }, { x: 0.9, y: 0 });
+    });
+  });
+
+  describe('determineVelocity', () => {
+    it('returns eyeSpeed for eyes mode', () => {
+      const result = ghost.determineVelocity('blinky', {}, 'eyes');
+      assert.strictEqual(result, ghost.eyeSpeed);
+    });
+
+    it('returns tunnelSpeed when in the tunnel', () => {
+      ghost.isInTunnel = sinon.fake.returns(true);
+      const result = ghost.determineVelocity('blinky', {}, 'scared');
+      assert.strictEqual(result, ghost.tunnelSpeed);
+    });
+
+    it('returns scaredSpeed for scared mode', () => {
+      const result = ghost.determineVelocity('blinky', {}, 'scared');
+      assert.strictEqual(result, ghost.scaredSpeed);
+    });
+
+    // TODO: Tests for Blinky's various speeds
+    it('returns slowSpeed for Blinky', () => {
+      const result = ghost.determineVelocity('blinky', {}, 'chase');
+      assert.strictEqual(result, ghost.slowSpeed);
+    });
+
+    it('returns slowSpeed by default', () => {
+      const result = ghost.determineVelocity('clyde', {}, 'chase');
+      assert.strictEqual(result, ghost.slowSpeed);
     });
   });
 

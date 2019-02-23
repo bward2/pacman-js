@@ -34,7 +34,7 @@ class Ghost {
     this.mediumSpeed = pacmanSpeed * 0.90;
     this.fastSpeed = pacmanSpeed * 1.05;
 
-    this.chasedSpeed = pacmanSpeed * 0.5;
+    this.scaredSpeed = pacmanSpeed * 0.5;
     this.tunnelSpeed = pacmanSpeed * 0.5;
     this.eyeSpeed = pacmanSpeed * 3;
 
@@ -194,7 +194,7 @@ class Ghost {
   }
 
   /**
-   *
+   * Determines the appropriate target for the ghost's AI
    * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
    * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
@@ -349,6 +349,28 @@ class Ghost {
   }
 
   /**
+   * Determines the appropriate speed for the ghost
+   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+   * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
+   * @returns {number}
+   */
+  determineVelocity(name, position, mode) {
+    if (mode === 'eyes') {
+      return this.eyeSpeed;
+    } if (this.isInTunnel(position)) {
+      return this.tunnelSpeed;
+    } if (mode === 'scared') {
+      return this.scaredSpeed;
+    }
+    if (name === 'blinky') {
+      // TODO: Logic for blinky's speed based on remaining pac-dots
+      return this.slowSpeed;
+    }
+    return this.slowSpeed;
+  }
+
+  /**
    * Updates the css position, hides if there is a stutter, and animates the spritesheet
    * @param {number} interp - The animation accuracy as a percentage
    */
@@ -390,8 +412,9 @@ class Ghost {
       const pacmanGridPosition = this.characterUtil.determineGridPosition(
         this.pacman.position, this.scaledTileSize,
       );
-      const velocity = this.isInTunnel(gridPosition)
-        ? this.tunnelSpeed : this.velocityPerMs;
+      const velocity = this.determineVelocity(
+        this.name, gridPosition, this.mode,
+      );
 
       if (JSON.stringify(this.position) === JSON.stringify(
         this.characterUtil.snapToGrid(
