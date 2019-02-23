@@ -36,7 +36,7 @@ class Ghost {
 
     this.scaredSpeed = pacmanSpeed * 0.5;
     this.tunnelSpeed = pacmanSpeed * 0.5;
-    this.eyeSpeed = pacmanSpeed * 3;
+    this.eyeSpeed = pacmanSpeed * 2;
 
     this.velocityPerMs = this.slowSpeed;
     this.moving = false;
@@ -116,6 +116,9 @@ class Ghost {
     if (mode === 'scared') {
       this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
         + 'spriteSheets/characters/ghosts/scared_blue.svg)';
+    } else if (mode === 'eyes') {
+      this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
+        + `spriteSheets/characters/ghosts/eyes_${direction}.svg)`;
     } else {
       this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
         + `spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
@@ -341,8 +344,10 @@ class Ghost {
    * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array
    */
   checkCollision(position, pacman) {
-    if (this.calculateDistance(position, pacman) < 1) {
-      if (this.mode !== 'scared') {
+    if (this.calculateDistance(position, pacman) < 1 && this.mode !== 'eyes') {
+      if (this.mode === 'scared') {
+        this.mode = 'eyes';
+      } else {
         window.dispatchEvent(new Event('deathSequence'));
       }
     }

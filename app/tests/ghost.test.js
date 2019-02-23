@@ -42,7 +42,7 @@ describe('ghost', () => {
       assert.strictEqual(ghost.fastSpeed, 1.05);
       assert.strictEqual(ghost.scaredSpeed, 0.5);
       assert.strictEqual(ghost.tunnelSpeed, 0.5);
-      assert.strictEqual(ghost.eyeSpeed, 3);
+      assert.strictEqual(ghost.eyeSpeed, 2);
       assert.strictEqual(ghost.velocityPerMs, 0.75);
       assert.strictEqual(ghost.defaultDirection, 'left');
       assert.strictEqual(ghost.direction, 'left');
@@ -111,28 +111,52 @@ describe('ghost', () => {
       );
     });
 
+    it('sets the correct spritesheets for eyes mode', () => {
+      const url = 'url(app/style/graphics/spriteSheets/characters/ghosts/';
+
+      ghost.setSpriteSheet('blinky', 'up', 'eyes');
+      assert.strictEqual(
+        ghost.animationTarget.style.backgroundImage, `${url}eyes_up.svg)`,
+      );
+
+      ghost.setSpriteSheet('blinky', 'down', 'eyes');
+      assert.strictEqual(
+        ghost.animationTarget.style.backgroundImage, `${url}eyes_down.svg)`,
+      );
+
+      ghost.setSpriteSheet('blinky', 'left', 'eyes');
+      assert.strictEqual(
+        ghost.animationTarget.style.backgroundImage, `${url}eyes_left.svg)`,
+      );
+
+      ghost.setSpriteSheet('blinky', 'right', 'eyes');
+      assert.strictEqual(
+        ghost.animationTarget.style.backgroundImage, `${url}eyes_right.svg)`,
+      );
+    });
+
     it('sets the correct spritesheet for any given direction', () => {
-      const bUrl = 'url(app/style/graphics/spriteSheets/characters/ghosts/';
+      const url = 'url(app/style/graphics/spriteSheets/characters/ghosts/';
 
       ghost.setSpriteSheet('blinky', 'up');
       assert.strictEqual(
         ghost.animationTarget.style.backgroundImage,
-        `${bUrl}blinky/blinky_up.svg)`,
+        `${url}blinky/blinky_up.svg)`,
       );
       ghost.setSpriteSheet('blinky', 'down');
       assert.strictEqual(
         ghost.animationTarget.style.backgroundImage,
-        `${bUrl}blinky/blinky_down.svg)`,
+        `${url}blinky/blinky_down.svg)`,
       );
       ghost.setSpriteSheet('blinky', 'left');
       assert.strictEqual(
         ghost.animationTarget.style.backgroundImage,
-        `${bUrl}blinky/blinky_left.svg)`,
+        `${url}blinky/blinky_left.svg)`,
       );
       ghost.setSpriteSheet('blinky', 'right');
       assert.strictEqual(
         ghost.animationTarget.style.backgroundImage,
-        `${bUrl}blinky/blinky_right.svg)`,
+        `${url}blinky/blinky_right.svg)`,
       );
     });
   });
@@ -377,11 +401,18 @@ describe('ghost', () => {
   });
 
   describe('checkCollision', () => {
+    it('switches to eyes mode after Pacman eats the ghost', () => {
+      ghost.mode = 'scared';
+      ghost.checkCollision({ x: 0, y: 0 }, { x: 0.9, y: 0 });
+      assert.strictEqual(ghost.mode, 'eyes');
+    });
+
     it('emits the deathSequence event when <1 tile away from Pacman', () => {
       global.window = {
         dispatchEvent: sinon.fake(),
       };
       global.Event = sinon.fake();
+      ghost.mode = 'chase';
 
       ghost.checkCollision({ x: 0, y: 0 }, { x: 1, y: 0 });
       assert(!global.window.dispatchEvent.called);
