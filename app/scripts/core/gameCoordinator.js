@@ -179,7 +179,15 @@ class GameCoordinator {
    * @param {CustomEvent} e - Contains a target ghost object
    */
   eatGhost(e) {
+    const pauseDuration = 1000;
+    const { position, measurement } = e.detail.ghost;
+
+    this.displayPoints(
+      position, 200, pauseDuration, measurement,
+    );
+
     this.allowPacmanMovement = false;
+    this.pacman.display = false;
     e.detail.ghost.display = false;
     this.entityList.forEach((entity) => {
       const entityRef = entity;
@@ -189,13 +197,40 @@ class GameCoordinator {
 
     setTimeout(() => {
       this.allowPacmanMovement = true;
+      this.pacman.display = true;
       e.detail.ghost.display = true;
       this.entityList.forEach((entity) => {
         const entityRef = entity;
         entityRef.moving = true;
         entityRef.animate = true;
       });
-    }, 1000);
+    }, pauseDuration);
+  }
+
+  /**
+   *
+   * @param {*} position
+   * @param {*} amount
+   * @param {*} duration
+   * @param {*} size
+   */
+  displayPoints(position, amount, duration, measurement) {
+    const pointsDiv = document.createElement('div');
+
+    pointsDiv.style.position = 'absolute';
+    pointsDiv.style.backgroundSize = `${measurement}px`;
+    pointsDiv.style.backgroundImage = 'url(app/style/graphics/'
+      + `spriteSheets/points/${amount}.svg`;
+    pointsDiv.style.height = `${measurement}px`;
+    pointsDiv.style.width = `${measurement}px`;
+    pointsDiv.style.top = `${position.top}px`;
+    pointsDiv.style.left = `${position.left}px`;
+
+    this.mazeDiv.appendChild(pointsDiv);
+
+    setTimeout(() => {
+      this.mazeDiv.removeChild(pointsDiv);
+    }, duration);
   }
 }
 

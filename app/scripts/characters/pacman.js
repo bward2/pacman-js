@@ -37,6 +37,7 @@ class Pacman {
    */
   setSpriteAnimationStats() {
     this.specialAnimation = false;
+    this.display = true;
     this.animate = true;
     this.loopAnimation = true;
     this.msBetweenSprites = 50;
@@ -215,9 +216,10 @@ class Pacman {
     this.animationTarget.style.top = `${newTop}px`;
     this.animationTarget.style.left = `${newLeft}px`;
 
-    this.animationTarget.style.visibility = this.characterUtil.checkForStutter(
-      this.position, this.oldPosition,
-    );
+    this.animationTarget.style.visibility = this.display
+      ? this.characterUtil.checkForStutter(this.position, this.oldPosition)
+      : 'hidden';
+    this.pacmanArrow.style.visibility = this.animationTarget.style.visibility;
 
     this.updatePacmanArrowPosition(this.position, this.scaledTileSize);
 
