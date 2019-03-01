@@ -3,6 +3,7 @@ class GameCoordinator {
     this.mazeDiv = document.getElementById('maze');
     this.mazeCover = document.getElementById('maze-cover');
 
+    this.animate = true;
     this.maxFps = 120;
     this.tileSize = 8;
     this.scale = 3;
@@ -22,7 +23,8 @@ class GameCoordinator {
       39: 'right',
     };
 
-    this.eventInProgress = false;
+    this.allowKeyPresses = true;
+    this.allowPacmanMovement = true;
 
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
@@ -120,6 +122,7 @@ class GameCoordinator {
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
     window.addEventListener('powerUp', this.powerUp.bind(this));
+    window.addEventListener('eatGhost', this.eatGhost.bind(this));
   }
 
   /**
@@ -127,13 +130,15 @@ class GameCoordinator {
    * @param {Event} e - The keydown event to evaluate
    */
   handleKeyDown(e) {
-    if (!this.eventInProgress) {
+    if (this.allowKeyPresses) {
       // ESC key
       if (e.keyCode === 27) {
         this.gameEngine.changePausedState(this.gameEngine.running);
       } else if (this.movementKeys[e.keyCode]) {
         if (this.gameEngine.running) {
-          this.pacman.changeDirection(this.movementKeys[e.keyCode]);
+          this.pacman.changeDirection(
+            this.movementKeys[e.keyCode], this.allowPacmanMovement,
+          );
         }
       }
     }
@@ -144,7 +149,7 @@ class GameCoordinator {
    * has remaining lives.
    */
   deathSequence() {
-    this.eventInProgress = true;
+    this.allowKeyPresses = false;
     this.pacman.moving = false;
     this.blinky.moving = false;
     setTimeout(() => {
@@ -153,7 +158,7 @@ class GameCoordinator {
       setTimeout(() => {
         this.mazeCover.style.visibility = 'visible';
         setTimeout(() => {
-          this.eventInProgress = false;
+          this.allowKeyPresses = true;
           this.mazeCover.style.visibility = 'hidden';
           this.pacman.reset();
           this.blinky.reset();
@@ -167,6 +172,26 @@ class GameCoordinator {
    */
   powerUp() {
     this.blinky.becomeScared();
+  }
+
+  eatGhost(e) {
+    this.allowPacmanMovement = false;
+    e.detail.ghost.display = false;
+    this.entityList.forEach((entity) => {
+      const entityRef = entity;
+      entityRef.moving = false;
+      entityRef.animate = false;
+    });
+
+    setTimeout(() => {
+      this.allowPacmanMovement = true;
+      e.detail.ghost.display = true;
+      this.entityList.forEach((entity) => {
+        const entityRef = entity;
+        entityRef.moving = true;
+        entityRef.animate = true;
+      });
+    }, 1000);
   }
 }
 

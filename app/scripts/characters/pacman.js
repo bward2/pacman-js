@@ -37,6 +37,7 @@ class Pacman {
    */
   setSpriteAnimationStats() {
     this.specialAnimation = false;
+    this.animate = true;
     this.loopAnimation = true;
     this.msBetweenSprites = 50;
     this.msSinceLastSprite = 0;
@@ -115,12 +116,16 @@ class Pacman {
   /**
    * Changes Pacman's desiredDirection, updates the PacmanArrow sprite, and sets moving to true
    * @param {Event} e - The keydown event to evaluate
+   * @param {Boolean} startMoving - If true, Pacman will move upon key press
    */
-  changeDirection(newDirection) {
+  changeDirection(newDirection, startMoving) {
     this.desiredDirection = newDirection;
     this.pacmanArrow.style.backgroundImage = 'url(app/style/graphics/'
       + `spriteSheets/characters/pacman/arrow_${this.desiredDirection}.svg)`;
-    this.moving = true;
+
+    if (startMoving) {
+      this.moving = true;
+    }
   }
 
   /**

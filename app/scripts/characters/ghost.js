@@ -58,6 +58,7 @@ class Ghost {
   setSpriteAnimationStats() {
     this.display = true;
     this.loopAnimation = true;
+    this.animate = true;
     this.msBetweenSprites = 250;
     this.msSinceLastSprite = 0;
     this.spriteFrames = 2;
@@ -346,6 +347,11 @@ class Ghost {
   checkCollision(position, pacman) {
     if (this.calculateDistance(position, pacman) < 1 && this.mode !== 'eyes') {
       if (this.mode === 'scared') {
+        window.dispatchEvent(new CustomEvent('eatGhost', {
+          detail: {
+            ghost: this,
+          },
+        }));
         this.mode = 'eyes';
       } else {
         window.dispatchEvent(new Event('deathSequence'));
