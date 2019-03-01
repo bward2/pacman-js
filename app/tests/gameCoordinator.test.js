@@ -187,6 +187,7 @@ describe('gameCoordinator', () => {
   describe('eatGhost', () => {
     it('awards points and temporarily pauses movement', () => {
       gameCoordinator.allowPacmanMovement = true;
+      gameCoordinator.displayPoints = sinon.fake();
       const e = {
         detail: {
           ghost: {
@@ -200,12 +201,30 @@ describe('gameCoordinator', () => {
       assert(!e.detail.ghost.display);
       assert(!gameCoordinator.pacman.moving);
       assert(!gameCoordinator.blinky.moving);
+      assert(gameCoordinator.displayPoints.called);
 
       clock.tick(1000);
       assert(gameCoordinator.allowPacmanMovement);
       assert(e.detail.ghost.display);
       assert(gameCoordinator.pacman.moving);
       assert(gameCoordinator.blinky.moving);
+    });
+  });
+
+  describe('displayPoints', () => {
+    it('creates a temporary div and removes it with a set delay', () => {
+      gameCoordinator.mazeDiv = {
+        appendChild: sinon.fake(),
+        removeChild: sinon.fake(),
+      };
+
+      gameCoordinator.displayPoints(
+        { left: 10, top: 25 }, 200, 1000, 48,
+      );
+      assert(gameCoordinator.mazeDiv.appendChild.called);
+
+      clock.tick(1000);
+      assert(gameCoordinator.mazeDiv.removeChild.called);
     });
   });
 });

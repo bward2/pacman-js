@@ -208,11 +208,11 @@ class GameCoordinator {
   }
 
   /**
-   *
-   * @param {*} position
-   * @param {*} amount
-   * @param {*} duration
-   * @param {*} size
+   * Creates a temporary div to display points on screen
+   * @param {({ left: number, top: number })} position - CSS coordinates to display the points at
+   * @param {Number} amount - Amount of points to display
+   * @param {Number} duration - Milliseconds to display the points before disappearing
+   * @param {Number} measurement - Size of the points picture
    */
   displayPoints(position, amount, duration, measurement) {
     const pointsDiv = document.createElement('div');

@@ -309,6 +309,12 @@ describe('pacman', () => {
       assert(arrowSpy.called);
       assert(spriteSpy.called);
     });
+
+    it('hides Pacman if display is FALSE', () => {
+      pacman.display = false;
+      pacman.draw(1);
+      assert.strictEqual(pacman.animationTarget.style.visibility, 'hidden');
+    });
   });
 
   describe('update', () => {
