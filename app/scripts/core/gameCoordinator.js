@@ -174,6 +174,10 @@ class GameCoordinator {
     this.blinky.becomeScared();
   }
 
+  /**
+   * Upon eating a ghost, award points and temporarily pause movement
+   * @param {CustomEvent} e - Contains a target ghost object
+   */
   eatGhost(e) {
     this.allowPacmanMovement = false;
     e.detail.ghost.display = false;

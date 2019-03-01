@@ -163,11 +163,23 @@ describe('pacman', () => {
       pacman.pacmanArrow.style.backgroundImage = '';
       pacman.moving = false;
 
-      pacman.changeDirection('down');
+      pacman.changeDirection('down', true);
       assert.strictEqual(pacman.desiredDirection, 'down');
       assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/'
       + 'style/graphics/spriteSheets/characters/pacman/arrow_down.svg)');
       assert(pacman.moving);
+    });
+
+    it('won\'t start Pacman moving if startMoving is FALSE', () => {
+      pacman.desiredDirection = 'up';
+      pacman.pacmanArrow.style.backgroundImage = '';
+      pacman.moving = false;
+
+      pacman.changeDirection('down', false);
+      assert.strictEqual(pacman.desiredDirection, 'down');
+      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, 'url(app/'
+      + 'style/graphics/spriteSheets/characters/pacman/arrow_down.svg)');
+      assert(!pacman.moving);
     });
   });
 

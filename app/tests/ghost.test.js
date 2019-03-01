@@ -402,9 +402,17 @@ describe('ghost', () => {
 
   describe('checkCollision', () => {
     it('switches to eyes mode after Pacman eats the ghost', () => {
+      global.window = {
+        dispatchEvent: sinon.fake(),
+      };
+      global.CustomEvent = sinon.fake();
       ghost.mode = 'scared';
+
       ghost.checkCollision({ x: 0, y: 0 }, { x: 0.9, y: 0 });
       assert.strictEqual(ghost.mode, 'eyes');
+      assert(global.window.dispatchEvent.calledWith(
+        new CustomEvent('eatGhost', { detail: { ghost } }),
+      ));
     });
 
     it('emits the deathSequence event when <1 tile away from Pacman', () => {
@@ -421,13 +429,6 @@ describe('ghost', () => {
       assert(global.window.dispatchEvent.calledWith(
         new Event('deathSequence'),
       ));
-    });
-
-    // TODO: Add tests here when scared collision is ready
-    it('does other stuff if the ghost is scared', () => {
-      ghost.mode = 'scared';
-
-      ghost.checkCollision({ x: 0, y: 0 }, { x: 0.9, y: 0 });
     });
   });
 
