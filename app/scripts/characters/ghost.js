@@ -35,7 +35,7 @@ class Ghost {
     this.fastSpeed = pacmanSpeed * 1.05;
 
     this.scaredSpeed = pacmanSpeed * 0.5;
-    this.tunnelSpeed = pacmanSpeed * 0.5;
+    this.transitionSpeed = pacmanSpeed * 0.5;
     this.eyeSpeed = pacmanSpeed * 2;
 
     this.velocityPerMs = this.slowSpeed;
@@ -131,8 +131,16 @@ class Ghost {
    * @param {({x: number, y: number})} gridPosition - The current x-y position on the 2D Maze Array
    */
   isInTunnel(gridPosition) {
-    return (gridPosition.y === 14
+    return (
+      gridPosition.y === 14
       && (gridPosition.x < 6 || gridPosition.x > 21)
+    );
+  }
+
+  isInGhostHouse(gridPosition) {
+    return (
+      (gridPosition.x > 9 && gridPosition.x < 18)
+      && (gridPosition.y > 11 && gridPosition.y < 17)
     );
   }
 
@@ -306,6 +314,30 @@ class Ghost {
     return newPosition;
   }
 
+  enteringGhostHouse(mode, position) {
+    return (
+      mode === 'eyes'
+      && position.y === 11
+      && (position.x > 13.4 && position.x < 13.6)
+    );
+  }
+
+  enteredGhostHouse(mode, position) {
+    return (
+      mode === 'eyes'
+      && position.x === 13.5
+      && (position.y > 13.8 && position.y < 14.2)
+    );
+  }
+
+  leavingGhostHouse(mode, position) {
+    return (
+      mode !== 'eyes'
+      && position.x === 13.5
+      && (position.y > 10.8 && position.y < 11.2)
+    );
+  }
+
   /**
    * Handle the ghost's movement when it is inbetween tiles on the x-y grid of the Maze Array
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
@@ -314,15 +346,43 @@ class Ghost {
    * @returns {({ top: number, left: number})}
    */
   handleUnsnappedMovement(elapsedMs, gridPosition, velocity) {
+    const gridPositionCopy = Object.assign({}, gridPosition);
+
+    if (this.enteringGhostHouse(this.mode, gridPosition)) {
+      this.direction = this.characterUtil.directions.down;
+      gridPositionCopy.x = 13.5;
+      this.position = this.characterUtil.snapToGrid(
+        gridPositionCopy, this.direction, this.scaledTileSize,
+      );
+    }
+
+    if (this.enteredGhostHouse(this.mode, gridPosition)) {
+      this.direction = this.characterUtil.directions.up;
+      gridPositionCopy.y = 14;
+      this.position = this.characterUtil.snapToGrid(
+        gridPositionCopy, this.direction, this.scaledTileSize,
+      );
+      // TODO: Ask if this should be chase or scatter mode
+      this.mode = 'chase';
+    }
+
+    if (this.leavingGhostHouse(this.mode, gridPosition)) {
+      gridPositionCopy.y = 11;
+      this.position = this.characterUtil.snapToGrid(
+        gridPositionCopy, this.direction, this.scaledTileSize,
+      );
+      this.direction = this.characterUtil.directions.left;
+    }
+
     const desired = this.characterUtil.determineNewPositions(
       this.position, this.direction, velocity, elapsedMs, this.scaledTileSize,
     );
 
     if (this.characterUtil.changingGridPosition(
-      gridPosition, desired.newGridPosition,
+      gridPositionCopy, desired.newGridPosition,
     )) {
       return this.characterUtil.snapToGrid(
-        gridPosition, this.direction, this.scaledTileSize,
+        gridPositionCopy, this.direction, this.scaledTileSize,
       );
     }
 
@@ -369,8 +429,8 @@ class Ghost {
   determineVelocity(name, position, mode) {
     if (mode === 'eyes') {
       return this.eyeSpeed;
-    } if (this.isInTunnel(position)) {
-      return this.tunnelSpeed;
+    } if (this.isInTunnel(position) || this.isInGhostHouse(position)) {
+      return this.transitionSpeed;
     } if (mode === 'scared') {
       return this.scaredSpeed;
     }
