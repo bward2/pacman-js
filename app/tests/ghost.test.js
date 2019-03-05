@@ -41,7 +41,7 @@ describe('ghost', () => {
       assert.strictEqual(ghost.mediumSpeed, 0.90);
       assert.strictEqual(ghost.fastSpeed, 1.05);
       assert.strictEqual(ghost.scaredSpeed, 0.5);
-      assert.strictEqual(ghost.tunnelSpeed, 0.5);
+      assert.strictEqual(ghost.transitionSpeed, 0.4);
       assert.strictEqual(ghost.eyeSpeed, 2);
       assert.strictEqual(ghost.velocityPerMs, 0.75);
       assert.strictEqual(ghost.defaultDirection, 'left');

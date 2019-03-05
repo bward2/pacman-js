@@ -35,7 +35,7 @@ class Ghost {
     this.fastSpeed = pacmanSpeed * 1.05;
 
     this.scaredSpeed = pacmanSpeed * 0.5;
-    this.transitionSpeed = pacmanSpeed * 0.5;
+    this.transitionSpeed = pacmanSpeed * 0.4;
     this.eyeSpeed = pacmanSpeed * 2;
 
     this.velocityPerMs = this.slowSpeed;
@@ -338,14 +338,7 @@ class Ghost {
     );
   }
 
-  /**
-   * Handle the ghost's movement when it is inbetween tiles on the x-y grid of the Maze Array
-   * @param {number} elapsedMs - The amount of MS that have passed since the last update
-   * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
-   * @param {number} velocity - The distance the character should travel in a single millisecond
-   * @returns {({ top: number, left: number})}
-   */
-  handleUnsnappedMovement(elapsedMs, gridPosition, velocity) {
+  handleGhostHouse(gridPosition) {
     const gridPositionCopy = Object.assign({}, gridPosition);
 
     if (this.enteringGhostHouse(this.mode, gridPosition)) {
@@ -373,6 +366,19 @@ class Ghost {
       );
       this.direction = this.characterUtil.directions.left;
     }
+
+    return gridPositionCopy;
+  }
+
+  /**
+   * Handle the ghost's movement when it is inbetween tiles on the x-y grid of the Maze Array
+   * @param {number} elapsedMs - The amount of MS that have passed since the last update
+   * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
+   * @param {number} velocity - The distance the character should travel in a single millisecond
+   * @returns {({ top: number, left: number})}
+   */
+  handleUnsnappedMovement(elapsedMs, gridPosition, velocity) {
+    const gridPositionCopy = this.handleGhostHouse(gridPosition);
 
     const desired = this.characterUtil.determineNewPositions(
       this.position, this.direction, velocity, elapsedMs, this.scaledTileSize,
