@@ -188,9 +188,19 @@ describe('ghost', () => {
       assert(ghost.isInTunnel({ x: 30, y: 14 }));
     });
 
-    it('returns FALSE if the ghost is away from the warp tunnels', () => {
+    it('returns FALSE otherwise', () => {
       assert(!ghost.isInTunnel({ x: 15, y: 14 }));
       assert(!ghost.isInTunnel({ x: 0, y: 0 }));
+    });
+  });
+
+  describe('isInGhostHouse', () => {
+    it('returns TRUE if the ghost is in the Ghost House', () => {
+      assert(ghost.isInGhostHouse({ x: 10, y: 15 }));
+    });
+
+    it('returns FALSE otherwise', () => {
+      assert(!ghost.isInGhostHouse({ x: 0, y: 0 }));
     });
   });
 
@@ -359,7 +369,80 @@ describe('ghost', () => {
     });
   });
 
+  describe('enteringGhostHouse', () => {
+    it('returns TRUE for eyes mode at the correct coordinates', () => {
+      const entering = ghost.enteringGhostHouse('eyes', { x: 13.5, y: 11 });
+      assert(entering);
+    });
+
+    it('returns FALSE otherwise', () => {
+      const entering = ghost.enteringGhostHouse('chase', { x: 13.5, y: 11 });
+      assert(!entering);
+    });
+  });
+
+  describe('enteredGhostHouse', () => {
+    it('returns TRUE for eyes mode at the correct coordinates', () => {
+      const entered = ghost.enteredGhostHouse('eyes', { x: 13.5, y: 14 });
+      assert(entered);
+    });
+
+    it('returns FALSE otherwise', () => {
+      const entered = ghost.enteredGhostHouse('chase', { x: 13.5, y: 14 });
+      assert(!entered);
+    });
+  });
+
+  describe('leavingGhostHouse', () => {
+    it('returns TRUE for chase mode at the correct coordinates', () => {
+      const leaving = ghost.leavingGhostHouse('chase', { x: 13.5, y: 10.9 });
+      assert(leaving);
+    });
+
+    it('returns FALSE otherwise', () => {
+      const leaving = ghost.leavingGhostHouse('eyes', { x: 13.5, y: 10.9 });
+      assert(!leaving);
+    });
+  });
+
+  describe('handleGhostHouse', () => {
+    it('snaps x to 13.5 and sends ghost down when entering', () => {
+      ghost.enteringGhostHouse = sinon.fake.returns(true);
+      ghost.characterUtil.snapToGrid = sinon.fake();
+
+      const result = ghost.handleGhostHouse({ x: 0, y: 0 });
+      assert.strictEqual(ghost.direction, 'down');
+      assert.deepEqual(result, { x: 13.5, y: 0 });
+      assert(ghost.characterUtil.snapToGrid.called);
+    });
+
+    it('snaps y to 14 and sends ghost up once entered', () => {
+      ghost.enteredGhostHouse = sinon.fake.returns(true);
+      ghost.characterUtil.snapToGrid = sinon.fake();
+
+      const result = ghost.handleGhostHouse({ x: 0, y: 0 });
+      assert.strictEqual(ghost.direction, 'up');
+      assert.deepEqual(result, { x: 0, y: 14 });
+      assert(ghost.characterUtil.snapToGrid.called);
+      assert.strictEqual(ghost.mode, 'chase');
+    });
+
+    it('snaps y to 11 and sends ghost left once exited', () => {
+      ghost.leavingGhostHouse = sinon.fake.returns(true);
+      ghost.characterUtil.snapToGrid = sinon.fake();
+
+      const result = ghost.handleGhostHouse({ x: 0, y: 0 });
+      assert.strictEqual(ghost.direction, 'left');
+      assert.deepEqual(result, { x: 0, y: 11 });
+      assert(ghost.characterUtil.snapToGrid.called);
+    });
+  });
+
   describe('handleUnsnappedMovement', () => {
+    beforeEach(() => {
+      sinon.stub(ghost, 'handleGhostHouse').callsFake(input => input);
+    });
+
     it('returns the desired new position', () => {
       const desired = {
         newPosition: { top: 25, left: 50 },
@@ -388,6 +471,7 @@ describe('ghost', () => {
     it('starts the ghost\'s scared behavior', () => {
       ghost.name = 'blinky';
       ghost.mode = '';
+      ghost.isInGhostHouse = sinon.fake.returns(false);
       ghost.characterUtil.getOppositeDirection = sinon.fake.returns('down');
       ghost.setSpriteSheet = sinon.fake();
 
@@ -397,6 +481,27 @@ describe('ghost', () => {
       assert(ghost.setSpriteSheet.calledWith(
         'blinky', 'down', 'scared',
       ));
+    });
+
+    it('only u-turns if the ghost is not in the Ghost House', () => {
+      ghost.mode = '';
+      ghost.isInGhostHouse = sinon.fake.returns(true);
+      ghost.characterUtil.getOppositeDirection = sinon.fake();
+
+      ghost.becomeScared();
+      assert(!ghost.characterUtil.getOppositeDirection.called);
+    });
+
+    it('does nothing if in SCARED or EYES mode', () => {
+      ghost.setSpriteSheet = sinon.fake();
+
+      ghost.mode = 'scared';
+      ghost.becomeScared();
+      assert(!ghost.setSpriteSheet.called);
+
+      ghost.mode = 'eyes';
+      ghost.becomeScared();
+      assert(!ghost.setSpriteSheet.called);
     });
   });
 
@@ -441,7 +546,7 @@ describe('ghost', () => {
     it('returns tunnelSpeed when in the tunnel', () => {
       ghost.isInTunnel = sinon.fake.returns(true);
       const result = ghost.determineVelocity('blinky', {}, 'scared');
-      assert.strictEqual(result, ghost.tunnelSpeed);
+      assert.strictEqual(result, ghost.transitionSpeed);
     });
 
     it('returns scaredSpeed for scared mode', () => {
@@ -494,6 +599,7 @@ describe('ghost', () => {
     it('calls handleSnappedMovement if the ghost is snapped', () => {
       const snappedSpy = ghost.handleSnappedMovement = sinon.fake();
       ghost.characterUtil.determineGridPosition = sinon.fake();
+      ghost.determineVelocity = sinon.fake();
       ghost.isInTunnel = sinon.fake();
       ghost.characterUtil.handleWarp = sinon.fake();
       ghost.characterUtil.snapToGrid = sinon.fake.returns(ghost.position);
@@ -507,6 +613,7 @@ describe('ghost', () => {
     it('calls handleUnsnappedMovement if the ghost is not snapped', () => {
       const unsnappedSpy = ghost.handleUnsnappedMovement = sinon.fake();
       ghost.characterUtil.determineGridPosition = sinon.fake();
+      ghost.determineVelocity = sinon.fake();
       ghost.isInTunnel = sinon.fake();
       ghost.characterUtil.handleWarp = sinon.fake();
       ghost.characterUtil.snapToGrid = sinon.fake();

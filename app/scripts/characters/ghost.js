@@ -129,6 +129,7 @@ class Ghost {
   /**
    * Checks to see if the ghost is currently in the 'tunnels' on the outer edges of the maze
    * @param {({x: number, y: number})} gridPosition - The current x-y position on the 2D Maze Array
+   * @returns {Boolean}
    */
   isInTunnel(gridPosition) {
     return (
@@ -137,6 +138,11 @@ class Ghost {
     );
   }
 
+  /**
+   * Checks to see if the ghost is currently in the 'Ghost House' in the center of the maze
+   * @param {({x: number, y: number})} gridPosition - The current x-y position on the 2D Maze Array
+   * @returns {Boolean}
+   */
   isInGhostHouse(gridPosition) {
     return (
       (gridPosition.x > 9 && gridPosition.x < 18)
@@ -314,6 +320,12 @@ class Ghost {
     return newPosition;
   }
 
+  /**
+   * Determines if an eaten ghost is at the entrance of the Ghost House
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
+   * @param {({x: number, y: number})} position - x-y position during the current frame
+   * @returns {Boolean}
+   */
   enteringGhostHouse(mode, position) {
     return (
       mode === 'eyes'
@@ -322,6 +334,12 @@ class Ghost {
     );
   }
 
+  /**
+   * Determines if an eaten ghost has reached the center of the Ghost House
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
+   * @param {({x: number, y: number})} position - x-y position during the current frame
+   * @returns {Boolean}
+   */
   enteredGhostHouse(mode, position) {
     return (
       mode === 'eyes'
@@ -330,14 +348,25 @@ class Ghost {
     );
   }
 
+  /**
+   * Determines if a restored ghost is at the exit of the Ghost House
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
+   * @param {({x: number, y: number})} position - x-y position during the current frame
+   * @returns {Boolean}
+   */
   leavingGhostHouse(mode, position) {
     return (
       mode !== 'eyes'
       && position.x === 13.5
-      && (position.y > 10.8 && position.y < 11.2)
+      && (position.y > 10.8 && position.y < 11)
     );
   }
 
+  /**
+   * Handles entering and leaving the Ghost House after a ghost is eaten
+   * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
+   * @returns {({x: number, y: number})}
+   */
   handleGhostHouse(gridPosition) {
     const gridPositionCopy = Object.assign({}, gridPosition);
 
