@@ -400,9 +400,20 @@ class Ghost {
    * and changes spritesheets accordingly
    */
   becomeScared() {
-    this.mode = 'scared';
-    this.direction = this.characterUtil.getOppositeDirection(this.direction);
-    this.setSpriteSheet(this.name, this.direction, this.mode);
+    const gridPosition = this.characterUtil.determineGridPosition(
+      this.position, this.scaledTileSize,
+    );
+
+    if (this.mode !== 'eyes'
+    && this.mode !== 'scared') {
+      if (!this.isInGhostHouse(gridPosition)) {
+        this.direction = this.characterUtil.getOppositeDirection(
+          this.direction,
+        );
+      }
+      this.mode = 'scared';
+      this.setSpriteSheet(this.name, this.direction, this.mode);
+    }
   }
 
   /**
