@@ -8,6 +8,7 @@ class GameCoordinator {
     this.tileSize = 8;
     this.scale = 3;
     this.scaledTileSize = this.tileSize * this.scale;
+    this.activeTimers = [];
 
     this.movementKeys = {
       // WASD
@@ -123,6 +124,8 @@ class GameCoordinator {
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
     window.addEventListener('powerUp', this.powerUp.bind(this));
     window.addEventListener('eatGhost', this.eatGhost.bind(this));
+    window.addEventListener('addTimer', this.addTimer.bind(this));
+    window.addEventListener('removeTimer', this.removeTimer.bind(this));
   }
 
   /**
@@ -133,7 +136,7 @@ class GameCoordinator {
     if (this.allowKeyPresses) {
       // ESC key
       if (e.keyCode === 27) {
-        this.gameEngine.changePausedState(this.gameEngine.running);
+        this.handlePauseKey();
       } else if (this.movementKeys[e.keyCode]) {
         if (this.gameEngine.running) {
           this.pacman.changeDirection(
@@ -141,6 +144,20 @@ class GameCoordinator {
           );
         }
       }
+    }
+  }
+
+  handlePauseKey() {
+    this.gameEngine.changePausedState(this.gameEngine.running);
+
+    if (this.gameEngine.started) {
+      this.activeTimers.forEach((timer) => {
+        timer.resume();
+      });
+    } else {
+      this.activeTimers.forEach((timer) => {
+        timer.pause();
+      });
     }
   }
 
@@ -195,7 +212,7 @@ class GameCoordinator {
       entityRef.animate = false;
     });
 
-    setTimeout(() => {
+    new Timer(() => {
       this.allowPacmanMovement = true;
       this.pacman.display = true;
       e.detail.ghost.display = true;
@@ -231,6 +248,16 @@ class GameCoordinator {
     setTimeout(() => {
       this.mazeDiv.removeChild(pointsDiv);
     }, duration);
+  }
+
+  addTimer(e) {
+    this.activeTimers.push(e.detail.timer);
+  }
+
+  removeTimer(e) {
+    this.activeTimers = this.activeTimers.filter(
+      timer => timer.timerId !== e.detail.id,
+    );
   }
 }
 
