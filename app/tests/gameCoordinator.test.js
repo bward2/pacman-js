@@ -16,6 +16,11 @@ describe('gameCoordinator', () => {
     global.CharacterUtil = class {};
     global.Ghost = class {};
     global.Pickup = class {};
+    global.Timer = class {
+      constructor(callback, delay) {
+        setTimeout(callback, delay);
+      }
+    };
     global.GameEngine = class {
       start() { }
     };
@@ -60,15 +65,17 @@ describe('gameCoordinator', () => {
       assert(global.window.addEventListener.calledWith('deathSequence'));
       assert(global.window.addEventListener.calledWith('powerUp'));
       assert(global.window.addEventListener.calledWith('eatGhost'));
+      assert(global.window.addEventListener.calledWith('addTimer'));
+      assert(global.window.addEventListener.calledWith('removeTimer'));
     });
   });
 
   describe('handleKeyDown', () => {
-    it('calls changePausedState when esc is pressed', () => {
-      gameCoordinator.gameEngine.changePausedState = sinon.fake();
+    it('calls handlePauseKey when esc is pressed', () => {
+      gameCoordinator.handlePauseKey = sinon.fake();
 
       gameCoordinator.handleKeyDown({ keyCode: 27 });
-      assert(gameCoordinator.gameEngine.changePausedState.called);
+      assert(gameCoordinator.handlePauseKey.called);
     });
 
     it('calls Pacman\'s changeDirection when a move key is pressed', () => {
@@ -137,6 +144,33 @@ describe('gameCoordinator', () => {
       gameCoordinator.handleKeyDown({ keyCode: 80 });
       assert(!gameCoordinator.gameEngine.changePausedState.called);
       assert(!gameCoordinator.pacman.changeDirection.called);
+    });
+  });
+
+  describe('handlePauseKey', () => {
+    beforeEach(() => {
+      gameCoordinator.gameEngine.changePausedState = sinon.fake();
+      gameCoordinator.activeTimers = [{}];
+    });
+
+    it('calls changePausedState', () => {
+      gameCoordinator.activeTimers = [];
+      gameCoordinator.handlePauseKey();
+      assert(gameCoordinator.gameEngine.changePausedState.called);
+    });
+
+    it('resumes all timers after starting the engine', () => {
+      gameCoordinator.gameEngine.started = true;
+      gameCoordinator.activeTimers[0].resume = sinon.fake();
+      gameCoordinator.handlePauseKey();
+      assert(gameCoordinator.activeTimers[0].resume.called);
+    });
+
+    it('resumes all timers after starting the engine', () => {
+      gameCoordinator.gameEngine.pause = true;
+      gameCoordinator.activeTimers[0].pause = sinon.fake();
+      gameCoordinator.handlePauseKey();
+      assert(gameCoordinator.activeTimers[0].pause.called);
     });
   });
 
@@ -225,6 +259,29 @@ describe('gameCoordinator', () => {
 
       clock.tick(1000);
       assert(gameCoordinator.mazeDiv.removeChild.called);
+    });
+  });
+
+  describe('addTimer', () => {
+    it('adds a timer object to the list of active timers', () => {
+      gameCoordinator.activeTimers = [];
+      gameCoordinator.addTimer({
+        detail: 'newTimer',
+      });
+      assert.strictEqual(gameCoordinator.activeTimers.length, 1);
+    });
+  });
+
+  describe('removeTimer', () => {
+    it('removes a timer from the active timers list based on timerId', () => {
+      gameCoordinator.activeTimers = [
+        { timerId: 1 },
+        { timerId: 2 },
+      ];
+      gameCoordinator.removeTimer({
+        detail: { timerId: 1 },
+      });
+      assert.strictEqual(gameCoordinator.activeTimers.length, 1);
     });
   });
 });
