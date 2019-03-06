@@ -279,7 +279,7 @@ describe('gameCoordinator', () => {
         { timerId: 2 },
       ];
       gameCoordinator.removeTimer({
-        detail: { timerId: 1 },
+        detail: { id: 1 },
       });
       assert.strictEqual(gameCoordinator.activeTimers.length, 1);
     });
