@@ -116,7 +116,7 @@ class Ghost {
   setSpriteSheet(name, direction, mode) {
     if (mode === 'scared') {
       this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
-        + 'spriteSheets/characters/ghosts/scared_blue.svg)';
+        + `spriteSheets/characters/ghosts/scared_${this.scaredColor}.svg)`;
     } else if (mode === 'eyes') {
       this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
         + `spriteSheets/characters/ghosts/eyes_${direction}.svg)`;
@@ -424,6 +424,12 @@ class Ghost {
     return desired.newPosition;
   }
 
+  toggleScaredColor() {
+    this.scaredColor = (this.scaredColor === 'blue')
+      ? 'white' : 'blue';
+    this.setSpriteSheet(this.name, this.direction, this.mode);
+  }
+
   /**
    * Sets the ghost's mode to SCARED, turns the ghost around,
    * and changes spritesheets accordingly
@@ -433,16 +439,21 @@ class Ghost {
       this.position, this.scaledTileSize,
     );
 
-    if (this.mode !== 'eyes'
-    && this.mode !== 'scared') {
-      if (!this.isInGhostHouse(gridPosition)) {
+    if (this.mode !== 'eyes') {
+      if (!this.isInGhostHouse(gridPosition) && this.mode !== 'scared') {
         this.direction = this.characterUtil.getOppositeDirection(
           this.direction,
         );
       }
       this.mode = 'scared';
+      this.scaredColor = 'blue';
       this.setSpriteSheet(this.name, this.direction, this.mode);
     }
+  }
+
+  endScared() {
+    this.mode = 'chase';
+    this.setSpriteSheet(this.name, this.direction, this.mode);
   }
 
   /**

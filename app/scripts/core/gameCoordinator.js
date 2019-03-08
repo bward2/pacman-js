@@ -76,6 +76,10 @@ class GameCoordinator {
       ),
     ];
 
+    this.ghosts = [
+      this.blinky,
+    ];
+
     this.registerEventListeners();
 
     this.drawMaze(this.mazeArray, this.entityList);
@@ -191,11 +195,53 @@ class GameCoordinator {
     }, 750);
   }
 
+  flashGhosts(flashes, maxFlashes) {
+    if (this.flashingGhosts) {
+      if (flashes === maxFlashes) {
+        this.flashingGhosts = false;
+        this.scaredGhosts.forEach((ghost) => {
+          ghost.endScared();
+        });
+        this.scaredGhosts = [];
+      } else {
+        if (this.scaredGhosts.length > 0) {
+          this.scaredGhosts.forEach((ghost) => {
+            ghost.toggleScaredColor();
+          });
+        }
+
+        new Timer(() => {
+          this.flashGhosts(flashes + 1, maxFlashes);
+        }, 250);
+      }
+    }
+  }
+
   /**
    * Upon eating a power pellet, sets the ghosts to 'scared' mode
    */
   powerUp() {
-    this.blinky.becomeScared();
+    if (this.timerExists(this.powerupTimer)) {
+      this.removeTimer({ detail: { id: this.powerupTimer } });
+    }
+
+    this.flashingGhosts = false;
+    this.scaredGhosts = [];
+
+    this.ghosts.forEach((ghost) => {
+      if (ghost.mode !== 'eyes') {
+        this.scaredGhosts.push(ghost);
+      }
+    });
+
+    this.scaredGhosts.forEach((ghost) => {
+      ghost.becomeScared();
+    });
+
+    this.powerupTimer = new Timer(() => {
+      this.flashingGhosts = true;
+      this.flashGhosts(0, 9);
+    }, 6000).timerId;
   }
 
   /**
@@ -205,6 +251,9 @@ class GameCoordinator {
   eatGhost(e) {
     const pauseDuration = 1000;
     const { position, measurement } = e.detail.ghost;
+    this.scaredGhosts = this.scaredGhosts.filter(
+      ghost => ghost.name !== e.detail.ghost.name,
+    );
 
     this.displayPoints(
       position, 200, pauseDuration, measurement,
@@ -261,7 +310,16 @@ class GameCoordinator {
     this.activeTimers.push(e.detail.timer);
   }
 
+  timerExists(id) {
+    const result = this.activeTimers.filter(
+      timer => timer.timerId === id,
+    );
+
+    return (result.length === 1);
+  }
+
   removeTimer(e) {
+    window.clearTimeout(e.detail.id);
     this.activeTimers = this.activeTimers.filter(
       timer => timer.timerId !== e.detail.id,
     );
