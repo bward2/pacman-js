@@ -26,6 +26,7 @@ class GameCoordinator {
 
     this.allowKeyPresses = true;
     this.allowPacmanMovement = true;
+    this.allowPause = true;
 
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
@@ -133,31 +134,37 @@ class GameCoordinator {
    * @param {Event} e - The keydown event to evaluate
    */
   handleKeyDown(e) {
-    if (this.allowKeyPresses) {
-      // ESC key
-      if (e.keyCode === 27) {
-        this.handlePauseKey();
-      } else if (this.movementKeys[e.keyCode]) {
-        if (this.gameEngine.running) {
-          this.pacman.changeDirection(
-            this.movementKeys[e.keyCode], this.allowPacmanMovement,
-          );
-        }
+    // ESC key
+    if (e.keyCode === 27) {
+      this.handlePauseKey();
+    } else if (this.movementKeys[e.keyCode] && this.allowKeyPresses) {
+      if (this.gameEngine.running) {
+        this.pacman.changeDirection(
+          this.movementKeys[e.keyCode], this.allowPacmanMovement,
+        );
       }
     }
   }
 
   handlePauseKey() {
-    this.gameEngine.changePausedState(this.gameEngine.running);
+    if (this.allowPause) {
+      this.allowPause = false;
 
-    if (this.gameEngine.started) {
-      this.activeTimers.forEach((timer) => {
-        timer.resume();
-      });
-    } else {
-      this.activeTimers.forEach((timer) => {
-        timer.pause();
-      });
+      setTimeout(() => {
+        this.allowPause = true;
+      }, 500);
+
+      this.gameEngine.changePausedState(this.gameEngine.running);
+
+      if (this.gameEngine.started) {
+        this.activeTimers.forEach((timer) => {
+          timer.resume();
+        });
+      } else {
+        this.activeTimers.forEach((timer) => {
+          timer.pause();
+        });
+      }
     }
   }
 
@@ -169,12 +176,12 @@ class GameCoordinator {
     this.allowKeyPresses = false;
     this.pacman.moving = false;
     this.blinky.moving = false;
-    setTimeout(() => {
+    new Timer(() => {
       this.blinky.display = false;
       this.pacman.prepDeathAnimation();
-      setTimeout(() => {
+      new Timer(() => {
         this.mazeCover.style.visibility = 'visible';
-        setTimeout(() => {
+        new Timer(() => {
           this.allowKeyPresses = true;
           this.mazeCover.style.visibility = 'hidden';
           this.pacman.reset();
@@ -245,7 +252,7 @@ class GameCoordinator {
 
     this.mazeDiv.appendChild(pointsDiv);
 
-    setTimeout(() => {
+    new Timer(() => {
       this.mazeDiv.removeChild(pointsDiv);
     }, duration);
   }

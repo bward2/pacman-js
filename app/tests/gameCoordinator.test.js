@@ -125,13 +125,13 @@ describe('gameCoordinator', () => {
       assert(!changeSpy.called);
     });
 
-    it('won\'t call anything if allowKeyPresses is FALSE', () => {
+    it('won\'t call changeDirection if allowKeyPresses is FALSE', () => {
       gameCoordinator.allowKeyPresses = false;
       gameCoordinator.gameEngine.changePausedState = sinon.fake();
       gameCoordinator.pacman.changeDirection = sinon.fake();
 
       gameCoordinator.handleKeyDown({ keyCode: 27 });
-      assert(!gameCoordinator.gameEngine.changePausedState.called);
+      assert(gameCoordinator.gameEngine.changePausedState.called);
       gameCoordinator.handleKeyDown({ keyCode: 87 });
       assert(!gameCoordinator.pacman.changeDirection.called);
     });
@@ -171,6 +171,21 @@ describe('gameCoordinator', () => {
       gameCoordinator.activeTimers[0].pause = sinon.fake();
       gameCoordinator.handlePauseKey();
       assert(gameCoordinator.activeTimers[0].pause.called);
+    });
+
+    it('waits before allowing another pause key press', () => {
+      gameCoordinator.activeTimers[0].pause = sinon.fake();
+      assert(gameCoordinator.allowPause);
+      gameCoordinator.handlePauseKey();
+      assert(!gameCoordinator.allowPause);
+      clock.tick(500);
+      assert(gameCoordinator.allowPause);
+    });
+
+    it('won\'t call changePausedState unless allowPause is TRUE', () => {
+      gameCoordinator.allowPause = false;
+      gameCoordinator.handlePauseKey();
+      assert(!gameCoordinator.gameEngine.changePausedState.called);
     });
   });
 
