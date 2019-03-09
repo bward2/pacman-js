@@ -195,6 +195,11 @@ class GameCoordinator {
     }, 750);
   }
 
+  /**
+   * Flashes ghosts blue and white to indicate the end of the powerup
+   * @param {Number} flashes - Total number of elapsed flashes
+   * @param {Number} maxFlashes - Total flashes to show
+   */
   flashGhosts(flashes, maxFlashes) {
     if (this.flashingGhosts) {
       if (flashes === maxFlashes) {
@@ -306,10 +311,19 @@ class GameCoordinator {
     }, duration);
   }
 
+  /**
+   * Pushes a Timer to the activeTimers array
+   * @param {({ detail: { timer: Object }})} e
+   */
   addTimer(e) {
     this.activeTimers.push(e.detail.timer);
   }
 
+  /**
+   * Checks if a Timer with a matching ID exists in the activeTimers array
+   * @param {number} id
+   * @returns {Boolean}
+   */
   timerExists(id) {
     const result = this.activeTimers.filter(
       timer => timer.timerId === id,
@@ -318,6 +332,10 @@ class GameCoordinator {
     return (result.length === 1);
   }
 
+  /**
+   * Removes a Timer from activeTimers based on ID
+   * @param {({ detail: { id: Number }})} e
+   */
   removeTimer(e) {
     window.clearTimeout(e.detail.id);
     this.activeTimers = this.activeTimers.filter(

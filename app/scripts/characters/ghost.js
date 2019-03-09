@@ -424,6 +424,9 @@ class Ghost {
     return desired.newPosition;
   }
 
+  /**
+   * Toggles a scared ghost between blue and white, then updates its spritsheet
+   */
   toggleScaredColor() {
     this.scaredColor = (this.scaredColor === 'blue')
       ? 'white' : 'blue';
@@ -451,7 +454,11 @@ class Ghost {
     }
   }
 
+  /**
+   * Returns the scared ghost to chase/scatter mode and sets its spritesheet
+   */
   endScared() {
+    // TODO: Ask if this should be chase or scatter mode
     this.mode = 'chase';
     this.setSpriteSheet(this.name, this.direction, this.mode);
   }
