@@ -208,16 +208,16 @@ class GameCoordinator {
           ghost.endScared();
         });
         this.scaredGhosts = [];
-      } else {
-        if (this.scaredGhosts.length > 0) {
-          this.scaredGhosts.forEach((ghost) => {
-            ghost.toggleScaredColor();
-          });
-        }
+      } else if (this.scaredGhosts.length > 0) {
+        this.scaredGhosts.forEach((ghost) => {
+          ghost.toggleScaredColor();
+        });
 
         new Timer(() => {
           this.flashGhosts(flashes + 1, maxFlashes);
         }, 250);
+      } else {
+        this.flashingGhosts = false;
       }
     }
   }

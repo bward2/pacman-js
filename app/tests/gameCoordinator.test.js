@@ -224,6 +224,41 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('flashGhosts', () => {
+    it('calls itself recursively a number of times', () => {
+      gameCoordinator.flashingGhosts = true;
+      gameCoordinator.scaredGhosts = [{
+        toggleScaredColor: sinon.fake(),
+        endScared: sinon.fake(),
+      }];
+      sinon.spy(gameCoordinator, 'flashGhosts');
+
+      gameCoordinator.flashGhosts(0, 9);
+      clock.tick(10000);
+      assert.strictEqual(gameCoordinator.flashGhosts.callCount, 10);
+    });
+
+    it('stops calls if there are no more scared ghosts', () => {
+      gameCoordinator.flashingGhosts = true;
+      gameCoordinator.scaredGhosts = [];
+      sinon.spy(gameCoordinator, 'flashGhosts');
+
+      gameCoordinator.flashGhosts(0, 9);
+      clock.tick(10000);
+      assert.strictEqual(gameCoordinator.flashGhosts.callCount, 1);
+      assert(!gameCoordinator.flashingGhosts);
+    });
+
+    it('does nothing if flashingGhosts is FALSE', () => {
+      gameCoordinator.flashingGhosts = false;
+      sinon.spy(gameCoordinator, 'flashGhosts');
+
+      gameCoordinator.flashGhosts(0, 9);
+      clock.tick(10000);
+      assert.strictEqual(gameCoordinator.flashGhosts.callCount, 1);
+    });
+  });
+
   describe('powerUp', () => {
     // TODO: Add tests here
     it('does stuff', () => {
