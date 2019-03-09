@@ -476,6 +476,21 @@ describe('ghost', () => {
     });
   });
 
+  describe('toggleScaredColor', () => {
+    it('toggles between blue and white, calls setSpriteSheet', () => {
+      ghost.scaredColor = 'blue';
+      ghost.setSpriteSheet = sinon.fake();
+
+      ghost.toggleScaredColor();
+      assert.strictEqual(ghost.scaredColor, 'white');
+      assert(ghost.setSpriteSheet.calledOnce);
+
+      ghost.toggleScaredColor();
+      assert.strictEqual(ghost.scaredColor, 'blue');
+      assert(ghost.setSpriteSheet.calledTwice);
+    });
+  });
+
   describe('becomeScared', () => {
     it('starts the ghost\'s scared behavior', () => {
       ghost.name = 'blinky';
@@ -507,6 +522,17 @@ describe('ghost', () => {
       ghost.mode = 'eyes';
       ghost.becomeScared();
       assert(!ghost.setSpriteSheet.called);
+    });
+  });
+
+  describe('endScared', () => {
+    it('sets the mode to CHASE and calls setSpriteSheet', () => {
+      ghost.mode = 'scared';
+      ghost.setSpriteSheet = sinon.fake();
+
+      ghost.endScared();
+      assert.strictEqual(ghost.mode, 'chase');
+      assert(ghost.setSpriteSheet.called);
     });
   });
 
