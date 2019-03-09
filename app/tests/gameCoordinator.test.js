@@ -244,6 +244,7 @@ describe('gameCoordinator', () => {
           },
         },
       };
+      gameCoordinator.scaredGhosts = [];
 
       gameCoordinator.eatGhost(e);
       assert(!gameCoordinator.allowPacmanMovement);
@@ -289,6 +290,7 @@ describe('gameCoordinator', () => {
 
   describe('removeTimer', () => {
     it('removes a timer from the active timers list based on timerId', () => {
+      global.window.clearTimeout = sinon.fake();
       gameCoordinator.activeTimers = [
         { timerId: 1 },
         { timerId: 2 },
@@ -296,6 +298,7 @@ describe('gameCoordinator', () => {
       gameCoordinator.removeTimer({
         detail: { id: 1 },
       });
+      assert(global.window.clearTimeout.calledWith(1));
       assert.strictEqual(gameCoordinator.activeTimers.length, 1);
     });
   });

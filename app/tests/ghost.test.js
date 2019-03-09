@@ -103,11 +103,20 @@ describe('ghost', () => {
   describe('setSpriteSheet', () => {
     it('sets the correct spritesheet if the ghost is scared', () => {
       ghost.mode = 'scared';
+      ghost.scaredColor = 'blue';
       ghost.setSpriteSheet(undefined, undefined, 'scared');
       assert.strictEqual(
         ghost.animationTarget.style.backgroundImage,
         'url(app/style/graphics/spriteSheets/characters/ghosts/'
         + 'scared_blue.svg)',
+      );
+
+      ghost.scaredColor = 'white';
+      ghost.setSpriteSheet(undefined, undefined, 'scared');
+      assert.strictEqual(
+        ghost.animationTarget.style.backgroundImage,
+        'url(app/style/graphics/spriteSheets/characters/ghosts/'
+        + 'scared_white.svg)',
       );
     });
 
@@ -492,12 +501,8 @@ describe('ghost', () => {
       assert(!ghost.characterUtil.getOppositeDirection.called);
     });
 
-    it('does nothing if in SCARED or EYES mode', () => {
+    it('does nothing if in EYES mode', () => {
       ghost.setSpriteSheet = sinon.fake();
-
-      ghost.mode = 'scared';
-      ghost.becomeScared();
-      assert(!ghost.setSpriteSheet.called);
 
       ghost.mode = 'eyes';
       ghost.becomeScared();

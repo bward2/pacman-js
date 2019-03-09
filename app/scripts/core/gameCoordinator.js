@@ -256,6 +256,7 @@ class GameCoordinator {
   eatGhost(e) {
     const pauseDuration = 1000;
     const { position, measurement } = e.detail.ghost;
+
     this.scaredGhosts = this.scaredGhosts.filter(
       ghost => ghost.name !== e.detail.ghost.name,
     );
