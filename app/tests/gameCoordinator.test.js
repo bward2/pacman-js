@@ -260,11 +260,41 @@ describe('gameCoordinator', () => {
   });
 
   describe('powerUp', () => {
-    // TODO: Add tests here
-    it('does stuff', () => {
-      gameCoordinator.blinky.becomeScared = sinon.fake();
+    it('establishes scaredGhosts and calls flashGhosts', () => {
+      gameCoordinator.timerExists = sinon.fake.returns(true);
+      gameCoordinator.removeTimer = sinon.fake();
+      gameCoordinator.ghosts = [{ becomeScared: sinon.fake() }];
+      gameCoordinator.flashGhosts = sinon.fake();
+
       gameCoordinator.powerUp();
-      assert(gameCoordinator.blinky.becomeScared.called);
+      clock.tick(6000);
+      assert(gameCoordinator.removeTimer.called);
+      assert(gameCoordinator.scaredGhosts[0].becomeScared.called);
+      assert(gameCoordinator.flashingGhosts);
+      assert(gameCoordinator.flashGhosts.calledWith(0, 9));
+    });
+
+    it('won\'t call removeTimer unless the powerupTimer is active', () => {
+      gameCoordinator.timerExists = sinon.fake.returns(false);
+      gameCoordinator.removeTimer = sinon.fake();
+      gameCoordinator.ghosts = [{ becomeScared: sinon.fake() }];
+      gameCoordinator.flashGhosts = sinon.fake();
+
+      gameCoordinator.powerUp();
+      assert(!gameCoordinator.removeTimer.called);
+    });
+
+    it('won\'t push EYES mode ghosts to the scaredGhosts array', () => {
+      gameCoordinator.timerExists = sinon.fake.returns(false);
+      gameCoordinator.removeTimer = sinon.fake();
+      gameCoordinator.ghosts = [
+        { becomeScared: sinon.fake(), mode: 'eyes' },
+        { becomeScared: sinon.fake(), mode: 'chase' },
+      ];
+      gameCoordinator.flashGhosts = sinon.fake();
+
+      gameCoordinator.powerUp();
+      assert.strictEqual(gameCoordinator.scaredGhosts.length, 1);
     });
   });
 
@@ -276,10 +306,11 @@ describe('gameCoordinator', () => {
         detail: {
           ghost: {
             display: true,
+            name: 'blinky',
           },
         },
       };
-      gameCoordinator.scaredGhosts = [];
+      gameCoordinator.scaredGhosts = [{ name: 'blinky' }];
 
       gameCoordinator.eatGhost(e);
       assert(!gameCoordinator.allowPacmanMovement);
@@ -320,6 +351,21 @@ describe('gameCoordinator', () => {
         detail: 'newTimer',
       });
       assert.strictEqual(gameCoordinator.activeTimers.length, 1);
+    });
+  });
+
+  describe('timerExists', () => {
+    it('checks if a given timerId exists', () => {
+      gameCoordinator.activeTimers = [
+        { timerId: 1 },
+        { timerId: 2 },
+        { timerId: 3 },
+      ];
+
+      assert(gameCoordinator.timerExists(1));
+      assert(gameCoordinator.timerExists(2));
+      assert(gameCoordinator.timerExists(3));
+      assert(!gameCoordinator.timerExists(4));
     });
   });
 
