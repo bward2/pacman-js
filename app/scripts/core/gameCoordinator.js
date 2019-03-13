@@ -3,10 +3,12 @@ class GameCoordinator {
     this.mazeDiv = document.getElementById('maze');
     this.mazeCover = document.getElementById('maze-cover');
 
+    this.animate = true;
     this.maxFps = 120;
     this.tileSize = 8;
     this.scale = 3;
     this.scaledTileSize = this.tileSize * this.scale;
+    this.activeTimers = [];
 
     this.movementKeys = {
       // WASD
@@ -22,13 +24,15 @@ class GameCoordinator {
       39: 'right',
     };
 
-    this.eventInProgress = false;
+    this.allowKeyPresses = true;
+    this.allowPacmanMovement = true;
+    this.allowPause = true;
 
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
       ['XooooooooooooXXooooooooooooX'],
       ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
-      ['X XXXXoXXXXXoXXoXXXXXoXXXX X'],
+      ['XOXXXXoXXXXXoXXoXXXXXoXXXXOX'],
       ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
       ['XooooooooooooooooooooooooooX'],
       ['XoXXXXoXXoXXXXXXXXoXXoXXXXoX'],
@@ -48,7 +52,7 @@ class GameCoordinator {
       ['XooooooooooooXXooooooooooooX'],
       ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
       ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
-      ['X ooXXooooooo  oooooooXXoo X'],
+      ['XOooXXooooooo  oooooooXXooOX'],
       ['XXXoXXoXXoXXXXXXXXoXXoXXoXXX'],
       ['XXXoXXoXXoXXXXXXXXoXXoXXoXXX'],
       ['XooooooXXooooXXooooXXooooooX'],
@@ -70,6 +74,10 @@ class GameCoordinator {
         this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
         new CharacterUtil(),
       ),
+    ];
+
+    this.ghosts = [
+      this.blinky,
     ];
 
     this.registerEventListeners();
@@ -96,9 +104,14 @@ class GameCoordinator {
         mazeBlock.style.background = block === 'X' ? 'black' : 'gray';
 
         if (block === 'o') {
-          entityList.push(new Pacdot(
-            this.scaledTileSize, columnIndex, rowIndex,
-            this.pacman, this.mazeDiv,
+          entityList.push(new Pickup(
+            'pacdot', this.scaledTileSize, columnIndex,
+            rowIndex, this.pacman, this.mazeDiv,
+          ));
+        } else if (block === 'O') {
+          entityList.push(new Pickup(
+            'powerPellet', this.scaledTileSize, columnIndex,
+            rowIndex, this.pacman, this.mazeDiv,
           ));
         }
 
@@ -114,6 +127,10 @@ class GameCoordinator {
   registerEventListeners() {
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
+    window.addEventListener('powerUp', this.powerUp.bind(this));
+    window.addEventListener('eatGhost', this.eatGhost.bind(this));
+    window.addEventListener('addTimer', this.addTimer.bind(this));
+    window.addEventListener('removeTimer', this.removeTimer.bind(this));
   }
 
   /**
@@ -121,14 +138,36 @@ class GameCoordinator {
    * @param {Event} e - The keydown event to evaluate
    */
   handleKeyDown(e) {
-    if (!this.eventInProgress) {
-      // ESC key
-      if (e.keyCode === 27) {
-        this.gameEngine.changePausedState(this.gameEngine.running);
-      } else if (this.movementKeys[e.keyCode]) {
-        if (this.gameEngine.running) {
-          this.pacman.changeDirection(this.movementKeys[e.keyCode]);
-        }
+    // ESC key
+    if (e.keyCode === 27) {
+      this.handlePauseKey();
+    } else if (this.movementKeys[e.keyCode] && this.allowKeyPresses) {
+      if (this.gameEngine.running) {
+        this.pacman.changeDirection(
+          this.movementKeys[e.keyCode], this.allowPacmanMovement,
+        );
+      }
+    }
+  }
+
+  handlePauseKey() {
+    if (this.allowPause) {
+      this.allowPause = false;
+
+      setTimeout(() => {
+        this.allowPause = true;
+      }, 500);
+
+      this.gameEngine.changePausedState(this.gameEngine.running);
+
+      if (this.gameEngine.started) {
+        this.activeTimers.forEach((timer) => {
+          timer.resume();
+        });
+      } else {
+        this.activeTimers.forEach((timer) => {
+          timer.pause();
+        });
       }
     }
   }
@@ -138,22 +177,171 @@ class GameCoordinator {
    * has remaining lives.
    */
   deathSequence() {
-    this.eventInProgress = true;
+    this.allowKeyPresses = false;
     this.pacman.moving = false;
     this.blinky.moving = false;
-    setTimeout(() => {
+    new Timer(() => {
       this.blinky.display = false;
       this.pacman.prepDeathAnimation();
-      setTimeout(() => {
+      new Timer(() => {
         this.mazeCover.style.visibility = 'visible';
-        setTimeout(() => {
-          this.eventInProgress = false;
+        new Timer(() => {
+          this.allowKeyPresses = true;
           this.mazeCover.style.visibility = 'hidden';
           this.pacman.reset();
           this.blinky.reset();
         }, 500);
       }, 2250);
     }, 750);
+  }
+
+  /**
+   * Flashes ghosts blue and white to indicate the end of the powerup
+   * @param {Number} flashes - Total number of elapsed flashes
+   * @param {Number} maxFlashes - Total flashes to show
+   */
+  flashGhosts(flashes, maxFlashes) {
+    if (this.flashingGhosts) {
+      if (flashes === maxFlashes) {
+        this.flashingGhosts = false;
+        this.scaredGhosts.forEach((ghost) => {
+          ghost.endScared();
+        });
+        this.scaredGhosts = [];
+      } else if (this.scaredGhosts.length > 0) {
+        this.scaredGhosts.forEach((ghost) => {
+          ghost.toggleScaredColor();
+        });
+
+        new Timer(() => {
+          this.flashGhosts(flashes + 1, maxFlashes);
+        }, 250);
+      } else {
+        this.flashingGhosts = false;
+      }
+    }
+  }
+
+  /**
+   * Upon eating a power pellet, sets the ghosts to 'scared' mode
+   */
+  powerUp() {
+    if (this.timerExists(this.powerupTimer)) {
+      this.removeTimer({ detail: { id: this.powerupTimer } });
+    }
+
+    this.flashingGhosts = false;
+    this.scaredGhosts = [];
+
+    this.ghosts.forEach((ghost) => {
+      if (ghost.mode !== 'eyes') {
+        this.scaredGhosts.push(ghost);
+      }
+    });
+
+    this.scaredGhosts.forEach((ghost) => {
+      ghost.becomeScared();
+    });
+
+    this.powerupTimer = new Timer(() => {
+      this.flashingGhosts = true;
+      this.flashGhosts(0, 9);
+    }, 6000).timerId;
+  }
+
+  /**
+   * Upon eating a ghost, award points and temporarily pause movement
+   * @param {CustomEvent} e - Contains a target ghost object
+   */
+  eatGhost(e) {
+    const pauseDuration = 1000;
+    const { position, measurement } = e.detail.ghost;
+
+    this.scaredGhosts = this.scaredGhosts.filter(
+      ghost => ghost.name !== e.detail.ghost.name,
+    );
+
+    this.displayPoints(
+      position, 200, pauseDuration, measurement,
+    );
+
+    this.allowPacmanMovement = false;
+    this.pacman.display = false;
+    e.detail.ghost.display = false;
+    this.entityList.forEach((entity) => {
+      const entityRef = entity;
+      entityRef.moving = false;
+      entityRef.animate = false;
+    });
+
+    new Timer(() => {
+      this.allowPacmanMovement = true;
+      this.pacman.display = true;
+      e.detail.ghost.display = true;
+      this.entityList.forEach((entity) => {
+        const entityRef = entity;
+        entityRef.moving = true;
+        entityRef.animate = true;
+      });
+    }, pauseDuration);
+  }
+
+  /**
+   * Creates a temporary div to display points on screen
+   * @param {({ left: number, top: number })} position - CSS coordinates to display the points at
+   * @param {Number} amount - Amount of points to display
+   * @param {Number} duration - Milliseconds to display the points before disappearing
+   * @param {Number} measurement - Size of the points picture
+   */
+  displayPoints(position, amount, duration, measurement) {
+    const pointsDiv = document.createElement('div');
+
+    pointsDiv.style.position = 'absolute';
+    pointsDiv.style.backgroundSize = `${measurement}px`;
+    pointsDiv.style.backgroundImage = 'url(app/style/graphics/'
+      + `spriteSheets/points/${amount}.svg`;
+    pointsDiv.style.height = `${measurement}px`;
+    pointsDiv.style.width = `${measurement}px`;
+    pointsDiv.style.top = `${position.top}px`;
+    pointsDiv.style.left = `${position.left}px`;
+
+    this.mazeDiv.appendChild(pointsDiv);
+
+    new Timer(() => {
+      this.mazeDiv.removeChild(pointsDiv);
+    }, duration);
+  }
+
+  /**
+   * Pushes a Timer to the activeTimers array
+   * @param {({ detail: { timer: Object }})} e
+   */
+  addTimer(e) {
+    this.activeTimers.push(e.detail.timer);
+  }
+
+  /**
+   * Checks if a Timer with a matching ID exists in the activeTimers array
+   * @param {number} id
+   * @returns {Boolean}
+   */
+  timerExists(id) {
+    const result = this.activeTimers.filter(
+      timer => timer.timerId === id,
+    );
+
+    return (result.length === 1);
+  }
+
+  /**
+   * Removes a Timer from activeTimers based on ID
+   * @param {({ detail: { id: Number }})} e
+   */
+  removeTimer(e) {
+    window.clearTimeout(e.detail.id);
+    this.activeTimers = this.activeTimers.filter(
+      timer => timer.timerId !== e.detail.id,
+    );
   }
 }
 

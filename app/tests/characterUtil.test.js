@@ -266,6 +266,7 @@ describe('characterUtil', () => {
 
     beforeEach(() => {
       character = {
+        animate: true,
         loopAnimation: true,
         msSinceLastSprite: 15,
         msBetweenSprites: 10,

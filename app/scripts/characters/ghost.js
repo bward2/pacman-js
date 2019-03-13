@@ -14,11 +14,12 @@ class Ghost {
    * Rests the character to its default state
    */
   reset() {
+    this.mode = 'chase';
     this.setMovementStats(this.pacman, this.name);
     this.setSpriteAnimationStats();
     this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
     this.setDefaultPosition(this.scaledTileSize, this.name);
-    this.setSpriteSheet(this.name, this.direction);
+    this.setSpriteSheet(this.name, this.direction, this.mode);
   }
 
   /**
@@ -33,9 +34,9 @@ class Ghost {
     this.mediumSpeed = pacmanSpeed * 0.90;
     this.fastSpeed = pacmanSpeed * 1.05;
 
-    this.chasedSpeed = pacmanSpeed * 0.5;
-    this.tunnelSpeed = pacmanSpeed * 0.5;
-    this.eyeSpeed = pacmanSpeed * 3;
+    this.scaredSpeed = pacmanSpeed * 0.5;
+    this.transitionSpeed = pacmanSpeed * 0.4;
+    this.eyeSpeed = pacmanSpeed * 2;
 
     this.velocityPerMs = this.slowSpeed;
     this.moving = false;
@@ -57,6 +58,7 @@ class Ghost {
   setSpriteAnimationStats() {
     this.display = true;
     this.loopAnimation = true;
+    this.animate = true;
     this.msBetweenSprites = 250;
     this.msSinceLastSprite = 0;
     this.spriteFrames = 2;
@@ -109,19 +111,42 @@ class Ghost {
    * Chooses a movement Spritesheet depending upon direction
    * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    */
-  setSpriteSheet(name, direction) {
-    this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
-    + `spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
+  setSpriteSheet(name, direction, mode) {
+    if (mode === 'scared') {
+      this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
+        + `spriteSheets/characters/ghosts/scared_${this.scaredColor}.svg)`;
+    } else if (mode === 'eyes') {
+      this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
+        + `spriteSheets/characters/ghosts/eyes_${direction}.svg)`;
+    } else {
+      this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
+        + `spriteSheets/characters/ghosts/${name}/${name}_${direction}.svg)`;
+    }
   }
 
   /**
    * Checks to see if the ghost is currently in the 'tunnels' on the outer edges of the maze
    * @param {({x: number, y: number})} gridPosition - The current x-y position on the 2D Maze Array
+   * @returns {Boolean}
    */
   isInTunnel(gridPosition) {
-    return (gridPosition.y === 14
+    return (
+      gridPosition.y === 14
       && (gridPosition.x < 6 || gridPosition.x > 21)
+    );
+  }
+
+  /**
+   * Checks to see if the ghost is currently in the 'Ghost House' in the center of the maze
+   * @param {({x: number, y: number})} gridPosition - The current x-y position on the 2D Maze Array
+   * @returns {Boolean}
+   */
+  isInGhostHouse(gridPosition) {
+    return (
+      (gridPosition.x > 9 && gridPosition.x < 18)
+      && (gridPosition.y > 11 && gridPosition.y < 17)
     );
   }
 
@@ -187,26 +212,31 @@ class Ghost {
   }
 
   /**
-   * Returns the best possible move for Blinky, who targets Pacman's current position
-   * @param {Object} possibleMoves - All of the moves the ghost could choose to make this turn
+   * Determines the appropriate target for the ghost's AI
+   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
-   * @returns {('up'|'down'|'left'|'right')}
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
+   * @returns {({x: number, y: number})}
    */
-  blinkyBestMove(possibleMoves, pacmanGridPosition) {
-    let shortestDistance = Infinity;
-    let bestMove;
+  getTarget(name, pacmanGridPosition, mode) {
+    // Ghosts return to the ghost-house after eaten
+    if (mode === 'eyes') {
+      return { x: 13.5, y: 10 };
+    }
 
-    Object.keys(possibleMoves).forEach((move) => {
-      const distance = this.calculateDistance(
-        possibleMoves[move], pacmanGridPosition,
-      );
-      if (distance < shortestDistance) {
-        shortestDistance = distance;
-        bestMove = move;
-      }
-    });
+    // Ghosts run from Pacman if scared
+    if (mode === 'scared') {
+      return pacmanGridPosition;
+    }
 
-    return bestMove;
+    switch (name) {
+      // Blinky goes after Pacman's position
+      case 'blinky':
+        return pacmanGridPosition;
+      default:
+        // TODO: Other ghosts
+        return pacmanGridPosition;
+    }
   }
 
   /**
@@ -214,16 +244,29 @@ class Ghost {
    * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {Object} possibleMoves - All of the moves the ghost could choose to make this turn
    * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {('up'|'down'|'left'|'right')}
    */
-  determineBestMove(name, possibleMoves, pacmanGridPosition) {
-    switch (name) {
-      case 'blinky':
-        return this.blinkyBestMove(possibleMoves, pacmanGridPosition);
-      default:
-        // TODO: Other ghosts
-        return this.direction;
-    }
+  determineBestMove(name, possibleMoves, pacmanGridPosition, mode) {
+    let bestDistance = (mode === 'scared') ? 0 : Infinity;
+    let bestMove;
+    const target = this.getTarget(name, pacmanGridPosition, mode);
+
+    Object.keys(possibleMoves).forEach((move) => {
+      const distance = this.calculateDistance(
+        possibleMoves[move], target,
+      );
+      const betterMove = (mode === 'scared')
+        ? (distance > bestDistance)
+        : (distance < bestDistance);
+
+      if (betterMove) {
+        bestDistance = distance;
+        bestMove = move;
+      }
+    });
+
+    return bestMove;
   }
 
   /**
@@ -233,10 +276,11 @@ class Ghost {
    * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
    * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @param {Array} mazeArray - 2D array representing the game board
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {('up'|'down'|'left'|'right')}
    */
   determineDirection(
-    name, gridPosition, pacmanGridPosition, direction, mazeArray,
+    name, gridPosition, pacmanGridPosition, direction, mazeArray, mode,
   ) {
     let newDirection = direction;
     const possibleMoves = this.determinePossibleMoves(
@@ -247,7 +291,7 @@ class Ghost {
       [newDirection] = Object.keys(possibleMoves);
     } else if (Object.keys(possibleMoves).length > 1) {
       newDirection = this.determineBestMove(
-        name, possibleMoves, pacmanGridPosition,
+        name, possibleMoves, pacmanGridPosition, mode,
       );
     }
 
@@ -267,13 +311,92 @@ class Ghost {
 
     this.direction = this.determineDirection(
       this.name, gridPosition, pacmanGridPosition, this.direction,
-      this.mazeArray,
+      this.mazeArray, this.mode,
     );
-    this.setSpriteSheet(this.name, this.direction);
+    this.setSpriteSheet(this.name, this.direction, this.mode);
     newPosition[this.characterUtil.getPropertyToChange(this.direction)]
       += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
 
     return newPosition;
+  }
+
+  /**
+   * Determines if an eaten ghost is at the entrance of the Ghost House
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
+   * @param {({x: number, y: number})} position - x-y position during the current frame
+   * @returns {Boolean}
+   */
+  enteringGhostHouse(mode, position) {
+    return (
+      mode === 'eyes'
+      && position.y === 11
+      && (position.x > 13.4 && position.x < 13.6)
+    );
+  }
+
+  /**
+   * Determines if an eaten ghost has reached the center of the Ghost House
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
+   * @param {({x: number, y: number})} position - x-y position during the current frame
+   * @returns {Boolean}
+   */
+  enteredGhostHouse(mode, position) {
+    return (
+      mode === 'eyes'
+      && position.x === 13.5
+      && (position.y > 13.8 && position.y < 14.2)
+    );
+  }
+
+  /**
+   * Determines if a restored ghost is at the exit of the Ghost House
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
+   * @param {({x: number, y: number})} position - x-y position during the current frame
+   * @returns {Boolean}
+   */
+  leavingGhostHouse(mode, position) {
+    return (
+      mode !== 'eyes'
+      && position.x === 13.5
+      && (position.y > 10.8 && position.y < 11)
+    );
+  }
+
+  /**
+   * Handles entering and leaving the Ghost House after a ghost is eaten
+   * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
+   * @returns {({x: number, y: number})}
+   */
+  handleGhostHouse(gridPosition) {
+    const gridPositionCopy = Object.assign({}, gridPosition);
+
+    if (this.enteringGhostHouse(this.mode, gridPosition)) {
+      this.direction = this.characterUtil.directions.down;
+      gridPositionCopy.x = 13.5;
+      this.position = this.characterUtil.snapToGrid(
+        gridPositionCopy, this.direction, this.scaledTileSize,
+      );
+    }
+
+    if (this.enteredGhostHouse(this.mode, gridPosition)) {
+      this.direction = this.characterUtil.directions.up;
+      gridPositionCopy.y = 14;
+      this.position = this.characterUtil.snapToGrid(
+        gridPositionCopy, this.direction, this.scaledTileSize,
+      );
+      // TODO: Ask if this should be chase or scatter mode
+      this.mode = 'chase';
+    }
+
+    if (this.leavingGhostHouse(this.mode, gridPosition)) {
+      gridPositionCopy.y = 11;
+      this.position = this.characterUtil.snapToGrid(
+        gridPositionCopy, this.direction, this.scaledTileSize,
+      );
+      this.direction = this.characterUtil.directions.left;
+    }
+
+    return gridPositionCopy;
   }
 
   /**
@@ -284,19 +407,60 @@ class Ghost {
    * @returns {({ top: number, left: number})}
    */
   handleUnsnappedMovement(elapsedMs, gridPosition, velocity) {
+    const gridPositionCopy = this.handleGhostHouse(gridPosition);
+
     const desired = this.characterUtil.determineNewPositions(
       this.position, this.direction, velocity, elapsedMs, this.scaledTileSize,
     );
 
     if (this.characterUtil.changingGridPosition(
-      gridPosition, desired.newGridPosition,
+      gridPositionCopy, desired.newGridPosition,
     )) {
       return this.characterUtil.snapToGrid(
-        gridPosition, this.direction, this.scaledTileSize,
+        gridPositionCopy, this.direction, this.scaledTileSize,
       );
     }
 
     return desired.newPosition;
+  }
+
+  /**
+   * Toggles a scared ghost between blue and white, then updates its spritsheet
+   */
+  toggleScaredColor() {
+    this.scaredColor = (this.scaredColor === 'blue')
+      ? 'white' : 'blue';
+    this.setSpriteSheet(this.name, this.direction, this.mode);
+  }
+
+  /**
+   * Sets the ghost's mode to SCARED, turns the ghost around,
+   * and changes spritesheets accordingly
+   */
+  becomeScared() {
+    const gridPosition = this.characterUtil.determineGridPosition(
+      this.position, this.scaledTileSize,
+    );
+
+    if (this.mode !== 'eyes') {
+      if (!this.isInGhostHouse(gridPosition) && this.mode !== 'scared') {
+        this.direction = this.characterUtil.getOppositeDirection(
+          this.direction,
+        );
+      }
+      this.mode = 'scared';
+      this.scaredColor = 'blue';
+      this.setSpriteSheet(this.name, this.direction, this.mode);
+    }
+  }
+
+  /**
+   * Returns the scared ghost to chase/scatter mode and sets its spritesheet
+   */
+  endScared() {
+    // TODO: Ask if this should be chase or scatter mode
+    this.mode = 'chase';
+    this.setSpriteSheet(this.name, this.direction, this.mode);
   }
 
   /**
@@ -305,9 +469,40 @@ class Ghost {
    * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array
    */
   checkCollision(position, pacman) {
-    if (this.calculateDistance(position, pacman) < 1) {
-      window.dispatchEvent(new Event('deathSequence'));
+    if (this.calculateDistance(position, pacman) < 1 && this.mode !== 'eyes') {
+      if (this.mode === 'scared') {
+        window.dispatchEvent(new CustomEvent('eatGhost', {
+          detail: {
+            ghost: this,
+          },
+        }));
+        this.mode = 'eyes';
+      } else {
+        window.dispatchEvent(new Event('deathSequence'));
+      }
     }
+  }
+
+  /**
+   * Determines the appropriate speed for the ghost
+   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+   * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
+   * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
+   * @returns {number}
+   */
+  determineVelocity(name, position, mode) {
+    if (mode === 'eyes') {
+      return this.eyeSpeed;
+    } if (this.isInTunnel(position) || this.isInGhostHouse(position)) {
+      return this.transitionSpeed;
+    } if (mode === 'scared') {
+      return this.scaredSpeed;
+    }
+    if (name === 'blinky') {
+      // TODO: Logic for blinky's speed based on remaining pac-dots
+      return this.slowSpeed;
+    }
+    return this.slowSpeed;
   }
 
   /**
@@ -352,8 +547,9 @@ class Ghost {
       const pacmanGridPosition = this.characterUtil.determineGridPosition(
         this.pacman.position, this.scaledTileSize,
       );
-      const velocity = this.isInTunnel(gridPosition)
-        ? this.tunnelSpeed : this.velocityPerMs;
+      const velocity = this.determineVelocity(
+        this.name, gridPosition, this.mode,
+      );
 
       if (JSON.stringify(this.position) === JSON.stringify(
         this.characterUtil.snapToGrid(
