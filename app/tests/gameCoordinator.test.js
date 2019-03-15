@@ -62,7 +62,9 @@ describe('gameCoordinator', () => {
 
       gameCoordinator.registerEventListeners();
       assert(global.window.addEventListener.calledWith('keydown'));
+      assert(global.window.addEventListener.calledWith('awardPoints'));
       assert(global.window.addEventListener.calledWith('deathSequence'));
+      assert(global.window.addEventListener.calledWith('dotEaten'));
       assert(global.window.addEventListener.calledWith('powerUp'));
       assert(global.window.addEventListener.calledWith('eatGhost'));
       assert(global.window.addEventListener.calledWith('addTimer'));
@@ -189,6 +191,16 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('awardPoints', () => {
+    it('adds to the total number of points', () => {
+      gameCoordinator.points = 0;
+      gameCoordinator.awardPoints(
+        { detail: { points: 50 } },
+      );
+      assert.strictEqual(gameCoordinator.points, 50);
+    });
+  });
+
   describe('deathSequence', () => {
     it('kills Pacman, subtracts a life, and resets the characters', () => {
       gameCoordinator.allowKeyPresses = true;
@@ -221,6 +233,24 @@ describe('gameCoordinator', () => {
         'hidden');
       assert(gameCoordinator.pacman.reset.called);
       assert(gameCoordinator.blinky.reset.called);
+    });
+  });
+
+  describe('dotEaten', () => {
+    it('subtracts 1 from remainingDots', () => {
+      gameCoordinator.remainingDots = 10;
+      gameCoordinator.dotEaten();
+      assert.strictEqual(gameCoordinator.remainingDots, 9);
+    });
+
+    it('creates a fruit with 174 remaining dots', () => {
+      gameCoordinator.remainingDots = 175;
+      gameCoordinator.dotEaten();
+    });
+
+    it('creates a fruit with 74 remaining dots', () => {
+      gameCoordinator.remainingDots = 75;
+      gameCoordinator.dotEaten();
     });
   });
 

@@ -85,6 +85,12 @@ describe('pickup', () => {
   });
 
   describe('update', () => {
+    beforeEach(() => {
+      global.window = {
+        dispatchEvent: sinon.fake(),
+      };
+    });
+
     it('turns the Pickup\'s visibility to HIDDEN after collision', () => {
       pickup.checkForCollision = sinon.fake.returns(true);
 
@@ -100,22 +106,49 @@ describe('pickup', () => {
     });
 
     it('only performs collision-detection once', () => {
-      const collisionSpy = pickup.checkForCollision = sinon.fake();
+      pickup.checkForCollision = sinon.fake();
 
       pickup.animationTarget.style.visibility = 'hidden';
       pickup.update();
-      assert(collisionSpy.notCalled);
+      assert(pickup.checkForCollision.notCalled);
+    });
+
+    it('emits the awardPoints event after a collision', () => {
+      pickup.points = 100;
+      pickup.checkForCollision = sinon.fake.returns(true);
+
+      pickup.update();
+      assert(global.window.dispatchEvent.calledWith(
+        new CustomEvent('awardPoints', {
+          detail: {
+            points: pickup.points,
+          },
+        }),
+      ));
+    });
+
+    it('emits dotEaten event if a pacdot collides with Pacman', () => {
+      pickup.type = 'pacdot';
+      pickup.checkForCollision = sinon.fake.returns(true);
+
+      pickup.update();
+      assert(global.window.dispatchEvent.calledWith(new Event('dotEaten')));
     });
 
     it('emits powerUp event if a powerPellet collides with Pacman', () => {
       pickup.type = 'powerPellet';
       pickup.checkForCollision = sinon.fake.returns(true);
-      global.window = {
-        dispatchEvent: sinon.fake(),
-      };
 
       pickup.update();
+      assert(global.window.dispatchEvent.calledWith(new Event('dotEaten')));
       assert(global.window.dispatchEvent.calledWith(new Event('powerUp')));
+    });
+
+    it('emits no events if an unrecognized item collides with Pacman', () => {
+      pickup.type = 'blah';
+      pickup.checkForCollision = sinon.fake.returns(true);
+
+      pickup.update();
     });
   });
 });

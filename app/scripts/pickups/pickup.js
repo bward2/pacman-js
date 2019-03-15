@@ -1,8 +1,9 @@
 class Pickup {
-  constructor(type, scaledTileSize, column, row, pacman, mazeDiv) {
+  constructor(type, scaledTileSize, column, row, pacman, mazeDiv, points) {
     this.type = type;
     this.pacman = pacman;
     this.mazeDiv = mazeDiv;
+    this.points = points;
 
     this.setStyleMeasurements(type, scaledTileSize, column, row);
   }
@@ -68,7 +69,16 @@ class Pickup {
         this.pacman.position.top, this.pacman.measurement,
       )) {
         this.animationTarget.style.visibility = 'hidden';
-        if (this.type === 'powerPellet') {
+        window.dispatchEvent(new CustomEvent('awardPoints', {
+          detail: {
+            points: this.points,
+          },
+        }));
+
+        if (this.type === 'pacdot') {
+          window.dispatchEvent(new Event('dotEaten'));
+        } else if (this.type === 'powerPellet') {
+          window.dispatchEvent(new Event('dotEaten'));
           window.dispatchEvent(new Event('powerUp'));
         }
       }

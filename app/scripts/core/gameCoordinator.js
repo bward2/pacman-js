@@ -9,6 +9,8 @@ class GameCoordinator {
     this.scale = 3;
     this.scaledTileSize = this.tileSize * this.scale;
     this.activeTimers = [];
+    this.points = 0;
+    this.remainingDots = 244;
 
     this.movementKeys = {
       // WASD
@@ -106,12 +108,12 @@ class GameCoordinator {
         if (block === 'o') {
           entityList.push(new Pickup(
             'pacdot', this.scaledTileSize, columnIndex,
-            rowIndex, this.pacman, this.mazeDiv,
+            rowIndex, this.pacman, this.mazeDiv, 10,
           ));
         } else if (block === 'O') {
           entityList.push(new Pickup(
             'powerPellet', this.scaledTileSize, columnIndex,
-            rowIndex, this.pacman, this.mazeDiv,
+            rowIndex, this.pacman, this.mazeDiv, 50,
           ));
         }
 
@@ -126,7 +128,9 @@ class GameCoordinator {
    */
   registerEventListeners() {
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    window.addEventListener('awardPoints', this.awardPoints.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
+    window.addEventListener('dotEaten', this.dotEaten.bind(this));
     window.addEventListener('powerUp', this.powerUp.bind(this));
     window.addEventListener('eatGhost', this.eatGhost.bind(this));
     window.addEventListener('addTimer', this.addTimer.bind(this));
@@ -150,6 +154,9 @@ class GameCoordinator {
     }
   }
 
+  /**
+   * Handle behavior for the pause key
+   */
   handlePauseKey() {
     if (this.allowPause) {
       this.allowPause = false;
@@ -173,6 +180,14 @@ class GameCoordinator {
   }
 
   /**
+   * Adds points to the player's total
+   * @param {({ detail: { points: Number }})} e - Contains a quantity of points to add
+   */
+  awardPoints(e) {
+    this.points += e.detail.points;
+  }
+
+  /**
    * Animates Pacman's death, subtracts a life, and resets character positions if the player
    * has remaining lives.
    */
@@ -193,6 +208,19 @@ class GameCoordinator {
         }, 500);
       }, 2250);
     }, 750);
+  }
+
+  /**
+   * Handle events related to the number of remaining dots
+   */
+  dotEaten() {
+    this.remainingDots -= 1;
+
+    if (this.remainingDots === 174) {
+      console.log('First fruit');
+    } else if (this.remainingDots === 74) {
+      console.log('Second fruit');
+    }
   }
 
   /**
