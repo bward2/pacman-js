@@ -217,9 +217,9 @@ class GameCoordinator {
     this.remainingDots -= 1;
 
     if (this.remainingDots === 174) {
-      console.log('First fruit');
+      // console.log('First fruit');
     } else if (this.remainingDots === 74) {
-      console.log('Second fruit');
+      // console.log('Second fruit');
     }
   }
 
