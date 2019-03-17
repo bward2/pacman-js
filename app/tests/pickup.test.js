@@ -34,7 +34,7 @@ beforeEach(() => {
 describe('pickup', () => {
   describe('setStyleMeasurements', () => {
     it('sets measurements for pacdots', () => {
-      pickup.setStyleMeasurements('pacdot', 8, 1, 1, pacman, mazeDiv);
+      pickup.setStyleMeasurements('pacdot', 8, 1, 1);
 
       assert.strictEqual(pickup.size, 2);
       assert.strictEqual(pickup.x, 11);
@@ -52,7 +52,7 @@ describe('pickup', () => {
     });
 
     it('sets measurements for powerPellets', () => {
-      pickup.setStyleMeasurements('powerPellet', 8, 1, 1, pacman, mazeDiv);
+      pickup.setStyleMeasurements('powerPellet', 8, 1, 1);
 
       assert.strictEqual(pickup.size, 8);
       assert.strictEqual(pickup.x, 8);
@@ -68,19 +68,80 @@ describe('pickup', () => {
         width: '8px',
       });
     });
+
+    it('sets measurements for fruits', () => {
+      pickup.setStyleMeasurements('fruit', 8, 1, 1, 100);
+
+      assert.strictEqual(pickup.size, 16);
+      assert.strictEqual(pickup.x, 4);
+      assert.strictEqual(pickup.y, 4);
+      assert.deepEqual(pickup.animationTarget.style, {
+        backgroundImage: 'url(app/style/graphics/spriteSheets/pickups/'
+         + 'cherry.svg',
+        backgroundSize: '16px',
+        height: '16px',
+        left: '4px',
+        position: 'absolute',
+        top: '4px',
+        width: '16px',
+        visibility: 'hidden',
+      });
+    });
+  });
+
+  describe('determineImage', () => {
+    let baseUrl;
+
+    beforeEach(() => {
+      baseUrl = 'url(app/style/graphics/spriteSheets/pickups/';
+    });
+
+    it('returns correct images for fruits', () => {
+      const cherry = pickup.determineImage('fruit', 100);
+      assert.strictEqual(cherry, `${baseUrl}cherry.svg`);
+    });
+
+    it('returns cherry by default for unrecognized fruit', () => {
+      const unknown = pickup.determineImage('fruit', undefined);
+      assert.strictEqual(unknown, `${baseUrl}cherry.svg`);
+    });
+
+    it('returns correct images for other pickups', () => {
+      const pacdot = pickup.determineImage('pacdot', undefined);
+      assert.strictEqual(pacdot, `${baseUrl}pacdot.svg`);
+
+      const powerPellet = pickup.determineImage('powerPellet', undefined);
+      assert.strictEqual(powerPellet, `${baseUrl}powerPellet.svg`);
+    });
+  });
+
+  describe('showFruit', () => {
+    it('sets the point value, image, and visibility', () => {
+      pickup.points = 0;
+      pickup.animationTarget.style.backgroundImage = '';
+      pickup.animationTarget.style.visibility = '';
+      pickup.determineImage = sinon.fake.returns('svg');
+
+      pickup.showFruit(100);
+      assert.strictEqual(pickup.points, 100);
+      assert.strictEqual(pickup.animationTarget.style.backgroundImage, 'svg');
+      assert.strictEqual(pickup.animationTarget.style.visibility, 'visible');
+    });
   });
 
   describe('checkForCollision', () => {
     it('returns TRUE if the Pickup is colliding', () => {
-      assert.strictEqual(pickup.checkForCollision(1, 1, 1, 0, 0, 10), true);
+      assert(pickup.checkForCollision(
+        { x: 7.4, y: 7.4, size: 5 },
+        { x: 0, y: 0, size: 10 },
+      ));
     });
 
     it('returns FALSE if it is not', () => {
-      assert.strictEqual(pickup.checkForCollision(0, 0, 1, 10, 10, 10), false);
-    });
-
-    it('returns FALSE if the Pickup is only partially colliding', () => {
-      assert.strictEqual(pickup.checkForCollision(0, 0, 5, 1, 1, 10), false);
+      assert(!pickup.checkForCollision(
+        { x: 7.5, y: 7.5, size: 5 },
+        { x: 0, y: 0, size: 10 },
+      ));
     });
   });
 

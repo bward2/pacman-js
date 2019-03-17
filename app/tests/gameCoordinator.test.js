@@ -243,14 +243,35 @@ describe('gameCoordinator', () => {
       assert.strictEqual(gameCoordinator.remainingDots, 9);
     });
 
-    it('creates a fruit with 174 remaining dots', () => {
+    it('creates a fruit at 174 and 74 remaining dots', () => {
+      gameCoordinator.createFruit = sinon.fake();
+
       gameCoordinator.remainingDots = 175;
       gameCoordinator.dotEaten();
-    });
+      assert(gameCoordinator.createFruit.calledOnce);
 
-    it('creates a fruit with 74 remaining dots', () => {
       gameCoordinator.remainingDots = 75;
       gameCoordinator.dotEaten();
+      assert(gameCoordinator.createFruit.calledTwice);
+    });
+  });
+
+  describe('createFruit', () => {
+    it('creats a bonus fruit for ten seconds', () => {
+      gameCoordinator.fruit.showFruit = sinon.fake();
+
+      gameCoordinator.createFruit();
+      assert(gameCoordinator.fruit.showFruit.called);
+    });
+  });
+
+  describe('calcFruitPoints', () => {
+    it('awards the correct amount of points per level', () => {
+      assert.strictEqual(gameCoordinator.calcFruitPoints(1), 100);
+    });
+
+    it('awards 100 points by default', () => {
+      assert.strictEqual(gameCoordinator.calcFruitPoints(undefined), 100);
     });
   });
 

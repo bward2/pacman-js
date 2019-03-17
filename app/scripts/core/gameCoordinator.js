@@ -10,7 +10,8 @@ class GameCoordinator {
     this.scaledTileSize = this.tileSize * this.scale;
     this.activeTimers = [];
     this.points = 0;
-    this.remainingDots = 244;
+    this.level = 1;
+    this.remainingDots = 0;
 
     this.movementKeys = {
       // WASD
@@ -76,16 +77,20 @@ class GameCoordinator {
         this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
         new CharacterUtil(),
       ),
+      this.fruit = new Pickup(
+        'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
+        this.mazeDiv, 100,
+      ),
     ];
 
     this.ghosts = [
       this.blinky,
     ];
 
+    this.dots = [];
+
     this.registerEventListeners();
-
     this.drawMaze(this.mazeArray, this.entityList);
-
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
   }
@@ -105,16 +110,17 @@ class GameCoordinator {
         mazeBlock.style.height = `${this.scaledTileSize}px`;
         mazeBlock.style.background = block === 'X' ? 'black' : 'gray';
 
-        if (block === 'o') {
-          entityList.push(new Pickup(
-            'pacdot', this.scaledTileSize, columnIndex,
-            rowIndex, this.pacman, this.mazeDiv, 10,
-          ));
-        } else if (block === 'O') {
-          entityList.push(new Pickup(
-            'powerPellet', this.scaledTileSize, columnIndex,
-            rowIndex, this.pacman, this.mazeDiv, 50,
-          ));
+        if (block === 'o' || block === 'O') {
+          const type = (block === 'o') ? 'pacdot' : 'powerPellet';
+          const points = (block === 'o') ? 10 : 50;
+          const dot = new Pickup(
+            type, this.scaledTileSize, columnIndex,
+            rowIndex, this.pacman, this.mazeDiv, points,
+          );
+
+          entityList.push(dot);
+          this.dots.push(dot);
+          this.remainingDots += 1;
         }
 
         rowDiv.appendChild(mazeBlock);
@@ -217,10 +223,41 @@ class GameCoordinator {
     this.remainingDots -= 1;
 
     if (this.remainingDots === 174) {
-      // console.log('First fruit');
+      this.createFruit();
     } else if (this.remainingDots === 74) {
-      // console.log('Second fruit');
+      this.createFruit();
     }
+  }
+
+  /**
+   * Creates a bonus fruit for ten seconds
+   */
+  createFruit() {
+    this.fruit.showFruit(this.calcFruitPoints(this.level));
+
+    // TODO: Remove fruit after 10 seconds
+    // new Timer(() => {
+
+    // });
+  }
+
+  /**
+   * Determines the number of points a fruit should be worth based on level
+   * @param {Number} level
+   */
+  calcFruitPoints(level) {
+    let fruitPoints;
+
+    switch (level) {
+      case 1:
+        fruitPoints = 100;
+        break;
+      default:
+        fruitPoints = 100;
+        break;
+    }
+
+    return fruitPoints;
   }
 
   /**
