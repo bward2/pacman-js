@@ -225,9 +225,14 @@ class GameCoordinator {
    * has remaining lives.
    */
   deathSequence() {
+    if (this.timerExists(this.fruitTimer)) {
+      this.removeTimer({ detail: { id: this.fruitTimer } });
+    }
+
     this.allowKeyPresses = false;
     this.pacman.moving = false;
     this.blinky.moving = false;
+
     new Timer(() => {
       this.blinky.display = false;
       this.pacman.prepDeathAnimation();
@@ -238,6 +243,7 @@ class GameCoordinator {
           this.mazeCover.style.visibility = 'hidden';
           this.pacman.reset();
           this.blinky.reset();
+          this.fruit.hideFruit();
         }, 500);
       }, 2250);
     }, 750);
@@ -260,12 +266,15 @@ class GameCoordinator {
    * Creates a bonus fruit for ten seconds
    */
   createFruit() {
+    if (this.timerExists(this.fruitTimer)) {
+      this.removeTimer({ detail: { id: this.fruitTimer } });
+    }
+
     this.fruit.showFruit(this.calcFruitPoints(this.level));
 
-    // TODO: Remove fruit after 10 seconds
-    // new Timer(() => {
-
-    // });
+    this.fruitTimer = new Timer(() => {
+      this.fruit.hideFruit();
+    }, 10000).timerId;
   }
 
   /**

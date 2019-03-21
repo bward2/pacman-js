@@ -225,6 +225,7 @@ describe('gameCoordinator', () => {
       gameCoordinator.pacman.prepDeathAnimation = sinon.fake();
       gameCoordinator.pacman.reset = sinon.fake();
       gameCoordinator.blinky.reset = sinon.fake();
+      gameCoordinator.fruit.hideFruit = sinon.fake();
 
       gameCoordinator.deathSequence();
       assert(!gameCoordinator.allowKeyPresses);
@@ -245,6 +246,15 @@ describe('gameCoordinator', () => {
         'hidden');
       assert(gameCoordinator.pacman.reset.called);
       assert(gameCoordinator.blinky.reset.called);
+      assert(gameCoordinator.fruit.hideFruit.called);
+    });
+
+    it('cancels the fruitTimer if needed', () => {
+      gameCoordinator.timerExists = sinon.fake.returns(true);
+      gameCoordinator.removeTimer = sinon.fake();
+
+      gameCoordinator.deathSequence();
+      assert(gameCoordinator.removeTimer.called);
     });
   });
 
@@ -269,11 +279,24 @@ describe('gameCoordinator', () => {
   });
 
   describe('createFruit', () => {
-    it('creats a bonus fruit for ten seconds', () => {
+    it('creates a bonus fruit for ten seconds', () => {
       gameCoordinator.fruit.showFruit = sinon.fake();
+      gameCoordinator.fruit.hideFruit = sinon.fake();
 
       gameCoordinator.createFruit();
       assert(gameCoordinator.fruit.showFruit.called);
+
+      clock.tick(10000);
+      assert(gameCoordinator.fruit.hideFruit.called);
+    });
+
+    it('cancels the fruitTimer if needed', () => {
+      gameCoordinator.timerExists = sinon.fake.returns(true);
+      gameCoordinator.removeTimer = sinon.fake();
+      gameCoordinator.fruit.showFruit = sinon.fake();
+
+      gameCoordinator.createFruit();
+      assert(gameCoordinator.removeTimer.called);
     });
   });
 

@@ -80,7 +80,7 @@ class Pickup {
   }
 
   /**
-   * Shows a bonus fruit, resetting it's point value and image
+   * Shows a bonus fruit, resetting its point value and image
    * @param {number} points
    */
   showFruit(points) {
@@ -89,6 +89,13 @@ class Pickup {
       this.type, points,
     );
     this.animationTarget.style.visibility = 'visible';
+  }
+
+  /**
+   * Makes the fruit invisible (happens if Pacman was too slow)
+   */
+  hideFruit() {
+    this.animationTarget.style.visibility = 'hidden';
   }
 
   /**

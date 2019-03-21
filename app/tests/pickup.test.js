@@ -129,6 +129,15 @@ describe('pickup', () => {
     });
   });
 
+  describe('hideFruit', () => {
+    it('sets the visibility to HIDDEN', () => {
+      pickup.animationTarget.style.visibility = 'visible';
+
+      pickup.hideFruit();
+      assert.strictEqual(pickup.animationTarget.style.visibility, 'hidden');
+    });
+  });
+
   describe('checkForCollision', () => {
     it('returns TRUE if the Pickup is colliding', () => {
       assert(pickup.checkForCollision(
