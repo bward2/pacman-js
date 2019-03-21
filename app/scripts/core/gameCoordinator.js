@@ -9,6 +9,9 @@ class GameCoordinator {
     this.scale = 3;
     this.scaledTileSize = this.tileSize * this.scale;
     this.activeTimers = [];
+    this.points = 0;
+    this.level = 1;
+    this.remainingDots = 0;
 
     this.movementKeys = {
       // WASD
@@ -74,15 +77,25 @@ class GameCoordinator {
         this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
         new CharacterUtil(),
       ),
+      this.fruit = new Pickup(
+        'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
+        this.mazeDiv, 100,
+      ),
     ];
 
     this.ghosts = [
       this.blinky,
     ];
 
-    this.registerEventListeners();
+    this.pickups = [
+      this.fruit,
+    ];
 
+    this.registerEventListeners();
     this.drawMaze(this.mazeArray, this.entityList);
+    setInterval(() => {
+      this.collisionDetectionLoop();
+    }, 500);
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
@@ -103,16 +116,17 @@ class GameCoordinator {
         mazeBlock.style.height = `${this.scaledTileSize}px`;
         mazeBlock.style.background = block === 'X' ? 'black' : 'gray';
 
-        if (block === 'o') {
-          entityList.push(new Pickup(
-            'pacdot', this.scaledTileSize, columnIndex,
-            rowIndex, this.pacman, this.mazeDiv,
-          ));
-        } else if (block === 'O') {
-          entityList.push(new Pickup(
-            'powerPellet', this.scaledTileSize, columnIndex,
-            rowIndex, this.pacman, this.mazeDiv,
-          ));
+        if (block === 'o' || block === 'O') {
+          const type = (block === 'o') ? 'pacdot' : 'powerPellet';
+          const points = (block === 'o') ? 10 : 50;
+          const dot = new Pickup(
+            type, this.scaledTileSize, columnIndex,
+            rowIndex, this.pacman, this.mazeDiv, points,
+          );
+
+          entityList.push(dot);
+          this.pickups.push(dot);
+          this.remainingDots += 1;
         }
 
         rowDiv.appendChild(mazeBlock);
@@ -122,11 +136,34 @@ class GameCoordinator {
   }
 
   /**
+   * Loop which periodically checks which pickups are nearby Pacman.
+   * Pickups which are far away will not be considered for collision detection.
+   */
+  collisionDetectionLoop() {
+    if (this.pacman.position) {
+      const maxDistance = (this.pacman.velocityPerMs * 750);
+      const pacmanCenter = {
+        x: this.pacman.position.left + this.scaledTileSize,
+        y: this.pacman.position.top + this.scaledTileSize,
+      };
+
+      this.pickups.forEach((pickup) => {
+        // Set this flag to TRUE to see how two-phase collision detection works!
+        const debugging = false;
+
+        pickup.checkPacmanProximity(maxDistance, pacmanCenter, debugging);
+      });
+    }
+  }
+
+  /**
    * Register listeners for various game sequences
    */
   registerEventListeners() {
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    window.addEventListener('awardPoints', this.awardPoints.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
+    window.addEventListener('dotEaten', this.dotEaten.bind(this));
     window.addEventListener('powerUp', this.powerUp.bind(this));
     window.addEventListener('eatGhost', this.eatGhost.bind(this));
     window.addEventListener('addTimer', this.addTimer.bind(this));
@@ -150,6 +187,9 @@ class GameCoordinator {
     }
   }
 
+  /**
+   * Handle behavior for the pause key
+   */
   handlePauseKey() {
     if (this.allowPause) {
       this.allowPause = false;
@@ -173,13 +213,26 @@ class GameCoordinator {
   }
 
   /**
+   * Adds points to the player's total
+   * @param {({ detail: { points: Number }})} e - Contains a quantity of points to add
+   */
+  awardPoints(e) {
+    this.points += e.detail.points;
+  }
+
+  /**
    * Animates Pacman's death, subtracts a life, and resets character positions if the player
    * has remaining lives.
    */
   deathSequence() {
+    if (this.timerExists(this.fruitTimer)) {
+      this.removeTimer({ detail: { id: this.fruitTimer } });
+    }
+
     this.allowKeyPresses = false;
     this.pacman.moving = false;
     this.blinky.moving = false;
+
     new Timer(() => {
       this.blinky.display = false;
       this.pacman.prepDeathAnimation();
@@ -190,9 +243,57 @@ class GameCoordinator {
           this.mazeCover.style.visibility = 'hidden';
           this.pacman.reset();
           this.blinky.reset();
+          this.fruit.hideFruit();
         }, 500);
       }, 2250);
     }, 750);
+  }
+
+  /**
+   * Handle events related to the number of remaining dots
+   */
+  dotEaten() {
+    this.remainingDots -= 1;
+
+    if (this.remainingDots === 174) {
+      this.createFruit();
+    } else if (this.remainingDots === 74) {
+      this.createFruit();
+    }
+  }
+
+  /**
+   * Creates a bonus fruit for ten seconds
+   */
+  createFruit() {
+    if (this.timerExists(this.fruitTimer)) {
+      this.removeTimer({ detail: { id: this.fruitTimer } });
+    }
+
+    this.fruit.showFruit(this.calcFruitPoints(this.level));
+
+    this.fruitTimer = new Timer(() => {
+      this.fruit.hideFruit();
+    }, 10000).timerId;
+  }
+
+  /**
+   * Determines the number of points a fruit should be worth based on level
+   * @param {Number} level
+   */
+  calcFruitPoints(level) {
+    let fruitPoints;
+
+    switch (level) {
+      case 1:
+        fruitPoints = 100;
+        break;
+      default:
+        fruitPoints = 100;
+        break;
+    }
+
+    return fruitPoints;
   }
 
   /**

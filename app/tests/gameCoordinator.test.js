@@ -54,6 +54,18 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('collisionDetectionLoop', () => {
+    beforeEach(() => {
+      gameCoordinator.pacman.position = { left: 0, top: 0 };
+      gameCoordinator.pacman.velocityPerMs = 1;
+      gameCoordinator.pickups = [{ checkPacmanProximity: sinon.fake() }];
+    });
+
+    it('calls checkPacmanProximity for each pickup', () => {
+      gameCoordinator.collisionDetectionLoop();
+    });
+  });
+
   describe('registerEventListeners', () => {
     it('registers listeners for various game events', () => {
       global.window = {
@@ -62,7 +74,9 @@ describe('gameCoordinator', () => {
 
       gameCoordinator.registerEventListeners();
       assert(global.window.addEventListener.calledWith('keydown'));
+      assert(global.window.addEventListener.calledWith('awardPoints'));
       assert(global.window.addEventListener.calledWith('deathSequence'));
+      assert(global.window.addEventListener.calledWith('dotEaten'));
       assert(global.window.addEventListener.calledWith('powerUp'));
       assert(global.window.addEventListener.calledWith('eatGhost'));
       assert(global.window.addEventListener.calledWith('addTimer'));
@@ -189,6 +203,16 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('awardPoints', () => {
+    it('adds to the total number of points', () => {
+      gameCoordinator.points = 0;
+      gameCoordinator.awardPoints(
+        { detail: { points: 50 } },
+      );
+      assert.strictEqual(gameCoordinator.points, 50);
+    });
+  });
+
   describe('deathSequence', () => {
     it('kills Pacman, subtracts a life, and resets the characters', () => {
       gameCoordinator.allowKeyPresses = true;
@@ -201,6 +225,7 @@ describe('gameCoordinator', () => {
       gameCoordinator.pacman.prepDeathAnimation = sinon.fake();
       gameCoordinator.pacman.reset = sinon.fake();
       gameCoordinator.blinky.reset = sinon.fake();
+      gameCoordinator.fruit.hideFruit = sinon.fake();
 
       gameCoordinator.deathSequence();
       assert(!gameCoordinator.allowKeyPresses);
@@ -221,6 +246,67 @@ describe('gameCoordinator', () => {
         'hidden');
       assert(gameCoordinator.pacman.reset.called);
       assert(gameCoordinator.blinky.reset.called);
+      assert(gameCoordinator.fruit.hideFruit.called);
+    });
+
+    it('cancels the fruitTimer if needed', () => {
+      gameCoordinator.timerExists = sinon.fake.returns(true);
+      gameCoordinator.removeTimer = sinon.fake();
+
+      gameCoordinator.deathSequence();
+      assert(gameCoordinator.removeTimer.called);
+    });
+  });
+
+  describe('dotEaten', () => {
+    it('subtracts 1 from remainingDots', () => {
+      gameCoordinator.remainingDots = 10;
+      gameCoordinator.dotEaten();
+      assert.strictEqual(gameCoordinator.remainingDots, 9);
+    });
+
+    it('creates a fruit at 174 and 74 remaining dots', () => {
+      gameCoordinator.createFruit = sinon.fake();
+
+      gameCoordinator.remainingDots = 175;
+      gameCoordinator.dotEaten();
+      assert(gameCoordinator.createFruit.calledOnce);
+
+      gameCoordinator.remainingDots = 75;
+      gameCoordinator.dotEaten();
+      assert(gameCoordinator.createFruit.calledTwice);
+    });
+  });
+
+  describe('createFruit', () => {
+    it('creates a bonus fruit for ten seconds', () => {
+      gameCoordinator.fruit.showFruit = sinon.fake();
+      gameCoordinator.fruit.hideFruit = sinon.fake();
+
+      gameCoordinator.createFruit();
+      assert(gameCoordinator.fruit.showFruit.called);
+
+      clock.tick(10000);
+      assert(gameCoordinator.fruit.hideFruit.called);
+    });
+
+    it('cancels the fruitTimer if needed', () => {
+      gameCoordinator.timerExists = sinon.fake.returns(true);
+      gameCoordinator.removeTimer = sinon.fake();
+      gameCoordinator.fruit.showFruit = sinon.fake();
+
+      gameCoordinator.createFruit();
+      assert(gameCoordinator.removeTimer.called);
+    });
+  });
+
+  describe('calcFruitPoints', () => {
+    it('awards the correct amount of points per level', () => {
+      assert.strictEqual(gameCoordinator.calcFruitPoints(1), 100);
+    });
+
+    it('awards 100 points by default', () => {
+      assert.strictEqual(gameCoordinator.calcFruitPoints(undefined), 100);
     });
   });
 
