@@ -87,10 +87,16 @@ class GameCoordinator {
       this.blinky,
     ];
 
-    this.dots = [];
+    this.pickups = [
+      this.fruit,
+    ];
 
     this.registerEventListeners();
     this.drawMaze(this.mazeArray, this.entityList);
+    setInterval(() => {
+      this.collisionDetectionLoop();
+    }, 500);
+
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
   }
@@ -119,7 +125,7 @@ class GameCoordinator {
           );
 
           entityList.push(dot);
-          this.dots.push(dot);
+          this.pickups.push(dot);
           this.remainingDots += 1;
         }
 
@@ -127,6 +133,27 @@ class GameCoordinator {
       });
       this.mazeDiv.appendChild(rowDiv);
     });
+  }
+
+  /**
+   * Loop which periodically checks which pickups are nearby Pacman.
+   * Pickups which are far away will not be considered for collision detection.
+   */
+  collisionDetectionLoop() {
+    if (this.pacman.position) {
+      const maxDistance = (this.pacman.velocityPerMs * 750);
+      const pacmanCenter = {
+        x: this.pacman.position.left + this.scaledTileSize,
+        y: this.pacman.position.top + this.scaledTileSize,
+      };
+
+      this.pickups.forEach((pickup) => {
+        // Set this flag to TRUE to see how two-phase collision detection works!
+        const debugging = false;
+
+        pickup.checkPacmanProximity(maxDistance, pacmanCenter, debugging);
+      });
+    }
   }
 
   /**

@@ -145,6 +145,55 @@ describe('pickup', () => {
     });
   });
 
+  describe('checkPacmanProximity', () => {
+    beforeEach(() => {
+      pickup.center = { x: 0, y: 0 };
+    });
+
+    it('returns TRUE if the pickup is close to Pacman', () => {
+      pickup.checkPacmanProximity(5, { x: 3, y: 4 });
+      assert(pickup.nearPacman);
+    });
+
+    it('returns FALSE otherwise', () => {
+      pickup.checkPacmanProximity(4.9, { x: 3, y: 4 });
+      assert(!pickup.nearPacman);
+    });
+
+    it('sets background color when debugging', () => {
+      pickup.checkPacmanProximity(5, { x: 3, y: 4 }, true);
+      assert.strictEqual(pickup.animationTarget.style.background, 'lime');
+
+      pickup.checkPacmanProximity(4.9, { x: 3, y: 4 }, true);
+      assert.strictEqual(pickup.animationTarget.style.background, 'red');
+    });
+
+    it('skips execution if the pickup is hidden', () => {
+      pickup.animationTarget.style.visibility = 'hidden';
+      pickup.nearPacman = false;
+
+      pickup.checkPacmanProximity(5, { x: 3, y: 4 });
+      assert(!pickup.nearPacman);
+    });
+  });
+
+  describe('shouldCheckForCollision', () => {
+    it('only returns TRUE when the Pickup is near Pacman and visible', () => {
+      pickup.animationTarget.style.visibility = 'visible';
+      pickup.nearPacman = true;
+      assert(pickup.shouldCheckForCollision());
+
+      pickup.nearPacman = false;
+      assert(!pickup.shouldCheckForCollision());
+
+      pickup.animationTarget.style.visibility = 'hidden';
+      assert(!pickup.shouldCheckForCollision());
+
+      pickup.nearPacman = true;
+      assert(!pickup.shouldCheckForCollision());
+    });
+  });
+
   describe('update', () => {
     beforeEach(() => {
       global.window = {
@@ -153,6 +202,7 @@ describe('pickup', () => {
     });
 
     it('turns the Pickup\'s visibility to HIDDEN after collision', () => {
+      pickup.shouldCheckForCollision = sinon.fake.returns(true);
       pickup.checkForCollision = sinon.fake.returns(true);
 
       pickup.update();
@@ -160,22 +210,16 @@ describe('pickup', () => {
     });
 
     it('leaves the Pickup\'s visibility until collision', () => {
+      pickup.shouldCheckForCollision = sinon.fake.returns(true);
       pickup.checkForCollision = sinon.fake.returns(false);
 
       pickup.update();
       assert.notStrictEqual(pickup.animationTarget.style.visibility, 'hidden');
     });
 
-    it('only performs collision-detection once', () => {
-      pickup.checkForCollision = sinon.fake();
-
-      pickup.animationTarget.style.visibility = 'hidden';
-      pickup.update();
-      assert(pickup.checkForCollision.notCalled);
-    });
-
     it('emits the awardPoints event after a collision', () => {
       pickup.points = 100;
+      pickup.shouldCheckForCollision = sinon.fake.returns(true);
       pickup.checkForCollision = sinon.fake.returns(true);
 
       pickup.update();
@@ -190,6 +234,7 @@ describe('pickup', () => {
 
     it('emits dotEaten event if a pacdot collides with Pacman', () => {
       pickup.type = 'pacdot';
+      pickup.shouldCheckForCollision = sinon.fake.returns(true);
       pickup.checkForCollision = sinon.fake.returns(true);
 
       pickup.update();
@@ -198,6 +243,7 @@ describe('pickup', () => {
 
     it('emits powerUp event if a powerPellet collides with Pacman', () => {
       pickup.type = 'powerPellet';
+      pickup.shouldCheckForCollision = sinon.fake.returns(true);
       pickup.checkForCollision = sinon.fake.returns(true);
 
       pickup.update();
@@ -207,9 +253,18 @@ describe('pickup', () => {
 
     it('emits no events if an unrecognized item collides with Pacman', () => {
       pickup.type = 'blah';
+      pickup.shouldCheckForCollision = sinon.fake.returns(true);
       pickup.checkForCollision = sinon.fake.returns(true);
 
       pickup.update();
+    });
+
+    it('does nothing if shouldCheckForCollision returns FALSE', () => {
+      pickup.shouldCheckForCollision = sinon.fake.returns(false);
+      pickup.checkForCollision = sinon.fake();
+
+      pickup.update();
+      assert(!pickup.checkForCollision.called);
     });
   });
 });

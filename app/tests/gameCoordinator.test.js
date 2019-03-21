@@ -54,6 +54,18 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('collisionDetectionLoop', () => {
+    beforeEach(() => {
+      gameCoordinator.pacman.position = { left: 0, top: 0 };
+      gameCoordinator.pacman.velocityPerMs = 1;
+      gameCoordinator.pickups = [{ checkPacmanProximity: sinon.fake() }];
+    });
+
+    it('calls checkPacmanProximity for each pickup', () => {
+      gameCoordinator.collisionDetectionLoop();
+    });
+  });
+
   describe('registerEventListeners', () => {
     it('registers listeners for various game events', () => {
       global.window = {

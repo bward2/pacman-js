@@ -4,6 +4,7 @@ class Pickup {
     this.pacman = pacman;
     this.mazeDiv = mazeDiv;
     this.points = points;
+    this.nearPacman = false;
 
     this.setStyleMeasurements(type, scaledTileSize, column, row, points);
   }
@@ -30,6 +31,11 @@ class Pickup {
       this.x = (column * scaledTileSize) - (scaledTileSize * 0.5);
       this.y = (row * scaledTileSize) - (scaledTileSize * 0.5);
     }
+
+    this.center = {
+      x: column * scaledTileSize,
+      y: row * scaledTileSize,
+    };
 
     this.animationTarget = document.createElement('div');
     this.animationTarget.style.position = 'absolute';
@@ -104,12 +110,43 @@ class Pickup {
   }
 
   /**
+   * Checks to see if the pickup is close enough to Pacman to be considered for collision detection
+   * @param {number} maxDistance - The maximum distance Pacman can travel per cycle
+   * @param {({ x:number, y:number })} pacmanCenter - The center of Pacman's hitbox
+   * @param {Boolean} debugging - Flag to change the appearance of pickups for testing
+   */
+  checkPacmanProximity(maxDistance, pacmanCenter, debugging) {
+    if (this.animationTarget.style.visibility !== 'hidden') {
+      const distance = Math.sqrt(
+        ((this.center.x - pacmanCenter.x) ** 2)
+        + ((this.center.y - pacmanCenter.y) ** 2),
+      );
+
+      this.nearPacman = (distance <= maxDistance);
+
+      if (debugging) {
+        this.animationTarget.style.background = this.nearPacman
+          ? 'lime' : 'red';
+      }
+    }
+  }
+
+  /**
+   * Checks if the pickup is visible and close to Pacman
+   * @returns {Boolean}
+   */
+  shouldCheckForCollision() {
+    return this.animationTarget.style.visibility !== 'hidden'
+      && this.nearPacman;
+  }
+
+  /**
    * If the Pickup is still visible, it checks to see if it is colliding with Pacman.
    * It will turn itself invisible and cease collision-detection after the first
    * collision with Pacman.
    */
   update() {
-    if (this.animationTarget.style.visibility !== 'hidden') {
+    if (this.shouldCheckForCollision()) {
       if (this.checkForCollision(
         {
           x: this.x,
