@@ -68,6 +68,27 @@ class Pickup {
         case 100:
           image = 'cherry';
           break;
+        case 300:
+          image = 'strawberry';
+          break;
+        case 500:
+          image = 'orange';
+          break;
+        case 700:
+          image = 'apple';
+          break;
+        case 1000:
+          image = 'melon';
+          break;
+        case 2000:
+          image = 'galaxian';
+          break;
+        case 3000:
+          image = 'bell';
+          break;
+        case 5000:
+          image = 'key';
+          break;
         default:
           image = 'cherry';
           break;

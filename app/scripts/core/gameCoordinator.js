@@ -297,8 +297,26 @@ class GameCoordinator {
       case 1:
         fruitPoints = 100;
         break;
+      case 2:
+        fruitPoints = 300;
+        break;
+      case 3:
+        fruitPoints = 500;
+        break;
+      case 4:
+        fruitPoints = 700;
+        break;
+      case 5:
+        fruitPoints = 1000;
+        break;
+      case 6:
+        fruitPoints = 2000;
+        break;
+      case 7:
+        fruitPoints = 3000;
+        break;
       default:
-        fruitPoints = 100;
+        fruitPoints = 5000;
         break;
     }
 

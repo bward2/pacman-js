@@ -322,10 +322,17 @@ describe('gameCoordinator', () => {
   describe('calcFruitPoints', () => {
     it('awards the correct amount of points per level', () => {
       assert.strictEqual(gameCoordinator.calcFruitPoints(1), 100);
+      assert.strictEqual(gameCoordinator.calcFruitPoints(2), 300);
+      assert.strictEqual(gameCoordinator.calcFruitPoints(3), 500);
+      assert.strictEqual(gameCoordinator.calcFruitPoints(4), 700);
+      assert.strictEqual(gameCoordinator.calcFruitPoints(5), 1000);
+      assert.strictEqual(gameCoordinator.calcFruitPoints(6), 2000);
+      assert.strictEqual(gameCoordinator.calcFruitPoints(7), 3000);
+      assert.strictEqual(gameCoordinator.calcFruitPoints(8), 5000);
     });
 
-    it('awards 100 points by default', () => {
-      assert.strictEqual(gameCoordinator.calcFruitPoints(undefined), 100);
+    it('awards 5000 points by default', () => {
+      assert.strictEqual(gameCoordinator.calcFruitPoints(undefined), 5000);
     });
   });
 

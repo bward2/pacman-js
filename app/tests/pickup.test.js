@@ -97,8 +97,45 @@ describe('pickup', () => {
     });
 
     it('returns correct images for fruits', () => {
-      const cherry = pickup.determineImage('fruit', 100);
-      assert.strictEqual(cherry, `${baseUrl}cherry.svg`);
+      assert.strictEqual(
+        pickup.determineImage('fruit', 100),
+        `${baseUrl}cherry.svg`,
+      );
+
+      assert.strictEqual(
+        pickup.determineImage('fruit', 300),
+        `${baseUrl}strawberry.svg`,
+      );
+
+      assert.strictEqual(
+        pickup.determineImage('fruit', 500),
+        `${baseUrl}orange.svg`,
+      );
+
+      assert.strictEqual(
+        pickup.determineImage('fruit', 700),
+        `${baseUrl}apple.svg`,
+      );
+
+      assert.strictEqual(
+        pickup.determineImage('fruit', 1000),
+        `${baseUrl}melon.svg`,
+      );
+
+      assert.strictEqual(
+        pickup.determineImage('fruit', 2000),
+        `${baseUrl}galaxian.svg`,
+      );
+
+      assert.strictEqual(
+        pickup.determineImage('fruit', 3000),
+        `${baseUrl}bell.svg`,
+      );
+
+      assert.strictEqual(
+        pickup.determineImage('fruit', 5000),
+        `${baseUrl}key.svg`,
+      );
     });
 
     it('returns cherry by default for unrecognized fruit', () => {
