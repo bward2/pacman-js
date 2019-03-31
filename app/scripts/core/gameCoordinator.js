@@ -218,6 +218,15 @@ class GameCoordinator {
    */
   awardPoints(e) {
     this.points += e.detail.points;
+
+    if (e.detail.type === 'fruit') {
+      this.displayPoints(
+        { left: this.scaledTileSize * 13, top: this.scaledTileSize * 16.5 },
+        e.detail.points,
+        2000,
+        this.scaledTileSize * 2,
+      );
+    }
   }
 
   /**

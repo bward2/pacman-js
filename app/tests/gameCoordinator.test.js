@@ -211,6 +211,25 @@ describe('gameCoordinator', () => {
       );
       assert.strictEqual(gameCoordinator.points, 50);
     });
+
+    it('calls displayPoints when a fruit is eaten', () => {
+      gameCoordinator.points = 0;
+      gameCoordinator.displayPoints = sinon.fake();
+
+      gameCoordinator.awardPoints(
+        { detail: { points: 50, type: 'fruit' } },
+      );
+      assert.strictEqual(gameCoordinator.points, 50);
+      assert(gameCoordinator.displayPoints.calledWith(
+        {
+          left: gameCoordinator.scaledTileSize * 13,
+          top: gameCoordinator.scaledTileSize * 16.5,
+        },
+        50,
+        2000,
+        gameCoordinator.scaledTileSize * 2,
+      ));
+    });
   });
 
   describe('deathSequence', () => {

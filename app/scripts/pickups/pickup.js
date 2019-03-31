@@ -169,6 +169,7 @@ class Pickup {
         window.dispatchEvent(new CustomEvent('awardPoints', {
           detail: {
             points: this.points,
+            type: this.type,
           },
         }));
 
