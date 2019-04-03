@@ -220,12 +220,16 @@ class GameCoordinator {
     this.points += e.detail.points;
 
     if (e.detail.type === 'fruit') {
-      this.displayPoints(
-        { left: this.scaledTileSize * 13, top: this.scaledTileSize * 16.5 },
-        e.detail.points,
-        2000,
-        this.scaledTileSize * 2,
-      );
+      const left = e.detail.points >= 1000
+        ? this.scaledTileSize * 12.5
+        : this.scaledTileSize * 13;
+      const top = this.scaledTileSize * 16.5;
+      const width = e.detail.points >= 1000
+        ? this.scaledTileSize * 3
+        : this.scaledTileSize * 2;
+      const height = this.scaledTileSize * 2;
+
+      this.displayPoints({ left, top }, e.detail.points, 2000, width, height);
     }
   }
 
@@ -419,17 +423,18 @@ class GameCoordinator {
    * @param {({ left: number, top: number })} position - CSS coordinates to display the points at
    * @param {Number} amount - Amount of points to display
    * @param {Number} duration - Milliseconds to display the points before disappearing
-   * @param {Number} measurement - Size of the points picture
+   * @param {Number} width - Image width
+   * @param {Number} height - Image height
    */
-  displayPoints(position, amount, duration, measurement) {
+  displayPoints(position, amount, duration, width, height) {
     const pointsDiv = document.createElement('div');
 
     pointsDiv.style.position = 'absolute';
-    pointsDiv.style.backgroundSize = `${measurement}px`;
+    pointsDiv.style.backgroundSize = `${width}px`;
     pointsDiv.style.backgroundImage = 'url(app/style/graphics/'
       + `spriteSheets/points/${amount}.svg`;
-    pointsDiv.style.height = `${measurement}px`;
-    pointsDiv.style.width = `${measurement}px`;
+    pointsDiv.style.width = `${width}px`;
+    pointsDiv.style.height = `${height || width}px`;
     pointsDiv.style.top = `${position.top}px`;
     pointsDiv.style.left = `${position.left}px`;
 

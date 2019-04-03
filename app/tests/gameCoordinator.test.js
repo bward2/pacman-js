@@ -228,6 +228,27 @@ describe('gameCoordinator', () => {
         50,
         2000,
         gameCoordinator.scaledTileSize * 2,
+        gameCoordinator.scaledTileSize * 2,
+      ));
+    });
+
+    it('displays a wider image when fruit worth four figures is eaten', () => {
+      gameCoordinator.points = 0;
+      gameCoordinator.displayPoints = sinon.fake();
+
+      gameCoordinator.awardPoints(
+        { detail: { points: 1000, type: 'fruit' } },
+      );
+      assert.strictEqual(gameCoordinator.points, 1000);
+      assert(gameCoordinator.displayPoints.calledWith(
+        {
+          left: gameCoordinator.scaledTileSize * 12.5,
+          top: gameCoordinator.scaledTileSize * 16.5,
+        },
+        1000,
+        2000,
+        gameCoordinator.scaledTileSize * 3,
+        gameCoordinator.scaledTileSize * 2,
       ));
     });
   });
