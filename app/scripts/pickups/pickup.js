@@ -6,6 +6,17 @@ class Pickup {
     this.points = points;
     this.nearPacman = false;
 
+    this.fruitImages = {
+      100: 'cherry',
+      300: 'strawberry',
+      500: 'orange',
+      700: 'apple',
+      1000: 'melon',
+      2000: 'galaxian',
+      3000: 'bell',
+      5000: 'key',
+    };
+
     this.setStyleMeasurements(type, scaledTileSize, column, row, points);
   }
 
@@ -64,35 +75,7 @@ class Pickup {
     let image = '';
 
     if (type === 'fruit') {
-      switch (points) {
-        case 100:
-          image = 'cherry';
-          break;
-        case 300:
-          image = 'strawberry';
-          break;
-        case 500:
-          image = 'orange';
-          break;
-        case 700:
-          image = 'apple';
-          break;
-        case 1000:
-          image = 'melon';
-          break;
-        case 2000:
-          image = 'galaxian';
-          break;
-        case 3000:
-          image = 'bell';
-          break;
-        case 5000:
-          image = 'key';
-          break;
-        default:
-          image = 'cherry';
-          break;
-      }
+      image = this.fruitImages[points] || 'cherry';
     } else {
       image = type;
     }

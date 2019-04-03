@@ -27,6 +27,17 @@ class GameCoordinator {
       39: 'right',
     };
 
+    this.fruitPoints = {
+      1: 100,
+      2: 300,
+      3: 500,
+      4: 700,
+      5: 1000,
+      6: 2000,
+      7: 3000,
+      8: 5000,
+    };
+
     this.allowKeyPresses = true;
     this.allowPacmanMovement = true;
     this.allowPause = true;
@@ -283,48 +294,11 @@ class GameCoordinator {
       this.removeTimer({ detail: { id: this.fruitTimer } });
     }
 
-    this.fruit.showFruit(this.calcFruitPoints(this.level));
+    this.fruit.showFruit(this.fruitPoints[this.level] || 5000);
 
     this.fruitTimer = new Timer(() => {
       this.fruit.hideFruit();
     }, 10000).timerId;
-  }
-
-  /**
-   * Determines the number of points a fruit should be worth based on level
-   * @param {Number} level
-   */
-  calcFruitPoints(level) {
-    let fruitPoints;
-
-    switch (level) {
-      case 1:
-        fruitPoints = 100;
-        break;
-      case 2:
-        fruitPoints = 300;
-        break;
-      case 3:
-        fruitPoints = 500;
-        break;
-      case 4:
-        fruitPoints = 700;
-        break;
-      case 5:
-        fruitPoints = 1000;
-        break;
-      case 6:
-        fruitPoints = 2000;
-        break;
-      case 7:
-        fruitPoints = 3000;
-        break;
-      default:
-        fruitPoints = 5000;
-        break;
-    }
-
-    return fruitPoints;
   }
 
   /**
