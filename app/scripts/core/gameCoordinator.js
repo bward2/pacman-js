@@ -86,7 +86,7 @@ class GameCoordinator {
       ),
       this.blinky = new Ghost(
         this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
-        new CharacterUtil(),
+        this.level, new CharacterUtil(),
       ),
       this.fruit = new Pickup(
         'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
@@ -279,10 +279,16 @@ class GameCoordinator {
   dotEaten() {
     this.remainingDots -= 1;
 
-    if (this.remainingDots === 174) {
+    if (this.remainingDots === 174 || this.remainingDots === 74) {
       this.createFruit();
-    } else if (this.remainingDots === 74) {
-      this.createFruit();
+    }
+
+    if (this.remainingDots === 100 || this.remainingDots === 50) {
+      this.speedUpBlinky();
+    }
+
+    if (this.remainingDots === 0) {
+      // TODO: Level clear
     }
   }
 
@@ -299,6 +305,13 @@ class GameCoordinator {
     this.fruitTimer = new Timer(() => {
       this.fruit.hideFruit();
     }, 10000).timerId;
+  }
+
+  /**
+   * Speeds up Blinky and raises the background noise pitch
+   */
+  speedUpBlinky() {
+    this.blinky.speedUp();
   }
 
   /**

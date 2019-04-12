@@ -316,6 +316,24 @@ describe('gameCoordinator', () => {
       gameCoordinator.dotEaten();
       assert(gameCoordinator.createFruit.calledTwice);
     });
+
+    it('speeds up Blinky at 100 and 50 dots', () => {
+      gameCoordinator.speedUpBlinky = sinon.fake();
+
+      gameCoordinator.remainingDots = 101;
+      gameCoordinator.dotEaten();
+      assert(gameCoordinator.speedUpBlinky.calledOnce);
+
+      gameCoordinator.remainingDots = 51;
+      gameCoordinator.dotEaten();
+      assert(gameCoordinator.speedUpBlinky.calledTwice);
+    });
+
+    it('calls advanceLevel at 0 dots', () => {
+      // TODO: Actually test
+      gameCoordinator.remainingDots = 1;
+      gameCoordinator.dotEaten();
+    });
   });
 
   describe('createFruit', () => {
@@ -345,6 +363,15 @@ describe('gameCoordinator', () => {
 
       gameCoordinator.createFruit();
       assert(gameCoordinator.fruit.showFruit.calledWith(5000));
+    });
+  });
+
+  describe('speedUpBlinky', () => {
+    it('calls the speedUp function for Blinky', () => {
+      gameCoordinator.blinky.speedUp = sinon.fake();
+
+      gameCoordinator.speedUpBlinky();
+      assert(gameCoordinator.blinky.speedUp.called);
     });
   });
 

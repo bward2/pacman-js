@@ -29,21 +29,21 @@ beforeEach(() => {
     },
   };
 
-  ghost = new Ghost(scaledTileSize, undefined, pacman, undefined,
+  ghost = new Ghost(scaledTileSize, undefined, pacman, undefined, 1,
     new CharacterUtil());
 });
 
 describe('ghost', () => {
   describe('setMovementStats', () => {
     it('sets the ghost\'s various movement stats', () => {
-      ghost.setMovementStats(pacman);
-      assert.strictEqual(ghost.slowSpeed, 0.75);
-      assert.strictEqual(ghost.mediumSpeed, 0.90);
-      assert.strictEqual(ghost.fastSpeed, 1.05);
+      ghost.setMovementStats(pacman, undefined, 1);
+      assert.strictEqual(ghost.slowSpeed, 0.76);
+      assert.strictEqual(ghost.mediumSpeed, 0.885);
+      assert.strictEqual(ghost.fastSpeed, 1.01);
       assert.strictEqual(ghost.scaredSpeed, 0.5);
       assert.strictEqual(ghost.transitionSpeed, 0.4);
       assert.strictEqual(ghost.eyeSpeed, 2);
-      assert.strictEqual(ghost.velocityPerMs, 0.75);
+      assert.strictEqual(ghost.velocityPerMs, 0.76);
       assert.strictEqual(ghost.defaultDirection, 'left');
       assert.strictEqual(ghost.direction, 'left');
       assert.strictEqual(ghost.moving, false);
@@ -536,6 +536,25 @@ describe('ghost', () => {
     });
   });
 
+  describe('speedUp', () => {
+    it('increases the default speed', () => {
+      ghost.defaultSpeed = ghost.slowSpeed;
+
+      ghost.speedUp();
+      assert.strictEqual(ghost.defaultSpeed, ghost.mediumSpeed);
+
+      ghost.speedUp();
+      assert.strictEqual(ghost.defaultSpeed, ghost.fastSpeed);
+    });
+
+    it('does nothing if the ghost is at top speed', () => {
+      ghost.defaultSpeed = ghost.fastSpeed;
+
+      ghost.speedUp();
+      assert.strictEqual(ghost.defaultSpeed, ghost.fastSpeed);
+    });
+  });
+
   describe('checkCollision', () => {
     it('switches to eyes mode after Pacman eats the ghost', () => {
       global.window = {
@@ -585,13 +604,7 @@ describe('ghost', () => {
       assert.strictEqual(result, ghost.scaredSpeed);
     });
 
-    // TODO: Tests for Blinky's various speeds
-    it('returns slowSpeed for Blinky', () => {
-      const result = ghost.determineVelocity('blinky', {}, 'chase');
-      assert.strictEqual(result, ghost.slowSpeed);
-    });
-
-    it('returns slowSpeed by default', () => {
+    it('returns defaultSpeed otherwise', () => {
       const result = ghost.determineVelocity('clyde', {}, 'chase');
       assert.strictEqual(result, ghost.slowSpeed);
     });

@@ -1,9 +1,10 @@
 class Ghost {
-  constructor(scaledTileSize, mazeArray, pacman, name, characterUtil) {
+  constructor(scaledTileSize, mazeArray, pacman, name, level, characterUtil) {
     this.scaledTileSize = scaledTileSize;
     this.mazeArray = mazeArray;
     this.pacman = pacman;
     this.name = name;
+    this.level = level;
     this.characterUtil = characterUtil;
     this.animationTarget = document.getElementById(name);
 
@@ -15,7 +16,7 @@ class Ghost {
    */
   reset() {
     this.mode = 'chase';
-    this.setMovementStats(this.pacman, this.name);
+    this.setMovementStats(this.pacman, this.name, this.level);
     this.setSpriteAnimationStats();
     this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
     this.setDefaultPosition(this.scaledTileSize, this.name);
@@ -27,18 +28,23 @@ class Ghost {
    * @param {Object} pacman - Pacman's speed is used as the base for the ghosts' speeds
    * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    */
-  setMovementStats(pacman, name) {
+  setMovementStats(pacman, name, level) {
     const pacmanSpeed = pacman.velocityPerMs;
+    const levelAdjustment = level / 100;
 
-    this.slowSpeed = pacmanSpeed * 0.75;
-    this.mediumSpeed = pacmanSpeed * 0.90;
-    this.fastSpeed = pacmanSpeed * 1.05;
+    this.slowSpeed = pacmanSpeed * (0.75 + levelAdjustment);
+    this.mediumSpeed = pacmanSpeed * (0.875 + levelAdjustment);
+    this.fastSpeed = pacmanSpeed * (1 + levelAdjustment);
+
+    if (!this.defaultSpeed) {
+      this.defaultSpeed = this.slowSpeed;
+    }
 
     this.scaredSpeed = pacmanSpeed * 0.5;
     this.transitionSpeed = pacmanSpeed * 0.4;
     this.eyeSpeed = pacmanSpeed * 2;
 
-    this.velocityPerMs = this.slowSpeed;
+    this.velocityPerMs = this.defaultSpeed;
     this.moving = false;
 
     switch (name) {
@@ -464,6 +470,17 @@ class Ghost {
   }
 
   /**
+   * Speeds up the ghost (used for Blinky as Pacdots are eaten)
+   */
+  speedUp() {
+    if (this.defaultSpeed === this.slowSpeed) {
+      this.defaultSpeed = this.mediumSpeed;
+    } else if (this.defaultSpeed === this.mediumSpeed) {
+      this.defaultSpeed = this.fastSpeed;
+    }
+  }
+
+  /**
    * Checks if the ghost contacts Pacman - starts the death sequence if so
    * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
    * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array
@@ -498,11 +515,7 @@ class Ghost {
     } if (mode === 'scared') {
       return this.scaredSpeed;
     }
-    if (name === 'blinky') {
-      // TODO: Logic for blinky's speed based on remaining pac-dots
-      return this.slowSpeed;
-    }
-    return this.slowSpeed;
+    return this.defaultSpeed;
   }
 
   /**
