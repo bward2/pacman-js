@@ -573,6 +573,17 @@ describe('ghost', () => {
     });
   });
 
+  describe('resetDefaultSpeed', () => {
+    it('resets the defaultSpeed and calls setSpriteSheet', () => {
+      ghost.defaultSpeed = ghost.fastSpeed;
+      ghost.setSpriteSheet = sinon.fake();
+
+      ghost.resetDefaultSpeed();
+      assert.strictEqual(ghost.defaultSpeed, ghost.slowSpeed);
+      assert(ghost.setSpriteSheet.called);
+    });
+  });
+
   describe('checkCollision', () => {
     it('switches to eyes mode after Pacman eats the ghost', () => {
       global.window = {

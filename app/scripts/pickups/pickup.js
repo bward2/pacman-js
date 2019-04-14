@@ -21,6 +21,14 @@ class Pickup {
   }
 
   /**
+   * Resets the pickup's visibility
+   */
+  reset() {
+    this.animationTarget.style.visibility = (this.type === 'fruit')
+      ? 'hidden' : 'visible';
+  }
+
+  /**
    * Sets various style measurements for the pickup depending on its type
    * @param {('pacdot'|'powerPellet'|'fruit')} type - The classification of pickup
    * @param {number} scaledTileSize
@@ -60,9 +68,7 @@ class Pickup {
     this.animationTarget.style.left = `${this.x}px`;
     this.mazeDiv.appendChild(this.animationTarget);
 
-    if (type === 'fruit') {
-      this.animationTarget.style.visibility = 'hidden';
-    }
+    this.reset();
   }
 
   /**

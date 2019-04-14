@@ -288,7 +288,7 @@ class GameCoordinator {
     }
 
     if (this.remainingDots === 0) {
-      // TODO: Level clear
+      this.advanceLevel();
     }
   }
 
@@ -312,6 +312,40 @@ class GameCoordinator {
    */
   speedUpBlinky() {
     this.blinky.speedUp();
+  }
+
+  advanceLevel() {
+    this.allowKeyPresses = false;
+
+    this.entityList.forEach((entity) => {
+      const entityRef = entity;
+      entityRef.moving = false;
+    });
+
+    new Timer(() => {
+      this.mazeCover.style.visibility = 'visible';
+
+      new Timer(() => {
+        this.mazeCover.style.visibility = 'hidden';
+        this.level += 1;
+        this.allowKeyPresses = true;
+
+        this.entityList.forEach((entity) => {
+          const entityRef = entity;
+
+          if (entityRef.level) {
+            entityRef.level = this.level;
+          }
+          entityRef.reset();
+          if (entityRef.name === 'blinky') {
+            entityRef.resetDefaultSpeed();
+          }
+          if (entityRef instanceof Pickup && entityRef.type !== 'fruit') {
+            this.remainingDots += 1;
+          }
+        });
+      }, 500);
+    }, 2000);
   }
 
   /**

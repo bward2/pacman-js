@@ -488,6 +488,14 @@ class Ghost {
   }
 
   /**
+   * Resets defaultSpeed to slow and updates the spritesheet
+   */
+  resetDefaultSpeed() {
+    this.defaultSpeed = this.slowSpeed;
+    this.setSpriteSheet(this.name, this.direction, this.mode);
+  }
+
+  /**
    * Checks if the ghost contacts Pacman - starts the death sequence if so
    * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
    * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array

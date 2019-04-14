@@ -32,6 +32,20 @@ beforeEach(() => {
 });
 
 describe('pickup', () => {
+  describe('reset', () => {
+    it('sets visibility according to type', () => {
+      pickup.animationTarget.style.visibility = 'blah';
+
+      pickup.type = 'pacdot';
+      pickup.reset();
+      assert.strictEqual(pickup.animationTarget.style.visibility, 'visible');
+
+      pickup.type = 'fruit';
+      pickup.reset();
+      assert.strictEqual(pickup.animationTarget.style.visibility, 'hidden');
+    });
+  });
+
   describe('setStyleMeasurements', () => {
     it('sets measurements for pacdots', () => {
       pickup.setStyleMeasurements('pacdot', 8, 1, 1);
@@ -47,6 +61,7 @@ describe('pickup', () => {
         left: '11px',
         position: 'absolute',
         top: '11px',
+        visibility: 'visible',
         width: '2px',
       });
     });
@@ -65,11 +80,13 @@ describe('pickup', () => {
         left: '8px',
         position: 'absolute',
         top: '8px',
+        visibility: 'visible',
         width: '8px',
       });
     });
 
     it('sets measurements for fruits', () => {
+      pickup.type = 'fruit';
       pickup.setStyleMeasurements('fruit', 8, 1, 1, 100);
 
       assert.strictEqual(pickup.size, 16);
