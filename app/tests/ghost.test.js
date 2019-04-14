@@ -168,6 +168,24 @@ describe('ghost', () => {
         `${url}blinky/blinky_right.svg)`,
       );
     });
+
+    it('adds emotion if the ghost is moving quickly', () => {
+      const url = 'url(app/style/graphics/spriteSheets/characters/ghosts/';
+
+      ghost.defaultSpeed = ghost.mediumSpeed;
+      ghost.setSpriteSheet('blinky', 'up', 'chase');
+      assert.strictEqual(
+        ghost.animationTarget.style.backgroundImage,
+        `${url}blinky/blinky_up_annoyed.svg)`,
+      );
+
+      ghost.defaultSpeed = ghost.fastSpeed;
+      ghost.setSpriteSheet('blinky', 'up', 'chase');
+      assert.strictEqual(
+        ghost.animationTarget.style.backgroundImage,
+        `${url}blinky/blinky_up_angry.svg)`,
+      );
+    });
   });
 
   describe('reset', () => {
