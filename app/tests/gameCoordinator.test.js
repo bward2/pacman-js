@@ -317,14 +317,14 @@ describe('gameCoordinator', () => {
       assert(gameCoordinator.createFruit.calledTwice);
     });
 
-    it('speeds up Blinky at 100 and 50 dots', () => {
+    it('speeds up Blinky at 40 and 20 dots', () => {
       gameCoordinator.speedUpBlinky = sinon.fake();
 
-      gameCoordinator.remainingDots = 101;
+      gameCoordinator.remainingDots = 41;
       gameCoordinator.dotEaten();
       assert(gameCoordinator.speedUpBlinky.calledOnce);
 
-      gameCoordinator.remainingDots = 51;
+      gameCoordinator.remainingDots = 21;
       gameCoordinator.dotEaten();
       assert(gameCoordinator.speedUpBlinky.calledTwice);
     });

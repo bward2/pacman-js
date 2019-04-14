@@ -283,7 +283,7 @@ class GameCoordinator {
       this.createFruit();
     }
 
-    if (this.remainingDots === 100 || this.remainingDots === 50) {
+    if (this.remainingDots === 40 || this.remainingDots === 20) {
       this.speedUpBlinky();
     }
 
