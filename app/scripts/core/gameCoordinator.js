@@ -27,6 +27,17 @@ class GameCoordinator {
       39: 'right',
     };
 
+    this.fruitPoints = {
+      1: 100,
+      2: 300,
+      3: 500,
+      4: 700,
+      5: 1000,
+      6: 2000,
+      7: 3000,
+      8: 5000,
+    };
+
     this.allowKeyPresses = true;
     this.allowPacmanMovement = true;
     this.allowPause = true;
@@ -75,7 +86,7 @@ class GameCoordinator {
       ),
       this.blinky = new Ghost(
         this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
-        new CharacterUtil(),
+        this.level, new CharacterUtil(),
       ),
       this.fruit = new Pickup(
         'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
@@ -218,6 +229,19 @@ class GameCoordinator {
    */
   awardPoints(e) {
     this.points += e.detail.points;
+
+    if (e.detail.type === 'fruit') {
+      const left = e.detail.points >= 1000
+        ? this.scaledTileSize * 12.5
+        : this.scaledTileSize * 13;
+      const top = this.scaledTileSize * 16.5;
+      const width = e.detail.points >= 1000
+        ? this.scaledTileSize * 3
+        : this.scaledTileSize * 2;
+      const height = this.scaledTileSize * 2;
+
+      this.displayPoints({ left, top }, e.detail.points, 2000, width, height);
+    }
   }
 
   /**
@@ -255,10 +279,16 @@ class GameCoordinator {
   dotEaten() {
     this.remainingDots -= 1;
 
-    if (this.remainingDots === 174) {
+    if (this.remainingDots === 174 || this.remainingDots === 74) {
       this.createFruit();
-    } else if (this.remainingDots === 74) {
-      this.createFruit();
+    }
+
+    if (this.remainingDots === 40 || this.remainingDots === 20) {
+      this.speedUpBlinky();
+    }
+
+    if (this.remainingDots === 0) {
+      this.advanceLevel();
     }
   }
 
@@ -270,7 +300,7 @@ class GameCoordinator {
       this.removeTimer({ detail: { id: this.fruitTimer } });
     }
 
-    this.fruit.showFruit(this.calcFruitPoints(this.level));
+    this.fruit.showFruit(this.fruitPoints[this.level] || 5000);
 
     this.fruitTimer = new Timer(() => {
       this.fruit.hideFruit();
@@ -278,22 +308,44 @@ class GameCoordinator {
   }
 
   /**
-   * Determines the number of points a fruit should be worth based on level
-   * @param {Number} level
+   * Speeds up Blinky and raises the background noise pitch
    */
-  calcFruitPoints(level) {
-    let fruitPoints;
+  speedUpBlinky() {
+    this.blinky.speedUp();
+  }
 
-    switch (level) {
-      case 1:
-        fruitPoints = 100;
-        break;
-      default:
-        fruitPoints = 100;
-        break;
-    }
+  advanceLevel() {
+    this.allowKeyPresses = false;
 
-    return fruitPoints;
+    this.entityList.forEach((entity) => {
+      const entityRef = entity;
+      entityRef.moving = false;
+    });
+
+    new Timer(() => {
+      this.mazeCover.style.visibility = 'visible';
+
+      new Timer(() => {
+        this.mazeCover.style.visibility = 'hidden';
+        this.level += 1;
+        this.allowKeyPresses = true;
+
+        this.entityList.forEach((entity) => {
+          const entityRef = entity;
+
+          if (entityRef.level) {
+            entityRef.level = this.level;
+          }
+          entityRef.reset();
+          if (entityRef.name === 'blinky') {
+            entityRef.resetDefaultSpeed();
+          }
+          if (entityRef instanceof Pickup && entityRef.type !== 'fruit') {
+            this.remainingDots += 1;
+          }
+        });
+      }, 500);
+    }, 2000);
   }
 
   /**
@@ -392,17 +444,18 @@ class GameCoordinator {
    * @param {({ left: number, top: number })} position - CSS coordinates to display the points at
    * @param {Number} amount - Amount of points to display
    * @param {Number} duration - Milliseconds to display the points before disappearing
-   * @param {Number} measurement - Size of the points picture
+   * @param {Number} width - Image width
+   * @param {Number} height - Image height
    */
-  displayPoints(position, amount, duration, measurement) {
+  displayPoints(position, amount, duration, width, height) {
     const pointsDiv = document.createElement('div');
 
     pointsDiv.style.position = 'absolute';
-    pointsDiv.style.backgroundSize = `${measurement}px`;
+    pointsDiv.style.backgroundSize = `${width}px`;
     pointsDiv.style.backgroundImage = 'url(app/style/graphics/'
       + `spriteSheets/points/${amount}.svg`;
-    pointsDiv.style.height = `${measurement}px`;
-    pointsDiv.style.width = `${measurement}px`;
+    pointsDiv.style.width = `${width}px`;
+    pointsDiv.style.height = `${height || width}px`;
     pointsDiv.style.top = `${position.top}px`;
     pointsDiv.style.left = `${position.left}px`;
 

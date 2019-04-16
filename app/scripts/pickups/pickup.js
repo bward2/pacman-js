@@ -6,7 +6,26 @@ class Pickup {
     this.points = points;
     this.nearPacman = false;
 
+    this.fruitImages = {
+      100: 'cherry',
+      300: 'strawberry',
+      500: 'orange',
+      700: 'apple',
+      1000: 'melon',
+      2000: 'galaxian',
+      3000: 'bell',
+      5000: 'key',
+    };
+
     this.setStyleMeasurements(type, scaledTileSize, column, row, points);
+  }
+
+  /**
+   * Resets the pickup's visibility
+   */
+  reset() {
+    this.animationTarget.style.visibility = (this.type === 'fruit')
+      ? 'hidden' : 'visible';
   }
 
   /**
@@ -49,9 +68,7 @@ class Pickup {
     this.animationTarget.style.left = `${this.x}px`;
     this.mazeDiv.appendChild(this.animationTarget);
 
-    if (type === 'fruit') {
-      this.animationTarget.style.visibility = 'hidden';
-    }
+    this.reset();
   }
 
   /**
@@ -64,14 +81,7 @@ class Pickup {
     let image = '';
 
     if (type === 'fruit') {
-      switch (points) {
-        case 100:
-          image = 'cherry';
-          break;
-        default:
-          image = 'cherry';
-          break;
-      }
+      image = this.fruitImages[points] || 'cherry';
     } else {
       image = type;
     }
@@ -169,6 +179,7 @@ class Pickup {
         window.dispatchEvent(new CustomEvent('awardPoints', {
           detail: {
             points: this.points,
+            type: this.type,
           },
         }));
 
