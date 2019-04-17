@@ -18,6 +18,8 @@ class Pacman {
     this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
     this.setDefaultPosition(this.scaledTileSize);
     this.setSpriteSheet(this.direction);
+    this.pacmanArrow.style.backgroundImage = 'url(app/style/graphics/'
+      + `spriteSheets/characters/pacman/arrow_${this.direction}.svg)`;
   }
 
   /**

@@ -38,6 +38,9 @@ describe('pacman', () => {
       ));
       assert(pacman.setDefaultPosition.calledWith(pacman.scaledTileSize));
       assert(pacman.setSpriteSheet.calledWith(pacman.direction));
+      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage,
+        'url(app/style/graphics/spriteSheets/characters/pacman/arrow_'
+        + `${pacman.direction}.svg)`);
     });
   });
 

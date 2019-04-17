@@ -169,20 +169,25 @@ class GameCoordinator {
     }
   }
 
-  startGameplay() {
+  /**
+   * Displays "Ready!" and allows Pacman to move after a breif delay
+   * @param {Boolean} initialStart - Special condition for the game's beginning
+   */
+  startGameplay(initialStart) {
     this.allowPacmanMovement = false;
 
     const left = this.scaledTileSize * 11;
     const top = this.scaledTileSize * 16.5;
+    const duration = initialStart ? 4000 : 2000;
     const width = this.scaledTileSize * 6;
     const height = this.scaledTileSize * 2;
 
-    this.displayText({ left, top }, 'ready', 2000, width, height);
+    this.displayText({ left, top }, 'ready', duration, width, height);
 
     new Timer(() => {
       this.allowPacmanMovement = true;
       this.pacman.moving = true;
-    }, 2000);
+    }, duration);
   }
 
   /**

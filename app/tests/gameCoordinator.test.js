@@ -28,6 +28,7 @@ describe('gameCoordinator', () => {
     global.document = {
       getElementById: () => ({
         appendChild: () => { },
+        removeChild: () => { },
       }),
       createElement: () => ({
         classList: {
@@ -63,6 +64,48 @@ describe('gameCoordinator', () => {
 
     it('calls checkPacmanProximity for each pickup', () => {
       component.collisionDetectionLoop();
+    });
+  });
+
+  describe('startGameplay', () => {
+    it('calls displayText, then kicks off movement', () => {
+      component.displayText = sinon.fake();
+
+      component.startGameplay();
+      assert(component.displayText.calledWith(
+        {
+          left: component.scaledTileSize * 11,
+          top: component.scaledTileSize * 16.5,
+        },
+        'ready',
+        2000,
+        component.scaledTileSize * 6,
+        component.scaledTileSize * 2,
+      ));
+
+      clock.tick(2000);
+      assert(component.allowPacmanMovement);
+      assert(component.pacman.moving);
+    });
+
+    it('waits longer for the initialStart', () => {
+      component.displayText = sinon.fake();
+
+      component.startGameplay(true);
+      assert(component.displayText.calledWith(
+        {
+          left: component.scaledTileSize * 11,
+          top: component.scaledTileSize * 16.5,
+        },
+        'ready',
+        4000,
+        component.scaledTileSize * 6,
+        component.scaledTileSize * 2,
+      ));
+
+      clock.tick(4000);
+      assert(component.allowPacmanMovement);
+      assert(component.pacman.moving);
     });
   });
 
