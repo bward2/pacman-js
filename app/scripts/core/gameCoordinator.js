@@ -187,7 +187,25 @@ class GameCoordinator {
     new Timer(() => {
       this.allowPacmanMovement = true;
       this.pacman.moving = true;
+      this.ghostCycle('scatter');
     }, duration);
+  }
+
+  ghostCycle(mode) {
+    if (this.timerExists(this.ghostTimer)) {
+      this.removeTimer({ detail: { id: this.ghostTimer } });
+    }
+
+    const delay = (mode === 'scatter') ? 7000 : 20000;
+    const nextMode = (mode === 'scatter') ? 'chase' : 'scatter';
+
+    this.ghostTimer = new Timer(() => {
+      this.ghosts.forEach((ghost) => {
+        ghost.changeMode(nextMode);
+      });
+
+      this.ghostCycle(nextMode);
+    }, delay).timerId;
   }
 
   /**
@@ -275,6 +293,9 @@ class GameCoordinator {
     if (this.timerExists(this.fruitTimer)) {
       this.removeTimer({ detail: { id: this.fruitTimer } });
     }
+    if (this.timerExists(this.ghostTimer)) {
+      this.removeTimer({ detail: { id: this.ghostTimer } });
+    }
 
     this.allowKeyPresses = false;
     this.pacman.moving = false;
@@ -346,6 +367,10 @@ class GameCoordinator {
       const entityRef = entity;
       entityRef.moving = false;
     });
+
+    if (this.timerExists(this.ghostTimer)) {
+      this.removeTimer({ detail: { id: this.ghostTimer } });
+    }
 
     new Timer(() => {
       this.mazeCover.style.visibility = 'visible';
