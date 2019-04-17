@@ -212,15 +212,15 @@ describe('gameCoordinator', () => {
       assert.strictEqual(component.points, 50);
     });
 
-    it('calls displayPoints when a fruit is eaten', () => {
+    it('calls displayText when a fruit is eaten', () => {
       component.points = 0;
-      component.displayPoints = sinon.fake();
+      component.displayText = sinon.fake();
 
       component.awardPoints(
         { detail: { points: 50, type: 'fruit' } },
       );
       assert.strictEqual(component.points, 50);
-      assert(component.displayPoints.calledWith(
+      assert(component.displayText.calledWith(
         {
           left: component.scaledTileSize * 13,
           top: component.scaledTileSize * 16.5,
@@ -234,13 +234,13 @@ describe('gameCoordinator', () => {
 
     it('displays a wider image when fruit worth four figures is eaten', () => {
       component.points = 0;
-      component.displayPoints = sinon.fake();
+      component.displayText = sinon.fake();
 
       component.awardPoints(
         { detail: { points: 1000, type: 'fruit' } },
       );
       assert.strictEqual(component.points, 1000);
-      assert(component.displayPoints.calledWith(
+      assert(component.displayText.calledWith(
         {
           left: component.scaledTileSize * 12.5,
           top: component.scaledTileSize * 16.5,
@@ -491,7 +491,7 @@ describe('gameCoordinator', () => {
   describe('eatGhost', () => {
     it('awards points and temporarily pauses movement', () => {
       component.allowPacmanMovement = true;
-      component.displayPoints = sinon.fake();
+      component.displayText = sinon.fake();
       const e = {
         detail: {
           ghost: {
@@ -507,7 +507,7 @@ describe('gameCoordinator', () => {
       assert(!e.detail.ghost.display);
       assert(!component.pacman.moving);
       assert(!component.blinky.moving);
-      assert(component.displayPoints.called);
+      assert(component.displayText.called);
 
       clock.tick(1000);
       assert(component.allowPacmanMovement);
@@ -517,14 +517,14 @@ describe('gameCoordinator', () => {
     });
   });
 
-  describe('displayPoints', () => {
+  describe('displayText', () => {
     it('creates a temporary div and removes it with a set delay', () => {
       component.mazeDiv = {
         appendChild: sinon.fake(),
         removeChild: sinon.fake(),
       };
 
-      component.displayPoints(
+      component.displayText(
         { left: 10, top: 25 }, 200, 1000, 48,
       );
       assert(component.mazeDiv.appendChild.called);

@@ -39,7 +39,7 @@ class GameCoordinator {
     };
 
     this.allowKeyPresses = true;
-    this.allowPacmanMovement = true;
+    this.allowPacmanMovement = false;
     this.allowPause = true;
 
     this.mazeArray = [
@@ -110,6 +110,8 @@ class GameCoordinator {
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
+
+    this.startGameplay();
   }
 
   /**
@@ -165,6 +167,22 @@ class GameCoordinator {
         pickup.checkPacmanProximity(maxDistance, pacmanCenter, debugging);
       });
     }
+  }
+
+  startGameplay() {
+    this.allowPacmanMovement = false;
+
+    const left = this.scaledTileSize * 11;
+    const top = this.scaledTileSize * 16.5;
+    const width = this.scaledTileSize * 6;
+    const height = this.scaledTileSize * 2;
+
+    this.displayText({ left, top }, 'ready', 2000, width, height);
+
+    new Timer(() => {
+      this.allowPacmanMovement = true;
+      this.pacman.moving = true;
+    }, 2000);
   }
 
   /**
@@ -240,13 +258,13 @@ class GameCoordinator {
         : this.scaledTileSize * 2;
       const height = this.scaledTileSize * 2;
 
-      this.displayPoints({ left, top }, e.detail.points, 2000, width, height);
+      this.displayText({ left, top }, e.detail.points, 2000, width, height);
     }
   }
 
   /**
-   * Animates Pacman's death, subtracts a life, and resets character positions if the player
-   * has remaining lives.
+   * Animates Pacman's death, subtracts a life, and resets character positions if
+   * the player has remaining lives.
    */
   deathSequence() {
     if (this.timerExists(this.fruitTimer)) {
@@ -268,6 +286,8 @@ class GameCoordinator {
           this.pacman.reset();
           this.blinky.reset();
           this.fruit.hideFruit();
+
+          this.startGameplay();
         }, 500);
       }, 2250);
     }, 750);
@@ -344,6 +364,8 @@ class GameCoordinator {
             this.remainingDots += 1;
           }
         });
+
+        this.startGameplay();
       }, 500);
     }, 2000);
   }
@@ -414,7 +436,7 @@ class GameCoordinator {
       ghost => ghost.name !== e.detail.ghost.name,
     );
 
-    this.displayPoints(
+    this.displayText(
       position, 200, pauseDuration, measurement,
     );
 
@@ -447,13 +469,13 @@ class GameCoordinator {
    * @param {Number} width - Image width
    * @param {Number} height - Image height
    */
-  displayPoints(position, amount, duration, width, height) {
+  displayText(position, amount, duration, width, height) {
     const pointsDiv = document.createElement('div');
 
     pointsDiv.style.position = 'absolute';
     pointsDiv.style.backgroundSize = `${width}px`;
     pointsDiv.style.backgroundImage = 'url(app/style/graphics/'
-      + `spriteSheets/points/${amount}.svg`;
+      + `spriteSheets/text/${amount}.svg`;
     pointsDiv.style.width = `${width}px`;
     pointsDiv.style.height = `${height || width}px`;
     pointsDiv.style.top = `${position.top}px`;
