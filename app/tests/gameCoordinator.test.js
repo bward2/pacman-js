@@ -14,7 +14,9 @@ describe('gameCoordinator', () => {
   beforeEach(() => {
     global.Pacman = class {};
     global.CharacterUtil = class {};
-    global.Ghost = class {};
+    global.Ghost = class {
+      changeMode() {}
+    };
     global.Pickup = class {};
     global.Timer = class {
       constructor(callback, delay) {
@@ -106,6 +108,16 @@ describe('gameCoordinator', () => {
       clock.tick(4000);
       assert(component.allowPacmanMovement);
       assert(component.pacman.moving);
+    });
+  });
+
+  describe('ghostCycle', () => {
+    it('changes ghosts to Chase mode after seven seconds', () => {
+      component.ghosts = [{ changeMode: sinon.fake() }];
+
+      component.ghostCycle('scatter');
+      clock.tick(7000);
+      assert(component.ghosts[0].changeMode.calledWith('chase'));
     });
   });
 
@@ -454,6 +466,18 @@ describe('gameCoordinator', () => {
       assert.strictEqual(ghost.level, component.level);
       assert(ghost.resetDefaultSpeed.called);
       assert.strictEqual(component.remainingDots, 1);
+    });
+
+    it('removes the ghostTimer if needed', () => {
+      component.ghostTimer = 123;
+      component.timerExists = sinon.fake.returns(true);
+      component.removeTimer = sinon.fake();
+
+      component.advanceLevel();
+      assert(component.timerExists.calledWith(component.ghostTimer));
+      assert(component.removeTimer.calledWith(
+        { detail: { id: component.ghostTimer } },
+      ));
     });
   });
 

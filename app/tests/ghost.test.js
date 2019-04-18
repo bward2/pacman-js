@@ -451,7 +451,7 @@ describe('ghost', () => {
       assert.strictEqual(ghost.direction, 'up');
       assert.deepEqual(result, { x: 0, y: 14 });
       assert(ghost.characterUtil.snapToGrid.called);
-      assert.strictEqual(ghost.mode, 'chase');
+      assert.strictEqual(ghost.mode, ghost.defaultMode);
     });
 
     it('snaps y to 11 and sends ghost left once exited', () => {
@@ -549,7 +549,7 @@ describe('ghost', () => {
       ghost.setSpriteSheet = sinon.fake();
 
       ghost.endScared();
-      assert.strictEqual(ghost.mode, 'chase');
+      assert.strictEqual(ghost.mode, ghost.defaultMode);
       assert(ghost.setSpriteSheet.called);
     });
   });

@@ -191,6 +191,10 @@ class GameCoordinator {
     }, duration);
   }
 
+  /**
+   * Cycles the ghosts between 'chase' and 'scatter' mode
+   * @param {('chase' | 'scatter')} mode
+   */
   ghostCycle(mode) {
     if (this.timerExists(this.ghostTimer)) {
       this.removeTimer({ detail: { id: this.ghostTimer } });
