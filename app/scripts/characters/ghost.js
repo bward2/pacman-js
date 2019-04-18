@@ -15,7 +15,8 @@ class Ghost {
    * Rests the character to its default state
    */
   reset() {
-    this.mode = 'chase';
+    this.mode = 'scatter';
+    this.defaultMode = this.mode;
     this.setMovementStats(this.pacman, this.name, this.level);
     this.setSpriteAnimationStats();
     this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
@@ -242,6 +243,17 @@ class Ghost {
       return pacmanGridPosition;
     }
 
+    // Ghosts seek out corners in Scatter mode
+    if (mode === 'scatter') {
+      switch (name) {
+        case 'blinky':
+          // Blinky will chase Pacman, even in Scatter mode, if he's in Cruise Elroy form
+          return (this.cruiseElroy ? pacmanGridPosition : { x: 27, y: 0 });
+        default:
+          return { x: 0, y: 0 };
+      }
+    }
+
     switch (name) {
       // Blinky goes after Pacman's position
       case 'blinky':
@@ -397,8 +409,7 @@ class Ghost {
       this.position = this.characterUtil.snapToGrid(
         gridPositionCopy, this.direction, this.scaledTileSize,
       );
-      // TODO: Ask if this should be chase or scatter mode
-      this.mode = 'chase';
+      this.mode = this.defaultMode;
     }
 
     if (this.leavingGhostHouse(this.mode, gridPosition)) {
@@ -438,6 +449,30 @@ class Ghost {
   }
 
   /**
+   * Changes the defaultMode to chase or scatter, and turns the ghost around
+   * if needed
+   * @param {('chase'|'scatter')} newMode
+   */
+  changeMode(newMode) {
+    this.defaultMode = newMode;
+
+    const gridPosition = this.characterUtil.determineGridPosition(
+      this.position, this.scaledTileSize,
+    );
+
+    if ((this.mode === 'chase' || this.mode === 'scatter')
+      && !this.cruiseElroy) {
+      this.mode = newMode;
+
+      if (!this.isInGhostHouse(gridPosition)) {
+        this.direction = this.characterUtil.getOppositeDirection(
+          this.direction,
+        );
+      }
+    }
+  }
+
+  /**
    * Toggles a scared ghost between blue and white, then updates its spritsheet
    */
   toggleScaredColor() {
@@ -471,8 +506,7 @@ class Ghost {
    * Returns the scared ghost to chase/scatter mode and sets its spritesheet
    */
   endScared() {
-    // TODO: Ask if this should be chase or scatter mode
-    this.mode = 'chase';
+    this.mode = this.defaultMode;
     this.setSpriteSheet(this.name, this.direction, this.mode);
   }
 
@@ -480,6 +514,8 @@ class Ghost {
    * Speeds up the ghost (used for Blinky as Pacdots are eaten)
    */
   speedUp() {
+    this.cruiseElroy = true;
+
     if (this.defaultSpeed === this.slowSpeed) {
       this.defaultSpeed = this.mediumSpeed;
     } else if (this.defaultSpeed === this.mediumSpeed) {
@@ -492,6 +528,7 @@ class Ghost {
    */
   resetDefaultSpeed() {
     this.defaultSpeed = this.slowSpeed;
+    this.cruiseElroy = false;
     this.setSpriteSheet(this.name, this.direction, this.mode);
   }
 

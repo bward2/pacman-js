@@ -39,7 +39,7 @@ class GameCoordinator {
     };
 
     this.allowKeyPresses = true;
-    this.allowPacmanMovement = true;
+    this.allowPacmanMovement = false;
     this.allowPause = true;
 
     this.mazeArray = [
@@ -110,6 +110,8 @@ class GameCoordinator {
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
+
+    this.startGameplay();
   }
 
   /**
@@ -165,6 +167,49 @@ class GameCoordinator {
         pickup.checkPacmanProximity(maxDistance, pacmanCenter, debugging);
       });
     }
+  }
+
+  /**
+   * Displays "Ready!" and allows Pacman to move after a breif delay
+   * @param {Boolean} initialStart - Special condition for the game's beginning
+   */
+  startGameplay(initialStart) {
+    this.allowPacmanMovement = false;
+
+    const left = this.scaledTileSize * 11;
+    const top = this.scaledTileSize * 16.5;
+    const duration = initialStart ? 4000 : 2000;
+    const width = this.scaledTileSize * 6;
+    const height = this.scaledTileSize * 2;
+
+    this.displayText({ left, top }, 'ready', duration, width, height);
+
+    new Timer(() => {
+      this.allowPacmanMovement = true;
+      this.pacman.moving = true;
+      this.ghostCycle('scatter');
+    }, duration);
+  }
+
+  /**
+   * Cycles the ghosts between 'chase' and 'scatter' mode
+   * @param {('chase'|'scatter')} mode
+   */
+  ghostCycle(mode) {
+    if (this.timerExists(this.ghostTimer)) {
+      this.removeTimer({ detail: { id: this.ghostTimer } });
+    }
+
+    const delay = (mode === 'scatter') ? 7000 : 20000;
+    const nextMode = (mode === 'scatter') ? 'chase' : 'scatter';
+
+    this.ghostTimer = new Timer(() => {
+      this.ghosts.forEach((ghost) => {
+        ghost.changeMode(nextMode);
+      });
+
+      this.ghostCycle(nextMode);
+    }, delay).timerId;
   }
 
   /**
@@ -240,17 +285,20 @@ class GameCoordinator {
         : this.scaledTileSize * 2;
       const height = this.scaledTileSize * 2;
 
-      this.displayPoints({ left, top }, e.detail.points, 2000, width, height);
+      this.displayText({ left, top }, e.detail.points, 2000, width, height);
     }
   }
 
   /**
-   * Animates Pacman's death, subtracts a life, and resets character positions if the player
-   * has remaining lives.
+   * Animates Pacman's death, subtracts a life, and resets character positions if
+   * the player has remaining lives.
    */
   deathSequence() {
     if (this.timerExists(this.fruitTimer)) {
       this.removeTimer({ detail: { id: this.fruitTimer } });
+    }
+    if (this.timerExists(this.ghostTimer)) {
+      this.removeTimer({ detail: { id: this.ghostTimer } });
     }
 
     this.allowKeyPresses = false;
@@ -268,6 +316,8 @@ class GameCoordinator {
           this.pacman.reset();
           this.blinky.reset();
           this.fruit.hideFruit();
+
+          this.startGameplay();
         }, 500);
       }, 2250);
     }, 750);
@@ -322,6 +372,10 @@ class GameCoordinator {
       entityRef.moving = false;
     });
 
+    if (this.timerExists(this.ghostTimer)) {
+      this.removeTimer({ detail: { id: this.ghostTimer } });
+    }
+
     new Timer(() => {
       this.mazeCover.style.visibility = 'visible';
 
@@ -344,6 +398,8 @@ class GameCoordinator {
             this.remainingDots += 1;
           }
         });
+
+        this.startGameplay();
       }, 500);
     }, 2000);
   }
@@ -414,7 +470,7 @@ class GameCoordinator {
       ghost => ghost.name !== e.detail.ghost.name,
     );
 
-    this.displayPoints(
+    this.displayText(
       position, 200, pauseDuration, measurement,
     );
 
@@ -447,13 +503,13 @@ class GameCoordinator {
    * @param {Number} width - Image width
    * @param {Number} height - Image height
    */
-  displayPoints(position, amount, duration, width, height) {
+  displayText(position, amount, duration, width, height) {
     const pointsDiv = document.createElement('div');
 
     pointsDiv.style.position = 'absolute';
     pointsDiv.style.backgroundSize = `${width}px`;
     pointsDiv.style.backgroundImage = 'url(app/style/graphics/'
-      + `spriteSheets/points/${amount}.svg`;
+      + `spriteSheets/text/${amount}.svg`;
     pointsDiv.style.width = `${width}px`;
     pointsDiv.style.height = `${height || width}px`;
     pointsDiv.style.top = `${position.top}px`;

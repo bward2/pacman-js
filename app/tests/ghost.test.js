@@ -293,25 +293,39 @@ describe('ghost', () => {
   });
 
   describe('getTarget', () => {
+    const pacmanPos = { x: 1, y: 1 };
+
     it('returns the ghost-house\'s door for eyes mode', () => {
       const result = ghost.getTarget(undefined, undefined, 'eyes');
       assert.deepEqual(result, { x: 13.5, y: 10 });
     });
 
     it('returns Pacman\'s position for scared mode', () => {
-      const pacmanPos = { x: 1, y: 1 };
       const result = ghost.getTarget(undefined, pacmanPos, 'scared');
       assert.deepEqual(result, pacmanPos);
     });
 
+    it('returns the top-right corner for scatter mode', () => {
+      const result = ghost.getTarget('blinky', pacmanPos, 'scatter');
+      assert.deepEqual(result, { x: 27, y: 0 });
+    });
+
+    it('returns Pacman\'s position for Cruise Elroy in scatter', () => {
+      ghost.cruiseElroy = true;
+      const result = ghost.getTarget('blinky', pacmanPos, 'scatter');
+      assert.deepEqual(result, pacmanPos);
+    });
+
+    it('returns the top-left corner by default for scatter', () => {
+      ghost.getTarget(undefined, pacmanPos, 'scatter');
+    });
+
     it('returns Pacman\'s position for Blinky', () => {
-      const pacmanPos = { x: 1, y: 1 };
       const result = ghost.getTarget('blinky', pacmanPos, 'chase');
       assert.deepEqual(result, pacmanPos);
     });
 
-    it('returns Pacman\'s position by default', () => {
-      const pacmanPos = { x: 1, y: 1 };
+    it('returns Pacman\'s position by default for chase', () => {
       const result = ghost.getTarget(undefined, pacmanPos, 'chase');
       assert.deepEqual(result, pacmanPos);
     });
@@ -451,7 +465,7 @@ describe('ghost', () => {
       assert.strictEqual(ghost.direction, 'up');
       assert.deepEqual(result, { x: 0, y: 14 });
       assert(ghost.characterUtil.snapToGrid.called);
-      assert.strictEqual(ghost.mode, 'chase');
+      assert.strictEqual(ghost.mode, ghost.defaultMode);
     });
 
     it('snaps y to 11 and sends ghost left once exited', () => {
@@ -491,6 +505,39 @@ describe('ghost', () => {
 
       const newPosition = ghost.handleUnsnappedMovement();
       assert.deepEqual(newPosition, snappedPosition);
+    });
+  });
+
+  describe('changeMode', () => {
+    it('updates the defaultMode', () => {
+      ghost.defaultMode = 'chase';
+      ghost.mode = 'chase';
+      ghost.isInGhostHouse = sinon.fake.returns(false);
+      ghost.characterUtil.getOppositeDirection = sinon.fake.returns('down');
+
+      ghost.changeMode('scatter');
+      assert.strictEqual(ghost.defaultMode, 'scatter');
+      assert.strictEqual(ghost.mode, 'scatter');
+      assert.strictEqual(ghost.direction, 'down');
+    });
+
+    it('won\'t turn the ghost around when in the Ghost House', () => {
+      ghost.isInGhostHouse = sinon.fake.returns(true);
+      ghost.characterUtil.getOppositeDirection = sinon.fake();
+
+      ghost.changeMode('scatter');
+      assert(!ghost.characterUtil.getOppositeDirection.called);
+    });
+
+    it('won\'t update mode under certain conditions', () => {
+      ghost.mode = 'scared';
+      ghost.changeMode('scatter');
+      assert.strictEqual(ghost.mode, 'scared');
+
+      ghost.mode = 'chase';
+      ghost.cruiseElroy = true;
+      ghost.changeMode('scatter');
+      assert.strictEqual(ghost.mode, 'chase');
     });
   });
 
@@ -549,7 +596,7 @@ describe('ghost', () => {
       ghost.setSpriteSheet = sinon.fake();
 
       ghost.endScared();
-      assert.strictEqual(ghost.mode, 'chase');
+      assert.strictEqual(ghost.mode, ghost.defaultMode);
       assert(ghost.setSpriteSheet.called);
     });
   });

@@ -14,7 +14,9 @@ describe('gameCoordinator', () => {
   beforeEach(() => {
     global.Pacman = class {};
     global.CharacterUtil = class {};
-    global.Ghost = class {};
+    global.Ghost = class {
+      changeMode() {}
+    };
     global.Pickup = class {};
     global.Timer = class {
       constructor(callback, delay) {
@@ -28,6 +30,7 @@ describe('gameCoordinator', () => {
     global.document = {
       getElementById: () => ({
         appendChild: () => { },
+        removeChild: () => { },
       }),
       createElement: () => ({
         classList: {
@@ -63,6 +66,58 @@ describe('gameCoordinator', () => {
 
     it('calls checkPacmanProximity for each pickup', () => {
       component.collisionDetectionLoop();
+    });
+  });
+
+  describe('startGameplay', () => {
+    it('calls displayText, then kicks off movement', () => {
+      component.displayText = sinon.fake();
+
+      component.startGameplay();
+      assert(component.displayText.calledWith(
+        {
+          left: component.scaledTileSize * 11,
+          top: component.scaledTileSize * 16.5,
+        },
+        'ready',
+        2000,
+        component.scaledTileSize * 6,
+        component.scaledTileSize * 2,
+      ));
+
+      clock.tick(2000);
+      assert(component.allowPacmanMovement);
+      assert(component.pacman.moving);
+    });
+
+    it('waits longer for the initialStart', () => {
+      component.displayText = sinon.fake();
+
+      component.startGameplay(true);
+      assert(component.displayText.calledWith(
+        {
+          left: component.scaledTileSize * 11,
+          top: component.scaledTileSize * 16.5,
+        },
+        'ready',
+        4000,
+        component.scaledTileSize * 6,
+        component.scaledTileSize * 2,
+      ));
+
+      clock.tick(4000);
+      assert(component.allowPacmanMovement);
+      assert(component.pacman.moving);
+    });
+  });
+
+  describe('ghostCycle', () => {
+    it('changes ghosts to Chase mode after seven seconds', () => {
+      component.ghosts = [{ changeMode: sinon.fake() }];
+
+      component.ghostCycle('scatter');
+      clock.tick(7000);
+      assert(component.ghosts[0].changeMode.calledWith('chase'));
     });
   });
 
@@ -212,15 +267,15 @@ describe('gameCoordinator', () => {
       assert.strictEqual(component.points, 50);
     });
 
-    it('calls displayPoints when a fruit is eaten', () => {
+    it('calls displayText when a fruit is eaten', () => {
       component.points = 0;
-      component.displayPoints = sinon.fake();
+      component.displayText = sinon.fake();
 
       component.awardPoints(
         { detail: { points: 50, type: 'fruit' } },
       );
       assert.strictEqual(component.points, 50);
-      assert(component.displayPoints.calledWith(
+      assert(component.displayText.calledWith(
         {
           left: component.scaledTileSize * 13,
           top: component.scaledTileSize * 16.5,
@@ -234,13 +289,13 @@ describe('gameCoordinator', () => {
 
     it('displays a wider image when fruit worth four figures is eaten', () => {
       component.points = 0;
-      component.displayPoints = sinon.fake();
+      component.displayText = sinon.fake();
 
       component.awardPoints(
         { detail: { points: 1000, type: 'fruit' } },
       );
       assert.strictEqual(component.points, 1000);
-      assert(component.displayPoints.calledWith(
+      assert(component.displayText.calledWith(
         {
           left: component.scaledTileSize * 12.5,
           top: component.scaledTileSize * 16.5,
@@ -412,6 +467,18 @@ describe('gameCoordinator', () => {
       assert(ghost.resetDefaultSpeed.called);
       assert.strictEqual(component.remainingDots, 1);
     });
+
+    it('removes the ghostTimer if needed', () => {
+      component.ghostTimer = 123;
+      component.timerExists = sinon.fake.returns(true);
+      component.removeTimer = sinon.fake();
+
+      component.advanceLevel();
+      assert(component.timerExists.calledWith(component.ghostTimer));
+      assert(component.removeTimer.calledWith(
+        { detail: { id: component.ghostTimer } },
+      ));
+    });
   });
 
   describe('flashGhosts', () => {
@@ -491,7 +558,7 @@ describe('gameCoordinator', () => {
   describe('eatGhost', () => {
     it('awards points and temporarily pauses movement', () => {
       component.allowPacmanMovement = true;
-      component.displayPoints = sinon.fake();
+      component.displayText = sinon.fake();
       const e = {
         detail: {
           ghost: {
@@ -507,7 +574,7 @@ describe('gameCoordinator', () => {
       assert(!e.detail.ghost.display);
       assert(!component.pacman.moving);
       assert(!component.blinky.moving);
-      assert(component.displayPoints.called);
+      assert(component.displayText.called);
 
       clock.tick(1000);
       assert(component.allowPacmanMovement);
@@ -517,14 +584,14 @@ describe('gameCoordinator', () => {
     });
   });
 
-  describe('displayPoints', () => {
+  describe('displayText', () => {
     it('creates a temporary div and removes it with a set delay', () => {
       component.mazeDiv = {
         appendChild: sinon.fake(),
         removeChild: sinon.fake(),
       };
 
-      component.displayPoints(
+      component.displayText(
         { left: 10, top: 25 }, 200, 1000, 48,
       );
       assert(component.mazeDiv.appendChild.called);
