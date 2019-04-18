@@ -448,6 +448,11 @@ class Ghost {
     return desired.newPosition;
   }
 
+  /**
+   * Changes the defaultMode to chase or scatter, and turns the ghost around
+   * if needed
+   * @param {('chase'|'scatter')} newMode
+   */
   changeMode(newMode) {
     this.defaultMode = newMode;
 
