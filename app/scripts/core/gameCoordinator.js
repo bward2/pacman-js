@@ -88,6 +88,10 @@ class GameCoordinator {
         this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
         this.level, new CharacterUtil(),
       ),
+      this.pinky = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
+        this.level, new CharacterUtil(),
+      ),
       this.fruit = new Pickup(
         'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
         this.mazeDiv, 100,
@@ -96,6 +100,7 @@ class GameCoordinator {
 
     this.ghosts = [
       this.blinky,
+      this.pinky,
     ];
 
     this.pickups = [
@@ -303,10 +308,16 @@ class GameCoordinator {
 
     this.allowKeyPresses = false;
     this.pacman.moving = false;
-    this.blinky.moving = false;
+    this.ghosts.forEach((ghost) => {
+      const ghostRef = ghost;
+      ghostRef.moving = false;
+    });
 
     new Timer(() => {
-      this.blinky.display = false;
+      this.ghosts.forEach((ghost) => {
+        const ghostRef = ghost;
+        ghostRef.display = false;
+      });
       this.pacman.prepDeathAnimation();
       new Timer(() => {
         this.mazeCover.style.visibility = 'visible';
@@ -314,7 +325,9 @@ class GameCoordinator {
           this.allowKeyPresses = true;
           this.mazeCover.style.visibility = 'hidden';
           this.pacman.reset();
-          this.blinky.reset();
+          this.ghosts.forEach((ghost) => {
+            ghost.reset();
+          });
           this.fruit.hideFruit();
 
           this.startGameplay();
@@ -391,7 +404,7 @@ class GameCoordinator {
             entityRef.level = this.level;
           }
           entityRef.reset();
-          if (entityRef.name === 'blinky') {
+          if (entityRef instanceof Ghost) {
             entityRef.resetDefaultSpeed();
           }
           if (entityRef instanceof Pickup && entityRef.type !== 'fruit') {
