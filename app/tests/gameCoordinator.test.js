@@ -478,7 +478,6 @@ describe('gameCoordinator', () => {
 
   describe('flashGhosts', () => {
     it('calls itself recursively a number of times', () => {
-      comp.flashingGhosts = true;
       comp.scaredGhosts = [{
         toggleScaredColor: sinon.fake(),
         endScared: sinon.fake(),
@@ -498,16 +497,6 @@ describe('gameCoordinator', () => {
       comp.flashGhosts(0, 9);
       clock.tick(10000);
       assert.strictEqual(comp.flashGhosts.callCount, 1);
-      assert(!comp.flashingGhosts);
-    });
-
-    it('does nothing if flashingGhosts is FALSE', () => {
-      comp.flashingGhosts = false;
-      sinon.spy(comp, 'flashGhosts');
-
-      comp.flashGhosts(0, 9);
-      clock.tick(10000);
-      assert.strictEqual(comp.flashGhosts.callCount, 1);
     });
   });
 
@@ -522,7 +511,6 @@ describe('gameCoordinator', () => {
       clock.tick(6000);
       assert(comp.removeTimer.called);
       assert(comp.scaredGhosts[0].becomeScared.called);
-      assert(comp.flashingGhosts);
       assert(comp.flashGhosts.calledWith(0, 9));
     });
 
@@ -623,6 +611,44 @@ describe('gameCoordinator', () => {
       assert(comp.timerExists(2));
       assert(comp.timerExists(3));
       assert(!comp.timerExists(4));
+    });
+  });
+
+  describe('pauseTimer', () => {
+    it('pauses an existing timer', () => {
+      const spy = sinon.fake();
+      comp.timerExists = sinon.fake.returns(false);
+      comp.activeTimers = [
+        { timerId: 1 },
+        { timerId: 2, pause: spy },
+        { timerId: 3 },
+      ];
+
+      comp.pauseTimer({ detail: { id: 2 } });
+      assert(!spy.called);
+
+      comp.timerExists = sinon.fake.returns(true);
+      comp.pauseTimer({ detail: { id: 2 } });
+      assert(spy.called);
+    });
+  });
+
+  describe('resumeTimer', () => {
+    it('resumes an existing timer', () => {
+      const spy = sinon.fake();
+      comp.timerExists = sinon.fake.returns(false);
+      comp.activeTimers = [
+        { timerId: 1 },
+        { timerId: 2, resume: spy },
+        { timerId: 3 },
+      ];
+
+      comp.resumeTimer({ detail: { id: 2 } });
+      assert(!spy.called);
+
+      comp.timerExists = sinon.fake.returns(true);
+      comp.resumeTimer({ detail: { id: 2 } });
+      assert(spy.called);
     });
   });
 
