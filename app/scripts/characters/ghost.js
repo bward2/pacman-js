@@ -23,6 +23,9 @@ class Ghost {
     this.setSpriteSheet(this.name, this.direction, this.mode);
   }
 
+  /**
+   * Sets the default mode and idleMode behavior
+   */
   setDefaultMode() {
     this.defaultMode = 'scatter';
     this.mode = 'scatter';
@@ -361,8 +364,6 @@ class Ghost {
           this.idleMode = undefined;
           newPosition.top = this.scaledTileSize * 10.5;
           this.direction = this.characterUtil.directions.left;
-        } else {
-          this.direction = this.characterUtil.directions.up;
         }
       } else if (position.x > 13.4 && position.x < 13.6) {
         newPosition.left = this.scaledTileSize * 13;
@@ -381,6 +382,9 @@ class Ghost {
     return newPosition;
   }
 
+  /**
+   * Sets idleMode to 'leaving', allowing the ghost to leave the Ghost House
+   */
   endIdleMode() {
     this.idleMode = 'leaving';
   }
@@ -509,6 +513,11 @@ class Ghost {
     return desired.newPosition;
   }
 
+  /**
+   * Determines the new Ghost position
+   * @param {number} elapsedMs
+   * @returns {({ top: number, left: number})}
+   */
   handleMovement(elapsedMs) {
     let newPosition;
 
@@ -701,10 +710,6 @@ class Ghost {
    */
   update(elapsedMs) {
     this.oldPosition = Object.assign({}, this.position);
-
-    if (this.pacman.moving) {
-      this.moving = true;
-    }
 
     if (this.moving) {
       this.position = this.handleMovement(elapsedMs);

@@ -49,10 +49,12 @@ describe('ghost', () => {
       assert.strictEqual(ghost.moving, false);
     });
 
-    it('sets Blinky\'s defaultDirection to LEFT', () => {
+    it('sets the correct direction for each ghost', () => {
       ghost.setMovementStats(pacman, 'blinky');
-      assert.strictEqual(ghost.defaultDirection, 'left');
       assert.strictEqual(ghost.direction, 'left');
+
+      ghost.setMovementStats(pacman, 'pinky');
+      assert.strictEqual(ghost.direction, 'down');
     });
   });
 
@@ -81,22 +83,33 @@ describe('ghost', () => {
   });
 
   describe('setDefaultPosition', () => {
-    it('sets the correct position for blinky', () => {
+    it('sets the correct position for each ghost', () => {
       ghost.setDefaultPosition(scaledTileSize, 'blinky');
-      assert.deepEqual(ghost.defaultPosition, { top: 84, left: 104 });
-      assert.deepEqual(ghost.position, { top: 84, left: 104 });
-      assert.deepEqual(ghost.oldPosition, { top: 84, left: 104 });
-      assert.strictEqual(ghost.animationTarget.style.top, '84px');
-      assert.strictEqual(ghost.animationTarget.style.left, '104px');
-    });
+      assert.deepEqual(ghost.defaultPosition,
+        {
+          top: ghost.scaledTileSize * 10.5,
+          left: ghost.scaledTileSize * 13,
+        });
 
-    it('sets the correct default position if the name is missing', () => {
+      ghost.setDefaultPosition(scaledTileSize, 'pinky');
+      assert.deepEqual(ghost.defaultPosition,
+        {
+          top: ghost.scaledTileSize * 13.5,
+          left: ghost.scaledTileSize * 13,
+        });
+
       ghost.setDefaultPosition(scaledTileSize, undefined);
       assert.deepEqual(ghost.defaultPosition, { top: 0, left: 0 });
-      assert.deepEqual(ghost.position, { top: 0, left: 0 });
-      assert.deepEqual(ghost.oldPosition, { top: 0, left: 0 });
-      assert.strictEqual(ghost.animationTarget.style.top, '0px');
-      assert.strictEqual(ghost.animationTarget.style.left, '0px');
+    });
+
+    it('updates various position properties', () => {
+      ghost.setDefaultPosition(scaledTileSize, 'blinky');
+      assert.deepEqual(ghost.position, ghost.defaultPosition);
+      assert.deepEqual(ghost.oldPosition, ghost.position);
+      assert.strictEqual(ghost.animationTarget.style.top,
+        `${ghost.position.top}px`);
+      assert.strictEqual(ghost.animationTarget.style.left,
+        `${ghost.position.left}px`);
     });
   });
 
@@ -192,7 +205,7 @@ describe('ghost', () => {
     it('resets the character to its default state', () => {
       ghost.name = 'blinky';
       ghost.position = '';
-      ghost.direciton = '';
+      ghost.direction = '';
       ghost.animationTarget.style.backgroundImage = '';
       ghost.backgroundOffsetPixels = '';
       ghost.animationTarget.style.backgroundPosition = '';
@@ -206,6 +219,24 @@ describe('ghost', () => {
       assert.strictEqual(ghost.backgroundOffsetPixels, 0);
       assert.strictEqual(ghost.animationTarget.style.backgroundPosition,
         '0px 0px');
+    });
+  });
+
+  describe('setDefaultMode', () => {
+    it('starts ghosts in scatter mode', () => {
+      ghost.setDefaultMode();
+      assert.strictEqual(ghost.defaultMode, 'scatter');
+      assert.strictEqual(ghost.mode, 'scatter');
+    });
+
+    it('sets idleMode for all ghosts except blinky', () => {
+      ghost.name = 'blinky';
+      ghost.setDefaultMode();
+      assert.strictEqual(ghost.idleMode, undefined);
+
+      ghost.name = 'pinky';
+      ghost.setDefaultMode();
+      assert.strictEqual(ghost.idleMode, 'idle');
     });
   });
 
@@ -380,32 +411,30 @@ describe('ghost', () => {
       ghost.determinePossibleMoves = sinon.fake.returns({ up: '', down: '' });
       const bestSpy = ghost.determineBestMove = sinon.fake.returns('down');
 
-      const direciton = ghost.determineDirection();
+      const direction = ghost.determineDirection();
       assert(bestSpy.called);
-      assert.strictEqual(direciton, 'down');
+      assert.strictEqual(direction, 'down');
     });
 
     it('returns the ghost\'s default direction if there are no moves', () => {
       ghost.determinePossibleMoves = sinon.fake.returns({});
 
-      const direciton = ghost.determineDirection(
+      const direction = ghost.determineDirection(
         undefined, undefined, undefined, 'right',
       );
-      assert.strictEqual(direciton, 'right');
+      assert.strictEqual(direction, 'right');
     });
   });
 
   describe('handleSnappedMovement', () => {
     it('calls determineDirection to decide where to turn', () => {
       ghost.characterUtil.determineGridPosition = sinon.fake();
-      const direcitonSpy = ghost.determineDirection = sinon.fake();
-      const spriteSpy = ghost.setSpriteSheet = sinon.fake();
+      const directionSpy = ghost.determineDirection = sinon.fake();
       ghost.characterUtil.getPropertyToChange = sinon.fake.returns('top');
       ghost.characterUtil.getVelocity = sinon.fake.returns(10);
 
       const newPosition = ghost.handleSnappedMovement(50);
-      assert(direcitonSpy.called);
-      assert(spriteSpy.called);
+      assert(directionSpy.called);
       assert.deepEqual(newPosition, { top: 500, left: 0 });
     });
   });
@@ -479,6 +508,65 @@ describe('ghost', () => {
     });
   });
 
+  describe('handleIdleMovement', () => {
+    let elapsedMs; let position; let
+      velocity;
+
+    beforeEach(() => {
+      elapsedMs = 100;
+      position = { x: undefined, y: undefined };
+      velocity = 200;
+      ghost.characterUtil.getPropertyToChange = sinon.fake();
+      ghost.characterUtil.getVelocity = sinon.fake();
+    });
+
+    it('bounces the ghost up and down while idling', () => {
+      ghost.idleMode = 'idle';
+
+      position.y = 13.5;
+      ghost.handleIdleMovement(elapsedMs, position, velocity);
+      assert.strictEqual(ghost.direction, 'down');
+
+      position.y = 14.5;
+      ghost.handleIdleMovement(elapsedMs, position, velocity);
+      assert.strictEqual(ghost.direction, 'up');
+    });
+
+    it('vacates the ghost when idleMode is LEAVING', () => {
+      ghost.idleMode = 'leaving';
+      position = { x: 13.5, y: 10.9 };
+      let result = ghost.handleIdleMovement(elapsedMs, position, velocity);
+      assert.strictEqual(ghost.idleMode, undefined);
+      assert.strictEqual(result.top, ghost.scaledTileSize * 10.5);
+      assert.strictEqual(ghost.direction, 'left');
+
+      ghost.idleMode = 'leaving';
+      position = { x: 13.41, y: 10 };
+      result = ghost.handleIdleMovement(elapsedMs, position, velocity);
+      assert.strictEqual(result.left, ghost.scaledTileSize * 13);
+      assert.strictEqual(ghost.direction, 'up');
+
+      position = { x: 11, y: 14 };
+      result = ghost.handleIdleMovement(elapsedMs, position, velocity);
+      assert.strictEqual(result.top, ghost.scaledTileSize * 13.5);
+      assert.strictEqual(ghost.direction, 'right');
+
+      position = { x: 15, y: 14 };
+      result = ghost.handleIdleMovement(elapsedMs, position, velocity);
+      assert.strictEqual(result.top, ghost.scaledTileSize * 13.5);
+      assert.strictEqual(ghost.direction, 'left');
+    });
+  });
+
+  describe('endIdleMode', () => {
+    it('sets idleMode to LEAVING', () => {
+      ghost.idleMode = 'idle';
+
+      ghost.endIdleMode();
+      assert.strictEqual(ghost.idleMode, 'leaving');
+    });
+  });
+
   describe('handleUnsnappedMovement', () => {
     beforeEach(() => {
       sinon.stub(ghost, 'handleGhostHouse').callsFake(input => input);
@@ -505,6 +593,40 @@ describe('ghost', () => {
 
       const newPosition = ghost.handleUnsnappedMovement();
       assert.deepEqual(newPosition, snappedPosition);
+    });
+  });
+
+  describe('handleMovement', () => {
+    beforeEach(() => {
+      ghost.characterUtil.determineGridPosition = sinon.fake();
+      ghost.determineVelocity = sinon.fake();
+      ghost.handleIdleMovement = sinon.fake();
+      ghost.handleSnappedMovement = sinon.fake();
+      ghost.handleUnsnappedMovement = sinon.fake();
+      ghost.characterUtil.handleWarp = sinon.fake();
+      ghost.checkCollision = sinon.fake();
+    });
+
+    it('calls handleWarp and checkCollision', () => {
+      ghost.handleMovement(100);
+      assert(ghost.characterUtil.handleWarp.called);
+      assert(ghost.checkCollision.called);
+    });
+
+    it('calls the correct movement handlers', () => {
+      ghost.idleMode = true;
+      ghost.handleMovement(100);
+      assert(ghost.handleIdleMovement.called);
+
+      ghost.idleMode = false;
+      ghost.position = {};
+      ghost.characterUtil.snapToGrid = sinon.fake.returns(ghost.position);
+      ghost.handleMovement(100);
+      assert(ghost.handleSnappedMovement.called);
+
+      ghost.position = undefined;
+      ghost.handleMovement(100);
+      assert(ghost.handleUnsnappedMovement.called);
     });
   });
 
@@ -716,59 +838,24 @@ describe('ghost', () => {
   });
 
   describe('update', () => {
-    it('calls handleSnappedMovement if the ghost is snapped', () => {
-      const snappedSpy = ghost.handleSnappedMovement = sinon.fake();
-      ghost.characterUtil.determineGridPosition = sinon.fake();
-      ghost.determineVelocity = sinon.fake();
-      ghost.isInTunnel = sinon.fake();
-      ghost.characterUtil.handleWarp = sinon.fake();
-      ghost.characterUtil.snapToGrid = sinon.fake.returns(ghost.position);
-      ghost.checkCollision = sinon.fake();
-      pacman.moving = true;
+    it('updates oldPosition', () => {
+      ghost.oldPosition = undefined;
+      ghost.position = {};
 
       ghost.update();
-      assert(snappedSpy.called);
+      assert.deepEqual(ghost.oldPosition, ghost.position);
     });
 
-    it('calls handleUnsnappedMovement if the ghost is not snapped', () => {
-      const unsnappedSpy = ghost.handleUnsnappedMovement = sinon.fake();
-      ghost.characterUtil.determineGridPosition = sinon.fake();
-      ghost.determineVelocity = sinon.fake();
-      ghost.isInTunnel = sinon.fake();
-      ghost.characterUtil.handleWarp = sinon.fake();
-      ghost.characterUtil.snapToGrid = sinon.fake();
-      ghost.checkCollision = sinon.fake();
-      pacman.moving = true;
+    it('updates various properties when moving', () => {
+      ghost.msSinceLastSprite = 0;
+      ghost.moving = true;
+      ghost.handleMovement = sinon.fake();
+      ghost.setSpriteSheet = sinon.fake();
 
-      ghost.update();
-      assert(unsnappedSpy.called);
-    });
-
-    it('does not call movement handlers unless the ghost is moving', () => {
-      const snappedSpy = ghost.handleSnappedMovement = sinon.fake();
-      const unsnappedSpy = ghost.handleUnsnappedMovement = sinon.fake();
-      ghost.moving = false;
-      pacman.moving = false;
-
-      ghost.update();
-      assert(!snappedSpy.called);
-      assert(!unsnappedSpy.called);
-    });
-
-    it('waits for Pacman to start moving', () => {
-      pacman.moving = false;
-      ghost.update();
-      assert(!ghost.moving);
-    });
-
-    it('sets the ghost\'s velocity to tunnelSpeed if needed', () => {
-      ghost.characterUtil.determineGridPosition = sinon.fake();
-      ghost.isInTunnel = sinon.fake.returns(true);
-      ghost.handleUnsnappedMovement = sinon.fake();
-      ghost.characterUtil.handleWarp = sinon.fake();
-      ghost.checkCollision = sinon.fake();
-
-      ghost.update();
+      ghost.update(100);
+      assert(ghost.handleMovement.calledWith(100));
+      assert(ghost.setSpriteSheet.called);
+      assert.strictEqual(ghost.msSinceLastSprite, 100);
     });
   });
 });

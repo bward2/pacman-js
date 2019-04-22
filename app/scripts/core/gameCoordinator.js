@@ -192,6 +192,12 @@ class GameCoordinator {
     new Timer(() => {
       this.allowPacmanMovement = true;
       this.pacman.moving = true;
+
+      this.ghosts.forEach((ghost) => {
+        const ghostRef = ghost;
+        ghostRef.moving = true;
+      });
+
       this.ghostCycle('scatter');
     }, duration);
 
