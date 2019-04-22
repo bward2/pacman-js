@@ -211,9 +211,7 @@ class GameCoordinator {
    * @param {('chase'|'scatter')} mode
    */
   ghostCycle(mode) {
-    if (this.timerExists(this.ghostTimer)) {
-      this.removeTimer({ detail: { id: this.ghostTimer } });
-    }
+    this.removeTimer({ detail: { id: this.ghostTimer } });
 
     const delay = (mode === 'scatter') ? 7000 : 20000;
     const nextMode = (mode === 'scatter') ? 'chase' : 'scatter';
@@ -309,15 +307,9 @@ class GameCoordinator {
    * the player has remaining lives.
    */
   deathSequence() {
-    if (this.timerExists(this.fruitTimer)) {
-      this.removeTimer({ detail: { id: this.fruitTimer } });
-    }
-    if (this.timerExists(this.ghostTimer)) {
-      this.removeTimer({ detail: { id: this.ghostTimer } });
-    }
-    if (this.timerExists(this.endIdleTimer)) {
-      this.removeTimer({ detail: { id: this.endIdleTimer } });
-    }
+    this.removeTimer({ detail: { id: this.fruitTimer } });
+    this.removeTimer({ detail: { id: this.ghostTimer } });
+    this.removeTimer({ detail: { id: this.endIdleTimer } });
 
     this.allowKeyPresses = false;
     this.pacman.moving = false;
@@ -372,12 +364,8 @@ class GameCoordinator {
    * Creates a bonus fruit for ten seconds
    */
   createFruit() {
-    if (this.timerExists(this.fruitTimer)) {
-      this.removeTimer({ detail: { id: this.fruitTimer } });
-    }
-
+    this.removeTimer({ detail: { id: this.fruitTimer } });
     this.fruit.showFruit(this.fruitPoints[this.level] || 5000);
-
     this.fruitTimer = new Timer(() => {
       this.fruit.hideFruit();
     }, 10000).timerId;
@@ -398,15 +386,9 @@ class GameCoordinator {
       entityRef.moving = false;
     });
 
-    if (this.timerExists(this.fruitTimer)) {
-      this.removeTimer({ detail: { id: this.fruitTimer } });
-    }
-    if (this.timerExists(this.ghostTimer)) {
-      this.removeTimer({ detail: { id: this.ghostTimer } });
-    }
-    if (this.timerExists(this.endIdleTimer)) {
-      this.removeTimer({ detail: { id: this.endIdleTimer } });
-    }
+    this.removeTimer({ detail: { id: this.fruitTimer } });
+    this.removeTimer({ detail: { id: this.ghostTimer } });
+    this.removeTimer({ detail: { id: this.endIdleTimer } });
 
     new Timer(() => {
       this.mazeCover.style.visibility = 'visible';
@@ -467,9 +449,7 @@ class GameCoordinator {
    * Upon eating a power pellet, sets the ghosts to 'scared' mode
    */
   powerUp() {
-    if (this.timerExists(this.powerupTimer)) {
-      this.removeTimer({ detail: { id: this.powerupTimer } });
-    }
+    this.removeTimer({ detail: { id: this.powerupTimer } });
 
     this.ghostCombo = 0;
     this.flashingGhosts = false;
@@ -592,10 +572,12 @@ class GameCoordinator {
    * @param {({ detail: { id: Number }})} e
    */
   removeTimer(e) {
-    window.clearTimeout(e.detail.id);
-    this.activeTimers = this.activeTimers.filter(
-      timer => timer.timerId !== e.detail.id,
-    );
+    if (this.timerExists(e.detail.id)) {
+      window.clearTimeout(e.detail.id);
+      this.activeTimers = this.activeTimers.filter(
+        timer => timer.timerId !== e.detail.id,
+      );
+    }
   }
 }
 

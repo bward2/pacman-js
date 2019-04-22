@@ -455,9 +455,13 @@ describe('gameCoordinator', () => {
       ];
       comp.mazeCover = { style: {} };
       comp.remainingDots = 0;
+      comp.removeTimer = sinon.fake();
 
       comp.advanceLevel();
       assert(!comp.allowKeyPresses);
+      assert(comp.removeTimer.calledWith(
+        { detail: { id: comp.ghostTimer } },
+      ));
 
       clock.tick(2000);
       assert.strictEqual(comp.mazeCover.style.visibility, 'visible');
@@ -469,18 +473,6 @@ describe('gameCoordinator', () => {
       assert.strictEqual(ghost.level, comp.level);
       assert(ghost.resetDefaultSpeed.called);
       assert.strictEqual(comp.remainingDots, 1);
-    });
-
-    it('removes the ghostTimer if needed', () => {
-      comp.ghostTimer = 123;
-      comp.timerExists = sinon.fake.returns(true);
-      comp.removeTimer = sinon.fake();
-
-      comp.advanceLevel();
-      assert(comp.timerExists.calledWith(comp.ghostTimer));
-      assert(comp.removeTimer.calledWith(
-        { detail: { id: comp.ghostTimer } },
-      ));
     });
   });
 
@@ -532,16 +524,6 @@ describe('gameCoordinator', () => {
       assert(comp.scaredGhosts[0].becomeScared.called);
       assert(comp.flashingGhosts);
       assert(comp.flashGhosts.calledWith(0, 9));
-    });
-
-    it('won\'t call removeTimer unless the powerupTimer is active', () => {
-      comp.timerExists = sinon.fake.returns(false);
-      comp.removeTimer = sinon.fake();
-      comp.ghosts = [{ becomeScared: sinon.fake() }];
-      comp.flashGhosts = sinon.fake();
-
-      comp.powerUp();
-      assert(!comp.removeTimer.called);
     });
 
     it('won\'t push EYES mode ghosts to the scaredGhosts array', () => {
@@ -657,5 +639,14 @@ describe('gameCoordinator', () => {
       assert(global.window.clearTimeout.calledWith(1));
       assert.strictEqual(comp.activeTimers.length, 1);
     });
+  });
+
+  it('checks if a timer exists before removing it', () => {
+    comp.timerExists = sinon.fake.returns(false);
+
+    comp.removeTimer({
+      detail: { id: 1 },
+    });
+    assert(comp.timerExists.called);
   });
 });
