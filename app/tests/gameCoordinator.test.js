@@ -15,7 +15,11 @@ describe('gameCoordinator', () => {
     global.Pacman = class {};
     global.CharacterUtil = class {};
     global.Ghost = class {
+      reset() {}
+
       changeMode() {}
+
+      endIdleMode() {}
     };
     global.Pickup = class {};
     global.Timer = class {
@@ -434,12 +438,11 @@ describe('gameCoordinator', () => {
 
   describe('advanceLevel', () => {
     it('runs the sequence for advancing to the next level', () => {
-      const ghost = {
-        reset: sinon.fake(),
-        resetDefaultSpeed: sinon.fake(),
-        name: 'blinky',
-        level: 1,
-      };
+      const ghost = new Ghost();
+      ghost.reset = sinon.fake();
+      ghost.resetDefaultSpeed = sinon.fake();
+      ghost.name = 'blinky';
+      ghost.level = 1;
       const fruit = new Pickup();
       const pacdot = new Pickup();
       fruit.reset = sinon.fake();
