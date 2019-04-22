@@ -359,12 +359,10 @@ class Ghost {
     }
 
     if (this.idleMode === 'leaving') {
-      if (position.x === 13.5) {
-        if (position.y > 10.8 && position.y < 11) {
-          this.idleMode = undefined;
-          newPosition.top = this.scaledTileSize * 10.5;
-          this.direction = this.characterUtil.directions.left;
-        }
+      if (position.x === 13.5 && (position.y > 10.8 && position.y < 11)) {
+        this.idleMode = undefined;
+        newPosition.top = this.scaledTileSize * 10.5;
+        this.direction = this.characterUtil.directions.left;
       } else if (position.x > 13.4 && position.x < 13.6) {
         newPosition.left = this.scaledTileSize * 13;
         this.direction = this.characterUtil.directions.up;

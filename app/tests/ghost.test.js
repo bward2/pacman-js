@@ -231,6 +231,7 @@ describe('ghost', () => {
 
     it('sets idleMode for all ghosts except blinky', () => {
       ghost.name = 'blinky';
+      ghost.idleMode = undefined;
       ghost.setDefaultMode();
       assert.strictEqual(ghost.idleMode, undefined);
 
@@ -555,6 +556,9 @@ describe('ghost', () => {
       result = ghost.handleIdleMovement(elapsedMs, position, velocity);
       assert.strictEqual(result.top, ghost.scaledTileSize * 13.5);
       assert.strictEqual(ghost.direction, 'left');
+
+      position = { x: 1, y: 1 };
+      ghost.handleIdleMovement(elapsedMs, position, velocity);
     });
   });
 
