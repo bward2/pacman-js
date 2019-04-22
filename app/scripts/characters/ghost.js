@@ -15,13 +15,20 @@ class Ghost {
    * Rests the character to its default state
    */
   reset() {
-    this.mode = 'scatter';
-    this.defaultMode = this.mode;
+    this.setDefaultMode();
     this.setMovementStats(this.pacman, this.name, this.level);
     this.setSpriteAnimationStats();
     this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
     this.setDefaultPosition(this.scaledTileSize, this.name);
     this.setSpriteSheet(this.name, this.direction, this.mode);
+  }
+
+  setDefaultMode() {
+    this.defaultMode = 'scatter';
+    this.mode = 'scatter';
+    if (this.name !== 'blinky') {
+      this.idleMode = 'idle';
+    }
   }
 
   /**
@@ -333,6 +340,52 @@ class Ghost {
   }
 
   /**
+   * Handles movement for idle Ghosts in the Ghost House
+   * @param {*} elapsedMs
+   * @param {*} position
+   * @param {*} velocity
+   * @returns {({ top: number, left: number})}
+   */
+  handleIdleMovement(elapsedMs, position, velocity) {
+    const newPosition = Object.assign({}, this.position);
+
+    if (position.y <= 13.5 && this.idleMode !== 'leaving') {
+      this.direction = this.characterUtil.directions.down;
+    } else if (position.y >= 14.5) {
+      this.direction = this.characterUtil.directions.up;
+    }
+
+    if (this.idleMode === 'leaving') {
+      if (position.x === 13.5) {
+        if (position.y > 10.8 && position.y < 11) {
+          this.idleMode = undefined;
+          newPosition.top = this.scaledTileSize * 10.5;
+          this.direction = this.characterUtil.directions.left;
+        } else {
+          this.direction = this.characterUtil.directions.up;
+        }
+      } else if (position.x > 13.4 && position.x < 13.6) {
+        newPosition.left = this.scaledTileSize * 13;
+        this.direction = this.characterUtil.directions.up;
+      } else if (position.y > 13.9 && position.y < 14.1) {
+        newPosition.top = this.scaledTileSize * 13.5;
+        this.direction = (position.x < 13.5)
+          ? this.characterUtil.directions.right
+          : this.characterUtil.directions.left;
+      }
+    }
+
+    newPosition[this.characterUtil.getPropertyToChange(this.direction)]
+      += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
+
+    return newPosition;
+  }
+
+  endIdleMode() {
+    this.idleMode = 'leaving';
+  }
+
+  /**
    * Handle the ghost's movement when it is snapped to the x-y grid of the Maze Array
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
@@ -347,7 +400,6 @@ class Ghost {
       this.name, gridPosition, pacmanGridPosition, this.direction,
       this.mazeArray, this.mode,
     );
-    this.setSpriteSheet(this.name, this.direction, this.mode);
     newPosition[this.characterUtil.getPropertyToChange(this.direction)]
       += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
 
@@ -455,6 +507,46 @@ class Ghost {
     }
 
     return desired.newPosition;
+  }
+
+  handleMovement(elapsedMs) {
+    let newPosition;
+
+    const gridPosition = this.characterUtil.determineGridPosition(
+      this.position, this.scaledTileSize,
+    );
+    const pacmanGridPosition = this.characterUtil.determineGridPosition(
+      this.pacman.position, this.scaledTileSize,
+    );
+    const velocity = this.determineVelocity(
+      this.name, gridPosition, this.mode,
+    );
+
+    if (this.idleMode) {
+      newPosition = this.handleIdleMovement(
+        elapsedMs, gridPosition, velocity,
+      );
+    } else if (JSON.stringify(this.position) === JSON.stringify(
+      this.characterUtil.snapToGrid(
+        gridPosition, this.direction, this.scaledTileSize,
+      ),
+    )) {
+      newPosition = this.handleSnappedMovement(
+        elapsedMs, gridPosition, velocity, pacmanGridPosition,
+      );
+    } else {
+      newPosition = this.handleUnsnappedMovement(
+        elapsedMs, gridPosition, velocity,
+      );
+    }
+
+    newPosition = this.characterUtil.handleWarp(
+      newPosition, this.scaledTileSize, this.mazeArray,
+    );
+
+    this.checkCollision(gridPosition, pacmanGridPosition);
+
+    return newPosition;
   }
 
   /**
@@ -615,36 +707,8 @@ class Ghost {
     }
 
     if (this.moving) {
-      const gridPosition = this.characterUtil.determineGridPosition(
-        this.position, this.scaledTileSize,
-      );
-      const pacmanGridPosition = this.characterUtil.determineGridPosition(
-        this.pacman.position, this.scaledTileSize,
-      );
-      const velocity = this.determineVelocity(
-        this.name, gridPosition, this.mode,
-      );
-
-      if (JSON.stringify(this.position) === JSON.stringify(
-        this.characterUtil.snapToGrid(
-          gridPosition, this.direction, this.scaledTileSize,
-        ),
-      )) {
-        this.position = this.handleSnappedMovement(
-          elapsedMs, gridPosition, velocity, pacmanGridPosition,
-        );
-      } else {
-        this.position = this.handleUnsnappedMovement(
-          elapsedMs, gridPosition, velocity,
-        );
-      }
-
-      this.position = this.characterUtil.handleWarp(
-        this.position, this.scaledTileSize, this.mazeArray,
-      );
-
-      this.checkCollision(gridPosition, pacmanGridPosition);
-
+      this.position = this.handleMovement(elapsedMs);
+      this.setSpriteSheet(this.name, this.direction, this.mode);
       this.msSinceLastSprite += elapsedMs;
     }
   }

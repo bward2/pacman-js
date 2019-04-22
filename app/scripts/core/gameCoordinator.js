@@ -194,6 +194,10 @@ class GameCoordinator {
       this.pacman.moving = true;
       this.ghostCycle('scatter');
     }, duration);
+
+    this.endIdleTimer = new Timer(() => {
+      this.pinky.endIdleMode();
+    }, duration + 2000).id;
   }
 
   /**
@@ -305,6 +309,9 @@ class GameCoordinator {
     if (this.timerExists(this.ghostTimer)) {
       this.removeTimer({ detail: { id: this.ghostTimer } });
     }
+    if (this.timerExists(this.endIdleTimer)) {
+      this.removeTimer({ detail: { id: this.endIdleTimer } });
+    }
 
     this.allowKeyPresses = false;
     this.pacman.moving = false;
@@ -385,8 +392,14 @@ class GameCoordinator {
       entityRef.moving = false;
     });
 
+    if (this.timerExists(this.fruitTimer)) {
+      this.removeTimer({ detail: { id: this.fruitTimer } });
+    }
     if (this.timerExists(this.ghostTimer)) {
       this.removeTimer({ detail: { id: this.ghostTimer } });
+    }
+    if (this.timerExists(this.endIdleTimer)) {
+      this.removeTimer({ detail: { id: this.endIdleTimer } });
     }
 
     new Timer(() => {
