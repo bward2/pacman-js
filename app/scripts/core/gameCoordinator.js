@@ -471,6 +471,7 @@ class GameCoordinator {
       this.removeTimer({ detail: { id: this.powerupTimer } });
     }
 
+    this.ghostCombo = 0;
     this.flashingGhosts = false;
     this.scaredGhosts = [];
 
@@ -491,6 +492,13 @@ class GameCoordinator {
   }
 
   /**
+   * Determines the quantity of points to give based on the current combo
+   */
+  determineComboPoints() {
+    return (100 * (2 ** this.ghostCombo));
+  }
+
+  /**
    * Upon eating a ghost, award points and temporarily pause movement
    * @param {CustomEvent} e - Contains a target ghost object
    */
@@ -502,8 +510,12 @@ class GameCoordinator {
       ghost => ghost.name !== e.detail.ghost.name,
     );
 
+    this.ghostCombo += 1;
+    const comboPoints = this.determineComboPoints();
+    this.points += comboPoints;
+
     this.displayText(
-      position, 200, pauseDuration, measurement,
+      position, comboPoints, pauseDuration, measurement,
     );
 
     this.allowPacmanMovement = false;
