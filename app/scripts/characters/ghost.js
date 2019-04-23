@@ -244,6 +244,11 @@ class Ghost {
     );
   }
 
+  /**
+   * Determines Pinky's target, which is four tiles in front of Pacman's direction
+   * @param {({x: number, y: number})} pacmanGridPosition
+   * @returns {({x: number, y: number})}
+   */
   determinePinkyTarget(pacmanGridPosition) {
     const target = Object.assign({}, pacmanGridPosition);
     const pacDirection = this.pacman.direction;

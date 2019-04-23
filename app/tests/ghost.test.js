@@ -324,6 +324,24 @@ describe('ghost', () => {
     });
   });
 
+  describe('determinePinkyTarget', () => {
+    const pacmanPos = { x: 10, y: 10 };
+
+    it('returns the correct target for any Pacman orientation', () => {
+      comp.pacman.direction = 'up';
+      assert.deepEqual(comp.determinePinkyTarget(pacmanPos), { x: 10, y: 6 });
+
+      comp.pacman.direction = 'down';
+      assert.deepEqual(comp.determinePinkyTarget(pacmanPos), { x: 10, y: 14 });
+
+      comp.pacman.direction = 'left';
+      assert.deepEqual(comp.determinePinkyTarget(pacmanPos), { x: 6, y: 10 });
+
+      comp.pacman.direction = 'right';
+      assert.deepEqual(comp.determinePinkyTarget(pacmanPos), { x: 14, y: 10 });
+    });
+  });
+
   describe('getTarget', () => {
     const pacmanPos = { x: 1, y: 1 };
 
@@ -337,28 +355,30 @@ describe('ghost', () => {
       assert.deepEqual(result, pacmanPos);
     });
 
-    it('returns the top-right corner for scatter mode', () => {
-      const result = comp.getTarget('blinky', pacmanPos, 'scatter');
+    it('returns corners for scatter mode', () => {
+      let result = comp.getTarget('blinky', pacmanPos, 'scatter');
+      assert.deepEqual(result, { x: 27, y: 0 });
+
+      comp.cruiseElroy = true;
+      result = comp.getTarget('blinky', pacmanPos, 'scatter');
+      assert.deepEqual(result, pacmanPos);
+
+      result = comp.getTarget('pinky', pacmanPos, 'scatter');
+      assert.deepEqual(result, { x: 0, y: 0 });
+
+      result = comp.getTarget(undefined, pacmanPos, 'scatter');
       assert.deepEqual(result, { x: 27, y: 0 });
     });
 
-    it('returns Pacman\'s position for Cruise Elroy in scatter', () => {
-      comp.cruiseElroy = true;
-      const result = comp.getTarget('blinky', pacmanPos, 'scatter');
+    it('returns various targets for chase mode', () => {
+      let result = comp.getTarget('blinky', pacmanPos, 'chase');
       assert.deepEqual(result, pacmanPos);
-    });
 
-    it('returns the top-left corner by default for scatter', () => {
-      comp.getTarget(undefined, pacmanPos, 'scatter');
-    });
+      comp.determinePinkyTarget = sinon.fake();
+      result = comp.getTarget('pinky', pacmanPos, 'chase');
+      assert(comp.determinePinkyTarget.calledWith(pacmanPos));
 
-    it('returns Pacman\'s position for Blinky', () => {
-      const result = comp.getTarget('blinky', pacmanPos, 'chase');
-      assert.deepEqual(result, pacmanPos);
-    });
-
-    it('returns Pacman\'s position by default for chase', () => {
-      const result = comp.getTarget(undefined, pacmanPos, 'chase');
+      result = comp.getTarget(undefined, pacmanPos, 'chase');
       assert.deepEqual(result, pacmanPos);
     });
   });
