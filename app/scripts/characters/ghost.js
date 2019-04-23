@@ -244,6 +244,18 @@ class Ghost {
     );
   }
 
+  determinePinkyTarget(pacmanGridPosition) {
+    const target = Object.assign({}, pacmanGridPosition);
+    const pacDirection = this.pacman.direction;
+    const propToChange = (pacDirection === 'up' || pacDirection === 'down')
+      ? 'y' : 'x';
+    const tileOffset = (pacDirection === 'up' || pacDirection === 'left')
+      ? -4 : 4;
+    target[propToChange] += tileOffset;
+
+    return target;
+  }
+
   /**
    * Determines the appropriate target for the ghost's AI
    * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
@@ -268,8 +280,10 @@ class Ghost {
         case 'blinky':
           // Blinky will chase Pacman, even in Scatter mode, if he's in Cruise Elroy form
           return (this.cruiseElroy ? pacmanGridPosition : { x: 27, y: 0 });
-        default:
+        case 'pinky':
           return { x: 0, y: 0 };
+        default:
+          return { x: 27, y: 0 };
       }
     }
 
@@ -277,6 +291,8 @@ class Ghost {
       // Blinky goes after Pacman's position
       case 'blinky':
         return pacmanGridPosition;
+      case 'pinky':
+        return this.determinePinkyTarget(pacmanGridPosition);
       default:
         // TODO: Other ghosts
         return pacmanGridPosition;
