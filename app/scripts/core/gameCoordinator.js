@@ -547,8 +547,8 @@ class GameCoordinator {
   }
 
   /**
-   * Checks if a Timer with a matching ID exists in the activeTimers array
-   * @param {number} id
+   * Checks if a Timer with a matching ID exists
+   * @param {({ detail: { timer: Object }})} e
    * @returns {Boolean}
    */
   timerExists(e) {
@@ -556,32 +556,32 @@ class GameCoordinator {
   }
 
   /**
-   * Pauses a timer based on ID
-   * @param {({ detail: { id: Number }})} e
+   * Pauses a timer
+   * @param {({ detail: { timer: Object }})} e
    */
   pauseTimer(e) {
     if (this.timerExists(e)) {
       this.activeTimers.filter(
         timer => timer.timerId === e.detail.timer.timerId,
-      )[0].pause();
+      )[0].pause(true);
     }
   }
 
   /**
-   * Resumes a timer based on ID
-   * @param {({ detail: { id: Number }})} e
+   * Resumes a timer
+   * @param {({ detail: { timer: Object }})} e
    */
   resumeTimer(e) {
     if (this.timerExists(e)) {
       this.activeTimers.filter(
         timer => timer.timerId === e.detail.timer.timerId,
-      )[0].resume();
+      )[0].resume(true);
     }
   }
 
   /**
-   * Removes a Timer from activeTimers based on ID
-   * @param {({ detail: { id: Number }})} e
+   * Removes a Timer from activeTimers
+   * @param {({ detail: { timer: Object }})} e
    */
   removeTimer(e) {
     if (this.timerExists(e)) {

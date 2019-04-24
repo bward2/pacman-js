@@ -460,7 +460,7 @@ describe('gameCoordinator', () => {
       comp.advanceLevel();
       assert(!comp.allowKeyPresses);
       assert(comp.removeTimer.calledWith(
-        { detail: { id: comp.ghostTimer } },
+        { detail: { timer: comp.ghostTimer } },
       ));
 
       clock.tick(2000);
