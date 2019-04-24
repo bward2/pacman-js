@@ -8,6 +8,7 @@ class Timer {
   pause() {
     window.clearTimeout(this.timerId);
     this.remaining -= new Date() - this.start;
+    this.oldTimerId = this.timerId;
   }
 
   resume() {
@@ -16,15 +17,18 @@ class Timer {
       this.callback();
       window.dispatchEvent(new CustomEvent('removeTimer', {
         detail: {
-          id: this.timerId,
+          timer: this,
         },
       }));
     }, this.remaining);
-    window.dispatchEvent(new CustomEvent('addTimer', {
-      detail: {
-        timer: this,
-      },
-    }));
+
+    if (!this.oldTimerId) {
+      window.dispatchEvent(new CustomEvent('addTimer', {
+        detail: {
+          timer: this,
+        },
+      }));
+    }
   }
 }
 

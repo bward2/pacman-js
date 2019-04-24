@@ -203,7 +203,7 @@ class GameCoordinator {
 
     this.endIdleTimer = new Timer(() => {
       this.pinky.endIdleMode();
-    }, duration + 2000).id;
+    }, duration + 2000);
   }
 
   /**
@@ -211,8 +211,6 @@ class GameCoordinator {
    * @param {('chase'|'scatter')} mode
    */
   ghostCycle(mode) {
-    this.removeTimer({ detail: { id: this.ghostCycleTimer } });
-
     const delay = (mode === 'scatter') ? 7000 : 20000;
     const nextMode = (mode === 'scatter') ? 'chase' : 'scatter';
 
@@ -222,7 +220,7 @@ class GameCoordinator {
       });
 
       this.ghostCycle(nextMode);
-    }, delay).timerId;
+    }, delay);
   }
 
   /**
@@ -307,10 +305,10 @@ class GameCoordinator {
    * the player has remaining lives.
    */
   deathSequence() {
-    this.removeTimer({ detail: { id: this.fruitTimer } });
-    this.removeTimer({ detail: { id: this.ghostCycleTimer } });
-    this.removeTimer({ detail: { id: this.endIdleTimer } });
-    this.removeTimer({ detail: { id: this.ghostFlashTimer } });
+    this.removeTimer({ detail: { timer: this.fruitTimer } });
+    this.removeTimer({ detail: { timer: this.ghostCycleTimer } });
+    this.removeTimer({ detail: { timer: this.endIdleTimer } });
+    this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
 
     this.allowKeyPresses = false;
     this.pacman.moving = false;
@@ -365,11 +363,11 @@ class GameCoordinator {
    * Creates a bonus fruit for ten seconds
    */
   createFruit() {
-    this.removeTimer({ detail: { id: this.fruitTimer } });
+    this.removeTimer({ detail: { timer: this.fruitTimer } });
     this.fruit.showFruit(this.fruitPoints[this.level] || 5000);
     this.fruitTimer = new Timer(() => {
       this.fruit.hideFruit();
-    }, 10000).timerId;
+    }, 10000);
   }
 
   /**
@@ -387,10 +385,10 @@ class GameCoordinator {
       entityRef.moving = false;
     });
 
-    this.removeTimer({ detail: { id: this.fruitTimer } });
-    this.removeTimer({ detail: { id: this.ghostCycleTimer } });
-    this.removeTimer({ detail: { id: this.endIdleTimer } });
-    this.removeTimer({ detail: { id: this.ghostFlashTimer } });
+    this.removeTimer({ detail: { timer: this.fruitTimer } });
+    this.removeTimer({ detail: { timer: this.ghostCycleTimer } });
+    this.removeTimer({ detail: { timer: this.endIdleTimer } });
+    this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
 
     new Timer(() => {
       this.mazeCover.style.visibility = 'visible';
@@ -438,7 +436,7 @@ class GameCoordinator {
 
       this.ghostFlashTimer = new Timer(() => {
         this.flashGhosts(flashes + 1, maxFlashes);
-      }, 250).timerId;
+      }, 250);
     }
   }
 
@@ -446,7 +444,7 @@ class GameCoordinator {
    * Upon eating a power pellet, sets the ghosts to 'scared' mode
    */
   powerUp() {
-    this.removeTimer({ detail: { id: this.ghostFlashTimer } });
+    this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
 
     this.ghostCombo = 0;
     this.scaredGhosts = [];
@@ -463,7 +461,7 @@ class GameCoordinator {
 
     this.ghostFlashTimer = new Timer(() => {
       this.flashGhosts(0, 9);
-    }, 6000).timerId;
+    }, 6000);
   }
 
   /**
@@ -481,7 +479,7 @@ class GameCoordinator {
     const pauseDuration = 1000;
     const { position, measurement } = e.detail.ghost;
 
-    this.pauseTimer({ detail: { id: this.ghostFlashTimer } });
+    this.pauseTimer({ detail: { timer: this.ghostFlashTimer } });
     this.scaredGhosts = this.scaredGhosts.filter(
       ghost => ghost.name !== e.detail.ghost.name,
     );
@@ -501,7 +499,7 @@ class GameCoordinator {
     });
 
     new Timer(() => {
-      this.resumeTimer({ detail: { id: this.ghostFlashTimer } });
+      this.resumeTimer({ detail: { timer: this.ghostFlashTimer } });
       this.allowPacmanMovement = true;
       this.pacman.display = true;
       e.detail.ghost.display = true;
@@ -553,12 +551,8 @@ class GameCoordinator {
    * @param {number} id
    * @returns {Boolean}
    */
-  timerExists(id) {
-    const result = this.activeTimers.filter(
-      timer => timer.timerId === id,
-    );
-
-    return (result.length === 1);
+  timerExists(e) {
+    return (((e || {}).detail || {}).timer || {}).timerId;
   }
 
   /**
@@ -566,9 +560,9 @@ class GameCoordinator {
    * @param {({ detail: { id: Number }})} e
    */
   pauseTimer(e) {
-    if (this.timerExists(e.detail.id)) {
+    if (this.timerExists(e)) {
       this.activeTimers.filter(
-        timer => timer.timerId === e.detail.id,
+        timer => timer.timerId === e.detail.timer.timerId,
       )[0].pause();
     }
   }
@@ -578,9 +572,9 @@ class GameCoordinator {
    * @param {({ detail: { id: Number }})} e
    */
   resumeTimer(e) {
-    if (this.timerExists(e.detail.id)) {
+    if (this.timerExists(e)) {
       this.activeTimers.filter(
-        timer => timer.timerId === e.detail.id,
+        timer => timer.timerId === e.detail.timer.timerId,
       )[0].resume();
     }
   }
@@ -590,10 +584,10 @@ class GameCoordinator {
    * @param {({ detail: { id: Number }})} e
    */
   removeTimer(e) {
-    if (this.timerExists(e.detail.id)) {
-      window.clearTimeout(e.detail.id);
+    if (this.timerExists(e)) {
+      window.clearTimeout(e.detail.timer.timerId);
       this.activeTimers = this.activeTimers.filter(
-        timer => timer.timerId !== e.detail.id,
+        timer => timer.timerId !== e.detail.timer.timerId,
       );
     }
   }
