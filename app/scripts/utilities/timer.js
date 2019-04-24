@@ -5,18 +5,30 @@ class Timer {
     this.resume();
   }
 
-  pause(automaticPause) {
+  /**
+   * Pauses the timer marks whether the pause came from the player
+   * or the system
+   * @param {Boolean} systemPause
+   */
+  pause(systemPause) {
     window.clearTimeout(this.timerId);
     this.remaining -= new Date() - this.start;
     this.oldTimerId = this.timerId;
 
-    if (automaticPause) {
-      this.autoPaused = true;
+    if (systemPause) {
+      this.pausedBySystem = true;
     }
   }
 
-  resume(automaticResume) {
-    if (automaticResume || !this.autoPaused) {
+  /**
+   * Creates a new setTimeout based upon the remaining time, giving the
+   * illusion of 'resuming' the old setTimeout
+   * @param {Boolean} systemResume
+   */
+  resume(systemResume) {
+    if (systemResume || !this.pausedBySystem) {
+      this.pausedBySystem = false;
+
       this.start = new Date();
       this.timerId = window.setTimeout(() => {
         this.callback();

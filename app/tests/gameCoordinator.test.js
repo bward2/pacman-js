@@ -601,54 +601,36 @@ describe('gameCoordinator', () => {
 
   describe('timerExists', () => {
     it('checks if a given timerId exists', () => {
-      comp.activeTimers = [
-        { timerId: 1 },
-        { timerId: 2 },
-        { timerId: 3 },
-      ];
-
-      assert(comp.timerExists(1));
-      assert(comp.timerExists(2));
-      assert(comp.timerExists(3));
-      assert(!comp.timerExists(4));
+      assert(comp.timerExists({ detail: { timer: { timerId: 1 } } }));
+      assert(!comp.timerExists({ detail: { timer: { timerId: undefined } } }));
     });
   });
 
   describe('pauseTimer', () => {
     it('pauses an existing timer', () => {
       const spy = sinon.fake();
-      comp.timerExists = sinon.fake.returns(false);
-      comp.activeTimers = [
-        { timerId: 1 },
-        { timerId: 2, pause: spy },
-        { timerId: 3 },
-      ];
 
-      comp.pauseTimer({ detail: { id: 2 } });
-      assert(!spy.called);
+      comp.timerExists = sinon.fake.returns(false);
+      comp.pauseTimer({ detail: { timer: { pause: spy } } });
+      assert(!spy.calledWith(true));
 
       comp.timerExists = sinon.fake.returns(true);
-      comp.pauseTimer({ detail: { id: 2 } });
-      assert(spy.called);
+      comp.pauseTimer({ detail: { timer: { pause: spy } } });
+      assert(spy.calledWith(true));
     });
   });
 
   describe('resumeTimer', () => {
     it('resumes an existing timer', () => {
       const spy = sinon.fake();
-      comp.timerExists = sinon.fake.returns(false);
-      comp.activeTimers = [
-        { timerId: 1 },
-        { timerId: 2, resume: spy },
-        { timerId: 3 },
-      ];
 
-      comp.resumeTimer({ detail: { id: 2 } });
-      assert(!spy.called);
+      comp.timerExists = sinon.fake.returns(false);
+      comp.resumeTimer({ detail: { timer: { resume: spy } } });
+      assert(!spy.calledWith(true));
 
       comp.timerExists = sinon.fake.returns(true);
-      comp.resumeTimer({ detail: { id: 2 } });
-      assert(spy.called);
+      comp.resumeTimer({ detail: { timer: { resume: spy } } });
+      assert(spy.calledWith(true));
     });
   });
 
@@ -660,7 +642,7 @@ describe('gameCoordinator', () => {
         { timerId: 2 },
       ];
       comp.removeTimer({
-        detail: { id: 1 },
+        detail: { timer: { timerId: 1 } },
       });
       assert(global.window.clearTimeout.calledWith(1));
       assert.strictEqual(comp.activeTimers.length, 1);

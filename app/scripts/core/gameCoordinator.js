@@ -552,7 +552,7 @@ class GameCoordinator {
    * @returns {Boolean}
    */
   timerExists(e) {
-    return (((e || {}).detail || {}).timer || {}).timerId;
+    return !!(e.detail.timer || {}).timerId;
   }
 
   /**
@@ -561,9 +561,7 @@ class GameCoordinator {
    */
   pauseTimer(e) {
     if (this.timerExists(e)) {
-      this.activeTimers.filter(
-        timer => timer.timerId === e.detail.timer.timerId,
-      )[0].pause(true);
+      e.detail.timer.pause(true);
     }
   }
 
@@ -573,9 +571,7 @@ class GameCoordinator {
    */
   resumeTimer(e) {
     if (this.timerExists(e)) {
-      this.activeTimers.filter(
-        timer => timer.timerId === e.detail.timer.timerId,
-      )[0].resume(true);
+      e.detail.timer.resume(true);
     }
   }
 
