@@ -65,6 +65,9 @@ class Ghost {
       case 'pinky':
         this.defaultDirection = this.characterUtil.directions.down;
         break;
+      case 'clyde':
+        this.defaultDirection = this.characterUtil.directions.up;
+        break;
       default:
         this.defaultDirection = this.characterUtil.directions.left;
         break;
@@ -118,6 +121,12 @@ class Ghost {
         this.defaultPosition = {
           top: scaledTileSize * 13.5,
           left: scaledTileSize * 13,
+        };
+        break;
+      case 'clyde':
+        this.defaultPosition = {
+          top: scaledTileSize * 13.5,
+          left: scaledTileSize * 15,
         };
         break;
       default:
@@ -373,7 +382,7 @@ class Ghost {
   handleIdleMovement(elapsedMs, position, velocity) {
     const newPosition = Object.assign({}, this.position);
 
-    if (position.y <= 13.5 && this.idleMode !== 'leaving') {
+    if (position.y <= 13.5) {
       this.direction = this.characterUtil.directions.down;
     } else if (position.y >= 14.5) {
       this.direction = this.characterUtil.directions.up;
@@ -384,6 +393,7 @@ class Ghost {
         this.idleMode = undefined;
         newPosition.top = this.scaledTileSize * 10.5;
         this.direction = this.characterUtil.directions.left;
+        window.dispatchEvent(new Event('releaseGhost'));
       } else if (position.x > 13.4 && position.x < 13.6) {
         newPosition.left = this.scaledTileSize * 13;
         this.direction = this.characterUtil.directions.up;
