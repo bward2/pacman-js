@@ -88,6 +88,10 @@ class GameCoordinator {
         this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
         this.level, new CharacterUtil(),
       ),
+      this.pinky = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
+        this.level, new CharacterUtil(),
+      ),
       this.fruit = new Pickup(
         'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
         this.mazeDiv, 100,
@@ -96,6 +100,7 @@ class GameCoordinator {
 
     this.ghosts = [
       this.blinky,
+      this.pinky,
     ];
 
     this.pickups = [
@@ -187,8 +192,18 @@ class GameCoordinator {
     new Timer(() => {
       this.allowPacmanMovement = true;
       this.pacman.moving = true;
+
+      this.ghosts.forEach((ghost) => {
+        const ghostRef = ghost;
+        ghostRef.moving = true;
+      });
+
       this.ghostCycle('scatter');
     }, duration);
+
+    this.endIdleTimer = new Timer(() => {
+      this.pinky.endIdleMode();
+    }, duration + 2000);
   }
 
   /**
@@ -196,20 +211,16 @@ class GameCoordinator {
    * @param {('chase'|'scatter')} mode
    */
   ghostCycle(mode) {
-    if (this.timerExists(this.ghostTimer)) {
-      this.removeTimer({ detail: { id: this.ghostTimer } });
-    }
-
     const delay = (mode === 'scatter') ? 7000 : 20000;
     const nextMode = (mode === 'scatter') ? 'chase' : 'scatter';
 
-    this.ghostTimer = new Timer(() => {
+    this.ghostCycleTimer = new Timer(() => {
       this.ghosts.forEach((ghost) => {
         ghost.changeMode(nextMode);
       });
 
       this.ghostCycle(nextMode);
-    }, delay).timerId;
+    }, delay);
   }
 
   /**
@@ -294,19 +305,23 @@ class GameCoordinator {
    * the player has remaining lives.
    */
   deathSequence() {
-    if (this.timerExists(this.fruitTimer)) {
-      this.removeTimer({ detail: { id: this.fruitTimer } });
-    }
-    if (this.timerExists(this.ghostTimer)) {
-      this.removeTimer({ detail: { id: this.ghostTimer } });
-    }
+    this.removeTimer({ detail: { timer: this.fruitTimer } });
+    this.removeTimer({ detail: { timer: this.ghostCycleTimer } });
+    this.removeTimer({ detail: { timer: this.endIdleTimer } });
+    this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
 
     this.allowKeyPresses = false;
     this.pacman.moving = false;
-    this.blinky.moving = false;
+    this.ghosts.forEach((ghost) => {
+      const ghostRef = ghost;
+      ghostRef.moving = false;
+    });
 
     new Timer(() => {
-      this.blinky.display = false;
+      this.ghosts.forEach((ghost) => {
+        const ghostRef = ghost;
+        ghostRef.display = false;
+      });
       this.pacman.prepDeathAnimation();
       new Timer(() => {
         this.mazeCover.style.visibility = 'visible';
@@ -314,7 +329,9 @@ class GameCoordinator {
           this.allowKeyPresses = true;
           this.mazeCover.style.visibility = 'hidden';
           this.pacman.reset();
-          this.blinky.reset();
+          this.ghosts.forEach((ghost) => {
+            ghost.reset();
+          });
           this.fruit.hideFruit();
 
           this.startGameplay();
@@ -346,15 +363,11 @@ class GameCoordinator {
    * Creates a bonus fruit for ten seconds
    */
   createFruit() {
-    if (this.timerExists(this.fruitTimer)) {
-      this.removeTimer({ detail: { id: this.fruitTimer } });
-    }
-
+    this.removeTimer({ detail: { timer: this.fruitTimer } });
     this.fruit.showFruit(this.fruitPoints[this.level] || 5000);
-
     this.fruitTimer = new Timer(() => {
       this.fruit.hideFruit();
-    }, 10000).timerId;
+    }, 10000);
   }
 
   /**
@@ -372,9 +385,10 @@ class GameCoordinator {
       entityRef.moving = false;
     });
 
-    if (this.timerExists(this.ghostTimer)) {
-      this.removeTimer({ detail: { id: this.ghostTimer } });
-    }
+    this.removeTimer({ detail: { timer: this.fruitTimer } });
+    this.removeTimer({ detail: { timer: this.ghostCycleTimer } });
+    this.removeTimer({ detail: { timer: this.endIdleTimer } });
+    this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
 
     new Timer(() => {
       this.mazeCover.style.visibility = 'visible';
@@ -391,7 +405,7 @@ class GameCoordinator {
             entityRef.level = this.level;
           }
           entityRef.reset();
-          if (entityRef.name === 'blinky') {
+          if (entityRef instanceof Ghost) {
             entityRef.resetDefaultSpeed();
           }
           if (entityRef instanceof Pickup && entityRef.type !== 'fruit') {
@@ -410,24 +424,19 @@ class GameCoordinator {
    * @param {Number} maxFlashes - Total flashes to show
    */
   flashGhosts(flashes, maxFlashes) {
-    if (this.flashingGhosts) {
-      if (flashes === maxFlashes) {
-        this.flashingGhosts = false;
-        this.scaredGhosts.forEach((ghost) => {
-          ghost.endScared();
-        });
-        this.scaredGhosts = [];
-      } else if (this.scaredGhosts.length > 0) {
-        this.scaredGhosts.forEach((ghost) => {
-          ghost.toggleScaredColor();
-        });
+    if (flashes === maxFlashes) {
+      this.scaredGhosts.forEach((ghost) => {
+        ghost.endScared();
+      });
+      this.scaredGhosts = [];
+    } else if (this.scaredGhosts.length > 0) {
+      this.scaredGhosts.forEach((ghost) => {
+        ghost.toggleScaredColor();
+      });
 
-        new Timer(() => {
-          this.flashGhosts(flashes + 1, maxFlashes);
-        }, 250);
-      } else {
-        this.flashingGhosts = false;
-      }
+      this.ghostFlashTimer = new Timer(() => {
+        this.flashGhosts(flashes + 1, maxFlashes);
+      }, 250);
     }
   }
 
@@ -435,11 +444,9 @@ class GameCoordinator {
    * Upon eating a power pellet, sets the ghosts to 'scared' mode
    */
   powerUp() {
-    if (this.timerExists(this.powerupTimer)) {
-      this.removeTimer({ detail: { id: this.powerupTimer } });
-    }
+    this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
 
-    this.flashingGhosts = false;
+    this.ghostCombo = 0;
     this.scaredGhosts = [];
 
     this.ghosts.forEach((ghost) => {
@@ -452,10 +459,16 @@ class GameCoordinator {
       ghost.becomeScared();
     });
 
-    this.powerupTimer = new Timer(() => {
-      this.flashingGhosts = true;
+    this.ghostFlashTimer = new Timer(() => {
       this.flashGhosts(0, 9);
-    }, 6000).timerId;
+    }, 6000);
+  }
+
+  /**
+   * Determines the quantity of points to give based on the current combo
+   */
+  determineComboPoints() {
+    return (100 * (2 ** this.ghostCombo));
   }
 
   /**
@@ -466,31 +479,43 @@ class GameCoordinator {
     const pauseDuration = 1000;
     const { position, measurement } = e.detail.ghost;
 
+    this.pauseTimer({ detail: { timer: this.ghostFlashTimer } });
+
     this.scaredGhosts = this.scaredGhosts.filter(
       ghost => ghost.name !== e.detail.ghost.name,
     );
 
+    this.ghostCombo += 1;
+    const comboPoints = this.determineComboPoints();
+
+    this.points += comboPoints;
     this.displayText(
-      position, 200, pauseDuration, measurement,
+      position, comboPoints, pauseDuration, measurement,
     );
 
     this.allowPacmanMovement = false;
     this.pacman.display = false;
+    this.pacman.moving = false;
     e.detail.ghost.display = false;
-    this.entityList.forEach((entity) => {
-      const entityRef = entity;
-      entityRef.moving = false;
-      entityRef.animate = false;
+    e.detail.ghost.moving = false;
+
+    this.ghosts.forEach((ghost) => {
+      const ghostRef = ghost;
+      ghostRef.animate = false;
+      ghostRef.pause(true);
     });
 
     new Timer(() => {
+      this.resumeTimer({ detail: { timer: this.ghostFlashTimer } });
       this.allowPacmanMovement = true;
       this.pacman.display = true;
+      this.pacman.moving = true;
       e.detail.ghost.display = true;
-      this.entityList.forEach((entity) => {
-        const entityRef = entity;
-        entityRef.moving = true;
-        entityRef.animate = true;
+      e.detail.ghost.moving = true;
+      this.ghosts.forEach((ghost) => {
+        const ghostRef = ghost;
+        ghostRef.animate = true;
+        ghostRef.pause(false);
       });
     }, pauseDuration);
   }
@@ -531,27 +556,45 @@ class GameCoordinator {
   }
 
   /**
-   * Checks if a Timer with a matching ID exists in the activeTimers array
-   * @param {number} id
+   * Checks if a Timer with a matching ID exists
+   * @param {({ detail: { timer: Object }})} e
    * @returns {Boolean}
    */
-  timerExists(id) {
-    const result = this.activeTimers.filter(
-      timer => timer.timerId === id,
-    );
-
-    return (result.length === 1);
+  timerExists(e) {
+    return !!(e.detail.timer || {}).timerId;
   }
 
   /**
-   * Removes a Timer from activeTimers based on ID
-   * @param {({ detail: { id: Number }})} e
+   * Pauses a timer
+   * @param {({ detail: { timer: Object }})} e
+   */
+  pauseTimer(e) {
+    if (this.timerExists(e)) {
+      e.detail.timer.pause(true);
+    }
+  }
+
+  /**
+   * Resumes a timer
+   * @param {({ detail: { timer: Object }})} e
+   */
+  resumeTimer(e) {
+    if (this.timerExists(e)) {
+      e.detail.timer.resume(true);
+    }
+  }
+
+  /**
+   * Removes a Timer from activeTimers
+   * @param {({ detail: { timer: Object }})} e
    */
   removeTimer(e) {
-    window.clearTimeout(e.detail.id);
-    this.activeTimers = this.activeTimers.filter(
-      timer => timer.timerId !== e.detail.id,
-    );
+    if (this.timerExists(e)) {
+      window.clearTimeout(e.detail.timer.timerId);
+      this.activeTimers = this.activeTimers.filter(
+        timer => timer.timerId !== e.detail.timer.timerId,
+      );
+    }
   }
 }
 

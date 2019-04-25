@@ -29,8 +29,7 @@ class Pacman {
   setMovementStats(scaledTileSize) {
     this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
     this.desiredDirection = this.characterUtil.directions.left;
-    this.defaultDirection = this.characterUtil.directions.left;
-    this.direction = this.defaultDirection;
+    this.direction = this.characterUtil.directions.left;
     this.moving = false;
   }
 

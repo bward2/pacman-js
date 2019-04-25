@@ -2,7 +2,7 @@ const assert = require('assert');
 const sinon = require('sinon');
 const GameCoordinator = require('../scripts/core/gameCoordinator');
 
-let component;
+let comp;
 const mazeArray = [
   ['X', 'X', 'X'],
   ['X', 'o', ' '],
@@ -15,7 +15,13 @@ describe('gameCoordinator', () => {
     global.Pacman = class {};
     global.CharacterUtil = class {};
     global.Ghost = class {
+      reset() {}
+
       changeMode() {}
+
+      endIdleMode() {}
+
+      pause() {}
     };
     global.Pickup = class {};
     global.Timer = class {
@@ -42,7 +48,7 @@ describe('gameCoordinator', () => {
     };
 
     clock = sinon.useFakeTimers();
-    component = new GameCoordinator();
+    comp = new GameCoordinator();
   });
 
   afterEach(() => {
@@ -52,72 +58,72 @@ describe('gameCoordinator', () => {
   describe('drawMaze', () => {
     it('creates the maze and adds entities for a given maze array', () => {
       const entityList = [];
-      component.drawMaze(mazeArray, entityList);
+      comp.drawMaze(mazeArray, entityList);
       assert.strictEqual(entityList.length, 1);
     });
   });
 
   describe('collisionDetectionLoop', () => {
     beforeEach(() => {
-      component.pacman.position = { left: 0, top: 0 };
-      component.pacman.velocityPerMs = 1;
-      component.pickups = [{ checkPacmanProximity: sinon.fake() }];
+      comp.pacman.position = { left: 0, top: 0 };
+      comp.pacman.velocityPerMs = 1;
+      comp.pickups = [{ checkPacmanProximity: sinon.fake() }];
     });
 
     it('calls checkPacmanProximity for each pickup', () => {
-      component.collisionDetectionLoop();
+      comp.collisionDetectionLoop();
     });
   });
 
   describe('startGameplay', () => {
     it('calls displayText, then kicks off movement', () => {
-      component.displayText = sinon.fake();
+      comp.displayText = sinon.fake();
 
-      component.startGameplay();
-      assert(component.displayText.calledWith(
+      comp.startGameplay();
+      assert(comp.displayText.calledWith(
         {
-          left: component.scaledTileSize * 11,
-          top: component.scaledTileSize * 16.5,
+          left: comp.scaledTileSize * 11,
+          top: comp.scaledTileSize * 16.5,
         },
         'ready',
         2000,
-        component.scaledTileSize * 6,
-        component.scaledTileSize * 2,
+        comp.scaledTileSize * 6,
+        comp.scaledTileSize * 2,
       ));
 
       clock.tick(2000);
-      assert(component.allowPacmanMovement);
-      assert(component.pacman.moving);
+      assert(comp.allowPacmanMovement);
+      assert(comp.pacman.moving);
     });
 
     it('waits longer for the initialStart', () => {
-      component.displayText = sinon.fake();
+      comp.displayText = sinon.fake();
 
-      component.startGameplay(true);
-      assert(component.displayText.calledWith(
+      comp.startGameplay(true);
+      assert(comp.displayText.calledWith(
         {
-          left: component.scaledTileSize * 11,
-          top: component.scaledTileSize * 16.5,
+          left: comp.scaledTileSize * 11,
+          top: comp.scaledTileSize * 16.5,
         },
         'ready',
         4000,
-        component.scaledTileSize * 6,
-        component.scaledTileSize * 2,
+        comp.scaledTileSize * 6,
+        comp.scaledTileSize * 2,
       ));
 
       clock.tick(4000);
-      assert(component.allowPacmanMovement);
-      assert(component.pacman.moving);
+      assert(comp.allowPacmanMovement);
+      assert(comp.pacman.moving);
     });
   });
 
   describe('ghostCycle', () => {
     it('changes ghosts to Chase mode after seven seconds', () => {
-      component.ghosts = [{ changeMode: sinon.fake() }];
+      comp.ghosts = [{ changeMode: sinon.fake() }];
 
-      component.ghostCycle('scatter');
+      comp.ghostCycle('scatter');
       clock.tick(7000);
-      assert(component.ghosts[0].changeMode.calledWith('chase'));
+      assert(comp.ghosts[0].changeMode.calledWith('chase'));
     });
   });
 
@@ -127,7 +133,7 @@ describe('gameCoordinator', () => {
         addEventListener: sinon.fake(),
       };
 
-      component.registerEventListeners();
+      comp.registerEventListeners();
       assert(global.window.addEventListener.calledWith('keydown'));
       assert(global.window.addEventListener.calledWith('awardPoints'));
       assert(global.window.addEventListener.calledWith('deathSequence'));
@@ -141,503 +147,517 @@ describe('gameCoordinator', () => {
 
   describe('handleKeyDown', () => {
     it('calls handlePauseKey when esc is pressed', () => {
-      component.handlePauseKey = sinon.fake();
+      comp.handlePauseKey = sinon.fake();
 
-      component.handleKeyDown({ keyCode: 27 });
-      assert(component.handlePauseKey.called);
+      comp.handleKeyDown({ keyCode: 27 });
+      assert(comp.handlePauseKey.called);
     });
 
     it('calls Pacman\'s changeDirection when a move key is pressed', () => {
-      component.gameEngine.running = true;
+      comp.gameEngine.running = true;
       const changeSpy = sinon.fake();
-      component.pacman.changeDirection = changeSpy;
+      comp.pacman.changeDirection = changeSpy;
 
       // W Key
-      component.handleKeyDown({ keyCode: 87 });
+      comp.handleKeyDown({ keyCode: 87 });
       assert.strictEqual(changeSpy.callCount, 1);
 
       // A Key
-      component.handleKeyDown({ keyCode: 65 });
+      comp.handleKeyDown({ keyCode: 65 });
       assert.strictEqual(changeSpy.callCount, 2);
 
       // S Key
-      component.handleKeyDown({ keyCode: 83 });
+      comp.handleKeyDown({ keyCode: 83 });
       assert.strictEqual(changeSpy.callCount, 3);
 
       // D Key
-      component.handleKeyDown({ keyCode: 68 });
+      comp.handleKeyDown({ keyCode: 68 });
       assert.strictEqual(changeSpy.callCount, 4);
 
       // Up Arrow
-      component.handleKeyDown({ keyCode: 38 });
+      comp.handleKeyDown({ keyCode: 38 });
       assert.strictEqual(changeSpy.callCount, 5);
 
       // Down Arrow
-      component.handleKeyDown({ keyCode: 40 });
+      comp.handleKeyDown({ keyCode: 40 });
       assert.strictEqual(changeSpy.callCount, 6);
 
       // Left Arrow
-      component.handleKeyDown({ keyCode: 37 });
+      comp.handleKeyDown({ keyCode: 37 });
       assert.strictEqual(changeSpy.callCount, 7);
 
       // Right Arrow
-      component.handleKeyDown({ keyCode: 39 });
+      comp.handleKeyDown({ keyCode: 39 });
       assert.strictEqual(changeSpy.callCount, 8);
     });
 
     it('won\'t call changeDirection unless the gameEngine is running', () => {
-      component.gameEngine.running = false;
+      comp.gameEngine.running = false;
       const changeSpy = sinon.fake();
-      component.pacman.changeDirection = changeSpy;
+      comp.pacman.changeDirection = changeSpy;
 
-      component.handleKeyDown({ keyCode: 87 });
+      comp.handleKeyDown({ keyCode: 87 });
       assert(!changeSpy.called);
     });
 
     it('won\'t call changeDirection if allowKeyPresses is FALSE', () => {
-      component.allowKeyPresses = false;
-      component.gameEngine.changePausedState = sinon.fake();
-      component.pacman.changeDirection = sinon.fake();
+      comp.allowKeyPresses = false;
+      comp.gameEngine.changePausedState = sinon.fake();
+      comp.pacman.changeDirection = sinon.fake();
 
-      component.handleKeyDown({ keyCode: 27 });
-      assert(component.gameEngine.changePausedState.called);
-      component.handleKeyDown({ keyCode: 87 });
-      assert(!component.pacman.changeDirection.called);
+      comp.handleKeyDown({ keyCode: 27 });
+      assert(comp.gameEngine.changePausedState.called);
+      comp.handleKeyDown({ keyCode: 87 });
+      assert(!comp.pacman.changeDirection.called);
     });
 
     it('won\'t call anything if an unrecognized key is pressed', () => {
-      component.gameEngine.changePausedState = sinon.fake();
-      component.pacman.changeDirection = sinon.fake();
+      comp.gameEngine.changePausedState = sinon.fake();
+      comp.pacman.changeDirection = sinon.fake();
 
       // P Key
-      component.handleKeyDown({ keyCode: 80 });
-      assert(!component.gameEngine.changePausedState.called);
-      assert(!component.pacman.changeDirection.called);
+      comp.handleKeyDown({ keyCode: 80 });
+      assert(!comp.gameEngine.changePausedState.called);
+      assert(!comp.pacman.changeDirection.called);
     });
   });
 
   describe('handlePauseKey', () => {
     beforeEach(() => {
-      component.gameEngine.changePausedState = sinon.fake();
-      component.activeTimers = [{}];
+      comp.gameEngine.changePausedState = sinon.fake();
+      comp.activeTimers = [{}];
     });
 
     it('calls changePausedState', () => {
-      component.activeTimers = [];
-      component.handlePauseKey();
-      assert(component.gameEngine.changePausedState.called);
+      comp.activeTimers = [];
+      comp.handlePauseKey();
+      assert(comp.gameEngine.changePausedState.called);
     });
 
     it('resumes all timers after starting the engine', () => {
-      component.gameEngine.started = true;
-      component.activeTimers[0].resume = sinon.fake();
-      component.handlePauseKey();
-      assert(component.activeTimers[0].resume.called);
+      comp.gameEngine.started = true;
+      comp.activeTimers[0].resume = sinon.fake();
+      comp.handlePauseKey();
+      assert(comp.activeTimers[0].resume.called);
     });
 
     it('resumes all timers after starting the engine', () => {
-      component.gameEngine.pause = true;
-      component.activeTimers[0].pause = sinon.fake();
-      component.handlePauseKey();
-      assert(component.activeTimers[0].pause.called);
+      comp.gameEngine.pause = true;
+      comp.activeTimers[0].pause = sinon.fake();
+      comp.handlePauseKey();
+      assert(comp.activeTimers[0].pause.called);
     });
 
     it('waits before allowing another pause key press', () => {
-      component.activeTimers[0].pause = sinon.fake();
-      assert(component.allowPause);
-      component.handlePauseKey();
-      assert(!component.allowPause);
+      comp.activeTimers[0].pause = sinon.fake();
+      assert(comp.allowPause);
+      comp.handlePauseKey();
+      assert(!comp.allowPause);
       clock.tick(500);
-      assert(component.allowPause);
+      assert(comp.allowPause);
     });
 
     it('won\'t call changePausedState unless allowPause is TRUE', () => {
-      component.allowPause = false;
-      component.handlePauseKey();
-      assert(!component.gameEngine.changePausedState.called);
+      comp.allowPause = false;
+      comp.handlePauseKey();
+      assert(!comp.gameEngine.changePausedState.called);
     });
   });
 
   describe('awardPoints', () => {
     it('adds to the total number of points', () => {
-      component.points = 0;
-      component.awardPoints(
+      comp.points = 0;
+      comp.awardPoints(
         { detail: { points: 50 } },
       );
-      assert.strictEqual(component.points, 50);
+      assert.strictEqual(comp.points, 50);
     });
 
     it('calls displayText when a fruit is eaten', () => {
-      component.points = 0;
-      component.displayText = sinon.fake();
+      comp.points = 0;
+      comp.displayText = sinon.fake();
 
-      component.awardPoints(
+      comp.awardPoints(
         { detail: { points: 50, type: 'fruit' } },
       );
-      assert.strictEqual(component.points, 50);
-      assert(component.displayText.calledWith(
+      assert.strictEqual(comp.points, 50);
+      assert(comp.displayText.calledWith(
         {
-          left: component.scaledTileSize * 13,
-          top: component.scaledTileSize * 16.5,
+          left: comp.scaledTileSize * 13,
+          top: comp.scaledTileSize * 16.5,
         },
         50,
         2000,
-        component.scaledTileSize * 2,
-        component.scaledTileSize * 2,
+        comp.scaledTileSize * 2,
+        comp.scaledTileSize * 2,
       ));
     });
 
     it('displays a wider image when fruit worth four figures is eaten', () => {
-      component.points = 0;
-      component.displayText = sinon.fake();
+      comp.points = 0;
+      comp.displayText = sinon.fake();
 
-      component.awardPoints(
+      comp.awardPoints(
         { detail: { points: 1000, type: 'fruit' } },
       );
-      assert.strictEqual(component.points, 1000);
-      assert(component.displayText.calledWith(
+      assert.strictEqual(comp.points, 1000);
+      assert(comp.displayText.calledWith(
         {
-          left: component.scaledTileSize * 12.5,
-          top: component.scaledTileSize * 16.5,
+          left: comp.scaledTileSize * 12.5,
+          top: comp.scaledTileSize * 16.5,
         },
         1000,
         2000,
-        component.scaledTileSize * 3,
-        component.scaledTileSize * 2,
+        comp.scaledTileSize * 3,
+        comp.scaledTileSize * 2,
       ));
     });
   });
 
   describe('deathSequence', () => {
     it('kills Pacman, subtracts a life, and resets the characters', () => {
-      component.allowKeyPresses = true;
-      component.blinky.display = true;
-      component.pacman.moving = true;
-      component.blinky.moving = true;
-      component.mazeCover.style = {
+      comp.allowKeyPresses = true;
+      comp.blinky.display = true;
+      comp.pacman.moving = true;
+      comp.blinky.moving = true;
+      comp.mazeCover.style = {
         visibility: 'hidden',
       };
-      component.pacman.prepDeathAnimation = sinon.fake();
-      component.pacman.reset = sinon.fake();
-      component.blinky.reset = sinon.fake();
-      component.fruit.hideFruit = sinon.fake();
+      comp.pacman.prepDeathAnimation = sinon.fake();
+      comp.pacman.reset = sinon.fake();
+      comp.blinky.reset = sinon.fake();
+      comp.fruit.hideFruit = sinon.fake();
 
-      component.deathSequence();
-      assert(!component.allowKeyPresses);
-      assert(!component.pacman.moving);
-      assert(!component.blinky.moving);
+      comp.deathSequence();
+      assert(!comp.allowKeyPresses);
+      assert(!comp.pacman.moving);
+      assert(!comp.blinky.moving);
 
       clock.tick(750);
-      assert(!component.blinky.display);
-      assert(component.pacman.prepDeathAnimation.called);
+      assert(!comp.blinky.display);
+      assert(comp.pacman.prepDeathAnimation.called);
 
       clock.tick(2250);
-      assert.strictEqual(component.mazeCover.style.visibility,
+      assert.strictEqual(comp.mazeCover.style.visibility,
         'visible');
 
       clock.tick(500);
-      assert(component.allowKeyPresses);
-      assert.strictEqual(component.mazeCover.style.visibility,
+      assert(comp.allowKeyPresses);
+      assert.strictEqual(comp.mazeCover.style.visibility,
         'hidden');
-      assert(component.pacman.reset.called);
-      assert(component.blinky.reset.called);
-      assert(component.fruit.hideFruit.called);
+      assert(comp.pacman.reset.called);
+      assert(comp.blinky.reset.called);
+      assert(comp.fruit.hideFruit.called);
     });
 
     it('cancels the fruitTimer if needed', () => {
-      component.timerExists = sinon.fake.returns(true);
-      component.removeTimer = sinon.fake();
+      comp.timerExists = sinon.fake.returns(true);
+      comp.removeTimer = sinon.fake();
 
-      component.deathSequence();
-      assert(component.removeTimer.called);
+      comp.deathSequence();
+      assert(comp.removeTimer.called);
     });
   });
 
   describe('dotEaten', () => {
     it('subtracts 1 from remainingDots', () => {
-      component.remainingDots = 10;
-      component.dotEaten();
-      assert.strictEqual(component.remainingDots, 9);
+      comp.remainingDots = 10;
+      comp.dotEaten();
+      assert.strictEqual(comp.remainingDots, 9);
     });
 
     it('creates a fruit at 174 and 74 remaining dots', () => {
-      component.createFruit = sinon.fake();
+      comp.createFruit = sinon.fake();
 
-      component.remainingDots = 175;
-      component.dotEaten();
-      assert(component.createFruit.calledOnce);
+      comp.remainingDots = 175;
+      comp.dotEaten();
+      assert(comp.createFruit.calledOnce);
 
-      component.remainingDots = 75;
-      component.dotEaten();
-      assert(component.createFruit.calledTwice);
+      comp.remainingDots = 75;
+      comp.dotEaten();
+      assert(comp.createFruit.calledTwice);
     });
 
     it('speeds up Blinky at 40 and 20 dots', () => {
-      component.speedUpBlinky = sinon.fake();
+      comp.speedUpBlinky = sinon.fake();
 
-      component.remainingDots = 41;
-      component.dotEaten();
-      assert(component.speedUpBlinky.calledOnce);
+      comp.remainingDots = 41;
+      comp.dotEaten();
+      assert(comp.speedUpBlinky.calledOnce);
 
-      component.remainingDots = 21;
-      component.dotEaten();
-      assert(component.speedUpBlinky.calledTwice);
+      comp.remainingDots = 21;
+      comp.dotEaten();
+      assert(comp.speedUpBlinky.calledTwice);
     });
 
     it('calls advanceLevel at 0 dots', () => {
-      component.advanceLevel = sinon.fake();
+      comp.advanceLevel = sinon.fake();
 
-      component.remainingDots = 1;
-      component.dotEaten();
-      assert(component.advanceLevel.called);
+      comp.remainingDots = 1;
+      comp.dotEaten();
+      assert(comp.advanceLevel.called);
     });
   });
 
   describe('createFruit', () => {
     it('creates a bonus fruit for ten seconds', () => {
-      component.fruit.showFruit = sinon.fake();
-      component.fruit.hideFruit = sinon.fake();
+      comp.fruit.showFruit = sinon.fake();
+      comp.fruit.hideFruit = sinon.fake();
 
-      component.createFruit();
-      assert(component.fruit.showFruit.called);
+      comp.createFruit();
+      assert(comp.fruit.showFruit.called);
 
       clock.tick(10000);
-      assert(component.fruit.hideFruit.called);
+      assert(comp.fruit.hideFruit.called);
     });
 
     it('cancels the fruitTimer if needed', () => {
-      component.timerExists = sinon.fake.returns(true);
-      component.removeTimer = sinon.fake();
-      component.fruit.showFruit = sinon.fake();
+      comp.timerExists = sinon.fake.returns(true);
+      comp.removeTimer = sinon.fake();
+      comp.fruit.showFruit = sinon.fake();
 
-      component.createFruit();
-      assert(component.removeTimer.called);
+      comp.createFruit();
+      assert(comp.removeTimer.called);
     });
 
     it('calls showFruit for 5000 points for unrecognized levels', () => {
-      component.level = Infinity;
-      component.fruit.showFruit = sinon.fake();
+      comp.level = Infinity;
+      comp.fruit.showFruit = sinon.fake();
 
-      component.createFruit();
-      assert(component.fruit.showFruit.calledWith(5000));
+      comp.createFruit();
+      assert(comp.fruit.showFruit.calledWith(5000));
     });
   });
 
   describe('speedUpBlinky', () => {
     it('calls the speedUp function for Blinky', () => {
-      component.blinky.speedUp = sinon.fake();
+      comp.blinky.speedUp = sinon.fake();
 
-      component.speedUpBlinky();
-      assert(component.blinky.speedUp.called);
+      comp.speedUpBlinky();
+      assert(comp.blinky.speedUp.called);
     });
   });
 
   describe('advanceLevel', () => {
     it('runs the sequence for advancing to the next level', () => {
-      const ghost = {
-        reset: sinon.fake(),
-        resetDefaultSpeed: sinon.fake(),
-        name: 'blinky',
-        level: 1,
-      };
+      const ghost = new Ghost();
+      ghost.reset = sinon.fake();
+      ghost.resetDefaultSpeed = sinon.fake();
+      ghost.name = 'blinky';
+      ghost.level = 1;
       const fruit = new Pickup();
       const pacdot = new Pickup();
       fruit.reset = sinon.fake();
       fruit.type = 'fruit';
       pacdot.reset = sinon.fake();
-      component.entityList = [
+      comp.entityList = [
         ghost,
         fruit,
         pacdot,
       ];
-      component.mazeCover = { style: {} };
-      component.remainingDots = 0;
+      comp.mazeCover = { style: {} };
+      comp.remainingDots = 0;
+      comp.removeTimer = sinon.fake();
 
-      component.advanceLevel();
-      assert(!component.allowKeyPresses);
+      comp.advanceLevel();
+      assert(!comp.allowKeyPresses);
+      assert(comp.removeTimer.calledWith(
+        { detail: { timer: comp.ghostTimer } },
+      ));
 
       clock.tick(2000);
-      assert.strictEqual(component.mazeCover.style.visibility, 'visible');
+      assert.strictEqual(comp.mazeCover.style.visibility, 'visible');
 
       clock.tick(500);
-      assert.strictEqual(component.mazeCover.style.visibility, 'hidden');
-      assert.strictEqual(component.level, 2);
-      assert(component.allowKeyPresses);
-      assert.strictEqual(ghost.level, component.level);
+      assert.strictEqual(comp.mazeCover.style.visibility, 'hidden');
+      assert.strictEqual(comp.level, 2);
+      assert(comp.allowKeyPresses);
+      assert.strictEqual(ghost.level, comp.level);
       assert(ghost.resetDefaultSpeed.called);
-      assert.strictEqual(component.remainingDots, 1);
-    });
-
-    it('removes the ghostTimer if needed', () => {
-      component.ghostTimer = 123;
-      component.timerExists = sinon.fake.returns(true);
-      component.removeTimer = sinon.fake();
-
-      component.advanceLevel();
-      assert(component.timerExists.calledWith(component.ghostTimer));
-      assert(component.removeTimer.calledWith(
-        { detail: { id: component.ghostTimer } },
-      ));
+      assert.strictEqual(comp.remainingDots, 1);
     });
   });
 
   describe('flashGhosts', () => {
     it('calls itself recursively a number of times', () => {
-      component.flashingGhosts = true;
-      component.scaredGhosts = [{
+      comp.scaredGhosts = [{
         toggleScaredColor: sinon.fake(),
         endScared: sinon.fake(),
       }];
-      sinon.spy(component, 'flashGhosts');
+      sinon.spy(comp, 'flashGhosts');
 
-      component.flashGhosts(0, 9);
+      comp.flashGhosts(0, 9);
       clock.tick(10000);
-      assert.strictEqual(component.flashGhosts.callCount, 10);
+      assert.strictEqual(comp.flashGhosts.callCount, 10);
     });
 
     it('stops calls if there are no more scared ghosts', () => {
-      component.flashingGhosts = true;
-      component.scaredGhosts = [];
-      sinon.spy(component, 'flashGhosts');
+      comp.flashingGhosts = true;
+      comp.scaredGhosts = [];
+      sinon.spy(comp, 'flashGhosts');
 
-      component.flashGhosts(0, 9);
+      comp.flashGhosts(0, 9);
       clock.tick(10000);
-      assert.strictEqual(component.flashGhosts.callCount, 1);
-      assert(!component.flashingGhosts);
-    });
-
-    it('does nothing if flashingGhosts is FALSE', () => {
-      component.flashingGhosts = false;
-      sinon.spy(component, 'flashGhosts');
-
-      component.flashGhosts(0, 9);
-      clock.tick(10000);
-      assert.strictEqual(component.flashGhosts.callCount, 1);
+      assert.strictEqual(comp.flashGhosts.callCount, 1);
     });
   });
 
   describe('powerUp', () => {
     it('establishes scaredGhosts and calls flashGhosts', () => {
-      component.timerExists = sinon.fake.returns(true);
-      component.removeTimer = sinon.fake();
-      component.ghosts = [{ becomeScared: sinon.fake() }];
-      component.flashGhosts = sinon.fake();
+      comp.timerExists = sinon.fake.returns(true);
+      comp.removeTimer = sinon.fake();
+      comp.ghosts = [{ becomeScared: sinon.fake() }];
+      comp.flashGhosts = sinon.fake();
 
-      component.powerUp();
+      comp.powerUp();
       clock.tick(6000);
-      assert(component.removeTimer.called);
-      assert(component.scaredGhosts[0].becomeScared.called);
-      assert(component.flashingGhosts);
-      assert(component.flashGhosts.calledWith(0, 9));
-    });
-
-    it('won\'t call removeTimer unless the powerupTimer is active', () => {
-      component.timerExists = sinon.fake.returns(false);
-      component.removeTimer = sinon.fake();
-      component.ghosts = [{ becomeScared: sinon.fake() }];
-      component.flashGhosts = sinon.fake();
-
-      component.powerUp();
-      assert(!component.removeTimer.called);
+      assert(comp.removeTimer.called);
+      assert(comp.scaredGhosts[0].becomeScared.called);
+      assert(comp.flashGhosts.calledWith(0, 9));
     });
 
     it('won\'t push EYES mode ghosts to the scaredGhosts array', () => {
-      component.timerExists = sinon.fake.returns(false);
-      component.removeTimer = sinon.fake();
-      component.ghosts = [
+      comp.timerExists = sinon.fake.returns(false);
+      comp.removeTimer = sinon.fake();
+      comp.ghosts = [
         { becomeScared: sinon.fake(), mode: 'eyes' },
         { becomeScared: sinon.fake(), mode: 'chase' },
       ];
-      component.flashGhosts = sinon.fake();
+      comp.flashGhosts = sinon.fake();
 
-      component.powerUp();
-      assert.strictEqual(component.scaredGhosts.length, 1);
+      comp.powerUp();
+      assert.strictEqual(comp.scaredGhosts.length, 1);
+    });
+  });
+
+  describe('determineComboPoints', () => {
+    it('returns the correct points based on combo', () => {
+      comp.ghostCombo = 1;
+      assert.strictEqual(comp.determineComboPoints(), 200);
+      comp.ghostCombo = 2;
+      assert.strictEqual(comp.determineComboPoints(), 400);
+      comp.ghostCombo = 3;
+      assert.strictEqual(comp.determineComboPoints(), 800);
+      comp.ghostCombo = 4;
+      assert.strictEqual(comp.determineComboPoints(), 1600);
     });
   });
 
   describe('eatGhost', () => {
     it('awards points and temporarily pauses movement', () => {
-      component.allowPacmanMovement = true;
-      component.displayText = sinon.fake();
+      comp.allowPacmanMovement = true;
+      comp.displayText = sinon.fake();
+      const ghost = {
+        display: true,
+        name: 'blinky',
+        pause: sinon.fake(),
+      };
       const e = {
         detail: {
-          ghost: {
-            display: true,
-            name: 'blinky',
-          },
+          ghost,
         },
       };
-      component.scaredGhosts = [{ name: 'blinky' }];
+      comp.scaredGhosts = [ghost];
+      comp.determineComboPoints = sinon.fake();
 
-      component.eatGhost(e);
-      assert(!component.allowPacmanMovement);
+      comp.eatGhost(e);
+      assert(!comp.allowPacmanMovement);
       assert(!e.detail.ghost.display);
-      assert(!component.pacman.moving);
-      assert(!component.blinky.moving);
-      assert(component.displayText.called);
+      assert(!comp.pacman.moving);
+      assert(!comp.blinky.moving);
+      assert(comp.displayText.called);
+      assert(comp.determineComboPoints.called);
 
       clock.tick(1000);
-      assert(component.allowPacmanMovement);
+      assert(comp.allowPacmanMovement);
       assert(e.detail.ghost.display);
-      assert(component.pacman.moving);
-      assert(component.blinky.moving);
+      assert(comp.pacman.moving);
     });
   });
 
   describe('displayText', () => {
     it('creates a temporary div and removes it with a set delay', () => {
-      component.mazeDiv = {
+      comp.mazeDiv = {
         appendChild: sinon.fake(),
         removeChild: sinon.fake(),
       };
 
-      component.displayText(
+      comp.displayText(
         { left: 10, top: 25 }, 200, 1000, 48,
       );
-      assert(component.mazeDiv.appendChild.called);
+      assert(comp.mazeDiv.appendChild.called);
 
       clock.tick(1000);
-      assert(component.mazeDiv.removeChild.called);
+      assert(comp.mazeDiv.removeChild.called);
     });
   });
 
   describe('addTimer', () => {
     it('adds a timer object to the list of active timers', () => {
-      component.activeTimers = [];
-      component.addTimer({
+      comp.activeTimers = [];
+      comp.addTimer({
         detail: 'newTimer',
       });
-      assert.strictEqual(component.activeTimers.length, 1);
+      assert.strictEqual(comp.activeTimers.length, 1);
     });
   });
 
   describe('timerExists', () => {
     it('checks if a given timerId exists', () => {
-      component.activeTimers = [
-        { timerId: 1 },
-        { timerId: 2 },
-        { timerId: 3 },
-      ];
+      assert(comp.timerExists({ detail: { timer: { timerId: 1 } } }));
+      assert(!comp.timerExists({ detail: { timer: { timerId: undefined } } }));
+    });
+  });
 
-      assert(component.timerExists(1));
-      assert(component.timerExists(2));
-      assert(component.timerExists(3));
-      assert(!component.timerExists(4));
+  describe('pauseTimer', () => {
+    it('pauses an existing timer', () => {
+      const spy = sinon.fake();
+
+      comp.timerExists = sinon.fake.returns(false);
+      comp.pauseTimer({ detail: { timer: { pause: spy } } });
+      assert(!spy.calledWith(true));
+
+      comp.timerExists = sinon.fake.returns(true);
+      comp.pauseTimer({ detail: { timer: { pause: spy } } });
+      assert(spy.calledWith(true));
+    });
+  });
+
+  describe('resumeTimer', () => {
+    it('resumes an existing timer', () => {
+      const spy = sinon.fake();
+
+      comp.timerExists = sinon.fake.returns(false);
+      comp.resumeTimer({ detail: { timer: { resume: spy } } });
+      assert(!spy.calledWith(true));
+
+      comp.timerExists = sinon.fake.returns(true);
+      comp.resumeTimer({ detail: { timer: { resume: spy } } });
+      assert(spy.calledWith(true));
     });
   });
 
   describe('removeTimer', () => {
     it('removes a timer from the active timers list based on timerId', () => {
       global.window.clearTimeout = sinon.fake();
-      component.activeTimers = [
+      comp.activeTimers = [
         { timerId: 1 },
         { timerId: 2 },
       ];
-      component.removeTimer({
-        detail: { id: 1 },
+      comp.removeTimer({
+        detail: { timer: { timerId: 1 } },
       });
       assert(global.window.clearTimeout.calledWith(1));
-      assert.strictEqual(component.activeTimers.length, 1);
+      assert.strictEqual(comp.activeTimers.length, 1);
     });
+  });
+
+  it('checks if a timer exists before removing it', () => {
+    comp.timerExists = sinon.fake.returns(false);
+
+    comp.removeTimer({
+      detail: { id: 1 },
+    });
+    assert(comp.timerExists.called);
   });
 });

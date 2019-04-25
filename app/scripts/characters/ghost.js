@@ -15,13 +15,23 @@ class Ghost {
    * Rests the character to its default state
    */
   reset() {
-    this.mode = 'scatter';
-    this.defaultMode = this.mode;
+    this.setDefaultMode();
     this.setMovementStats(this.pacman, this.name, this.level);
     this.setSpriteAnimationStats();
     this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
     this.setDefaultPosition(this.scaledTileSize, this.name);
     this.setSpriteSheet(this.name, this.direction, this.mode);
+  }
+
+  /**
+   * Sets the default mode and idleMode behavior
+   */
+  setDefaultMode() {
+    this.defaultMode = 'scatter';
+    this.mode = 'scatter';
+    if (this.name !== 'blinky') {
+      this.idleMode = 'idle';
+    }
   }
 
   /**
@@ -51,6 +61,9 @@ class Ghost {
     switch (name) {
       case 'blinky':
         this.defaultDirection = this.characterUtil.directions.left;
+        break;
+      case 'pinky':
+        this.defaultDirection = this.characterUtil.directions.down;
         break;
       default:
         this.defaultDirection = this.characterUtil.directions.left;
@@ -98,6 +111,12 @@ class Ghost {
       case 'blinky':
         this.defaultPosition = {
           top: scaledTileSize * 10.5,
+          left: scaledTileSize * 13,
+        };
+        break;
+      case 'pinky':
+        this.defaultPosition = {
+          top: scaledTileSize * 13.5,
           left: scaledTileSize * 13,
         };
         break;
@@ -226,6 +245,23 @@ class Ghost {
   }
 
   /**
+   * Determines Pinky's target, which is four tiles in front of Pacman's direction
+   * @param {({x: number, y: number})} pacmanGridPosition
+   * @returns {({x: number, y: number})}
+   */
+  determinePinkyTarget(pacmanGridPosition) {
+    const target = Object.assign({}, pacmanGridPosition);
+    const pacDirection = this.pacman.direction;
+    const propToChange = (pacDirection === 'up' || pacDirection === 'down')
+      ? 'y' : 'x';
+    const tileOffset = (pacDirection === 'up' || pacDirection === 'left')
+      ? -4 : 4;
+    target[propToChange] += tileOffset;
+
+    return target;
+  }
+
+  /**
    * Determines the appropriate target for the ghost's AI
    * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
@@ -249,8 +285,10 @@ class Ghost {
         case 'blinky':
           // Blinky will chase Pacman, even in Scatter mode, if he's in Cruise Elroy form
           return (this.cruiseElroy ? pacmanGridPosition : { x: 27, y: 0 });
-        default:
+        case 'pinky':
           return { x: 0, y: 0 };
+        default:
+          return { x: 27, y: 0 };
       }
     }
 
@@ -258,6 +296,8 @@ class Ghost {
       // Blinky goes after Pacman's position
       case 'blinky':
         return pacmanGridPosition;
+      case 'pinky':
+        return this.determinePinkyTarget(pacmanGridPosition);
       default:
         // TODO: Other ghosts
         return pacmanGridPosition;
@@ -324,6 +364,51 @@ class Ghost {
   }
 
   /**
+   * Handles movement for idle Ghosts in the Ghost House
+   * @param {*} elapsedMs
+   * @param {*} position
+   * @param {*} velocity
+   * @returns {({ top: number, left: number})}
+   */
+  handleIdleMovement(elapsedMs, position, velocity) {
+    const newPosition = Object.assign({}, this.position);
+
+    if (position.y <= 13.5 && this.idleMode !== 'leaving') {
+      this.direction = this.characterUtil.directions.down;
+    } else if (position.y >= 14.5) {
+      this.direction = this.characterUtil.directions.up;
+    }
+
+    if (this.idleMode === 'leaving') {
+      if (position.x === 13.5 && (position.y > 10.8 && position.y < 11)) {
+        this.idleMode = undefined;
+        newPosition.top = this.scaledTileSize * 10.5;
+        this.direction = this.characterUtil.directions.left;
+      } else if (position.x > 13.4 && position.x < 13.6) {
+        newPosition.left = this.scaledTileSize * 13;
+        this.direction = this.characterUtil.directions.up;
+      } else if (position.y > 13.9 && position.y < 14.1) {
+        newPosition.top = this.scaledTileSize * 13.5;
+        this.direction = (position.x < 13.5)
+          ? this.characterUtil.directions.right
+          : this.characterUtil.directions.left;
+      }
+    }
+
+    newPosition[this.characterUtil.getPropertyToChange(this.direction)]
+      += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
+
+    return newPosition;
+  }
+
+  /**
+   * Sets idleMode to 'leaving', allowing the ghost to leave the Ghost House
+   */
+  endIdleMode() {
+    this.idleMode = 'leaving';
+  }
+
+  /**
    * Handle the ghost's movement when it is snapped to the x-y grid of the Maze Array
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
@@ -338,7 +423,6 @@ class Ghost {
       this.name, gridPosition, pacmanGridPosition, this.direction,
       this.mazeArray, this.mode,
     );
-    this.setSpriteSheet(this.name, this.direction, this.mode);
     newPosition[this.characterUtil.getPropertyToChange(this.direction)]
       += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
 
@@ -449,6 +533,51 @@ class Ghost {
   }
 
   /**
+   * Determines the new Ghost position
+   * @param {number} elapsedMs
+   * @returns {({ top: number, left: number})}
+   */
+  handleMovement(elapsedMs) {
+    let newPosition;
+
+    const gridPosition = this.characterUtil.determineGridPosition(
+      this.position, this.scaledTileSize,
+    );
+    const pacmanGridPosition = this.characterUtil.determineGridPosition(
+      this.pacman.position, this.scaledTileSize,
+    );
+    const velocity = this.determineVelocity(
+      gridPosition, this.mode,
+    );
+
+    if (this.idleMode) {
+      newPosition = this.handleIdleMovement(
+        elapsedMs, gridPosition, velocity,
+      );
+    } else if (JSON.stringify(this.position) === JSON.stringify(
+      this.characterUtil.snapToGrid(
+        gridPosition, this.direction, this.scaledTileSize,
+      ),
+    )) {
+      newPosition = this.handleSnappedMovement(
+        elapsedMs, gridPosition, velocity, pacmanGridPosition,
+      );
+    } else {
+      newPosition = this.handleUnsnappedMovement(
+        elapsedMs, gridPosition, velocity,
+      );
+    }
+
+    newPosition = this.characterUtil.handleWarp(
+      newPosition, this.scaledTileSize, this.mazeArray,
+    );
+
+    this.checkCollision(gridPosition, pacmanGridPosition);
+
+    return newPosition;
+  }
+
+  /**
    * Changes the defaultMode to chase or scatter, and turns the ghost around
    * if needed
    * @param {('chase'|'scatter')} newMode
@@ -533,6 +662,14 @@ class Ghost {
   }
 
   /**
+   * Sets a flag to indicate when the ghost should pause its movement
+   * @param {Boolean} newValue
+   */
+  pause(newValue) {
+    this.paused = newValue;
+  }
+
+  /**
    * Checks if the ghost contacts Pacman - starts the death sequence if so
    * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
    * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array
@@ -554,19 +691,27 @@ class Ghost {
 
   /**
    * Determines the appropriate speed for the ghost
-   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
    * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {number}
    */
-  determineVelocity(name, position, mode) {
+  determineVelocity(position, mode) {
     if (mode === 'eyes') {
       return this.eyeSpeed;
-    } if (this.isInTunnel(position) || this.isInGhostHouse(position)) {
+    }
+
+    if (this.paused) {
+      return 0;
+    }
+
+    if (this.isInTunnel(position) || this.isInGhostHouse(position)) {
       return this.transitionSpeed;
-    } if (mode === 'scared') {
+    }
+
+    if (mode === 'scared') {
       return this.scaredSpeed;
     }
+
     return this.defaultSpeed;
   }
 
@@ -601,41 +746,9 @@ class Ghost {
   update(elapsedMs) {
     this.oldPosition = Object.assign({}, this.position);
 
-    if (this.pacman.moving) {
-      this.moving = true;
-    }
-
     if (this.moving) {
-      const gridPosition = this.characterUtil.determineGridPosition(
-        this.position, this.scaledTileSize,
-      );
-      const pacmanGridPosition = this.characterUtil.determineGridPosition(
-        this.pacman.position, this.scaledTileSize,
-      );
-      const velocity = this.determineVelocity(
-        this.name, gridPosition, this.mode,
-      );
-
-      if (JSON.stringify(this.position) === JSON.stringify(
-        this.characterUtil.snapToGrid(
-          gridPosition, this.direction, this.scaledTileSize,
-        ),
-      )) {
-        this.position = this.handleSnappedMovement(
-          elapsedMs, gridPosition, velocity, pacmanGridPosition,
-        );
-      } else {
-        this.position = this.handleUnsnappedMovement(
-          elapsedMs, gridPosition, velocity,
-        );
-      }
-
-      this.position = this.characterUtil.handleWarp(
-        this.position, this.scaledTileSize, this.mazeArray,
-      );
-
-      this.checkCollision(gridPosition, pacmanGridPosition);
-
+      this.position = this.handleMovement(elapsedMs);
+      this.setSpriteSheet(this.name, this.direction, this.mode);
       this.msSinceLastSprite += elapsedMs;
     }
   }
