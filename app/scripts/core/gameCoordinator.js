@@ -480,33 +480,42 @@ class GameCoordinator {
     const { position, measurement } = e.detail.ghost;
 
     this.pauseTimer({ detail: { timer: this.ghostFlashTimer } });
+
     this.scaredGhosts = this.scaredGhosts.filter(
       ghost => ghost.name !== e.detail.ghost.name,
     );
+
     this.ghostCombo += 1;
     const comboPoints = this.determineComboPoints();
+
     this.points += comboPoints;
     this.displayText(
       position, comboPoints, pauseDuration, measurement,
     );
+
     this.allowPacmanMovement = false;
     this.pacman.display = false;
+    this.pacman.moving = false;
     e.detail.ghost.display = false;
-    this.entityList.forEach((entity) => {
-      const entityRef = entity;
-      entityRef.moving = false;
-      entityRef.animate = false;
+    e.detail.ghost.moving = false;
+
+    this.ghosts.forEach((ghost) => {
+      const ghostRef = ghost;
+      ghostRef.animate = false;
+      ghostRef.pause(true);
     });
 
     new Timer(() => {
       this.resumeTimer({ detail: { timer: this.ghostFlashTimer } });
       this.allowPacmanMovement = true;
       this.pacman.display = true;
+      this.pacman.moving = true;
       e.detail.ghost.display = true;
-      this.entityList.forEach((entity) => {
-        const entityRef = entity;
-        entityRef.moving = true;
-        entityRef.animate = true;
+      e.detail.ghost.moving = true;
+      this.ghosts.forEach((ghost) => {
+        const ghostRef = ghost;
+        ghostRef.animate = true;
+        ghostRef.pause(false);
       });
     }, pauseDuration);
   }

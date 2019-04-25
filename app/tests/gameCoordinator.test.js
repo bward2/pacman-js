@@ -20,6 +20,8 @@ describe('gameCoordinator', () => {
       changeMode() {}
 
       endIdleMode() {}
+
+      pause() {}
     };
     global.Pickup = class {};
     global.Timer = class {
@@ -545,15 +547,17 @@ describe('gameCoordinator', () => {
     it('awards points and temporarily pauses movement', () => {
       comp.allowPacmanMovement = true;
       comp.displayText = sinon.fake();
+      const ghost = {
+        display: true,
+        name: 'blinky',
+        pause: sinon.fake(),
+      };
       const e = {
         detail: {
-          ghost: {
-            display: true,
-            name: 'blinky',
-          },
+          ghost,
         },
       };
-      comp.scaredGhosts = [{ name: 'blinky' }];
+      comp.scaredGhosts = [ghost];
       comp.determineComboPoints = sinon.fake();
 
       comp.eatGhost(e);
@@ -568,7 +572,6 @@ describe('gameCoordinator', () => {
       assert(comp.allowPacmanMovement);
       assert(e.detail.ghost.display);
       assert(comp.pacman.moving);
-      assert(comp.blinky.moving);
     });
   });
 

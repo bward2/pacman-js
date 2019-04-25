@@ -777,6 +777,16 @@ describe('ghost', () => {
     });
   });
 
+  describe('pause', () => {
+    it('updates the paused param', () => {
+      comp.pause(true);
+      assert(comp.paused);
+
+      comp.pause(false);
+      assert(!comp.paused);
+    });
+  });
+
   describe('checkCollision', () => {
     it('switches to eyes mode after Pacman eats the ghost', () => {
       global.window = {
@@ -811,23 +821,29 @@ describe('ghost', () => {
 
   describe('determineVelocity', () => {
     it('returns eyeSpeed for eyes mode', () => {
-      const result = comp.determineVelocity('blinky', {}, 'eyes');
+      const result = comp.determineVelocity({}, 'eyes');
       assert.strictEqual(result, comp.eyeSpeed);
+    });
+
+    it('returns ZERO when the ghost is paused', () => {
+      comp.paused = true;
+      const result = comp.determineVelocity({}, 'chase');
+      assert.strictEqual(result, 0);
     });
 
     it('returns tunnelSpeed when in the tunnel', () => {
       comp.isInTunnel = sinon.fake.returns(true);
-      const result = comp.determineVelocity('blinky', {}, 'scared');
+      const result = comp.determineVelocity({}, 'scared');
       assert.strictEqual(result, comp.transitionSpeed);
     });
 
     it('returns scaredSpeed for scared mode', () => {
-      const result = comp.determineVelocity('blinky', {}, 'scared');
+      const result = comp.determineVelocity({}, 'scared');
       assert.strictEqual(result, comp.scaredSpeed);
     });
 
     it('returns defaultSpeed otherwise', () => {
-      const result = comp.determineVelocity('clyde', {}, 'chase');
+      const result = comp.determineVelocity({}, 'chase');
       assert.strictEqual(result, comp.slowSpeed);
     });
   });

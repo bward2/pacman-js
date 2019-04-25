@@ -547,7 +547,7 @@ class Ghost {
       this.pacman.position, this.scaledTileSize,
     );
     const velocity = this.determineVelocity(
-      this.name, gridPosition, this.mode,
+      gridPosition, this.mode,
     );
 
     if (this.idleMode) {
@@ -662,6 +662,14 @@ class Ghost {
   }
 
   /**
+   * Sets a flag to indicate when the ghost should pause its movement
+   * @param {Boolean} newValue
+   */
+  pause(newValue) {
+    this.paused = newValue;
+  }
+
+  /**
    * Checks if the ghost contacts Pacman - starts the death sequence if so
    * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
    * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array
@@ -683,19 +691,27 @@ class Ghost {
 
   /**
    * Determines the appropriate speed for the ghost
-   * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
    * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {number}
    */
-  determineVelocity(name, position, mode) {
+  determineVelocity(position, mode) {
     if (mode === 'eyes') {
       return this.eyeSpeed;
-    } if (this.isInTunnel(position) || this.isInGhostHouse(position)) {
+    }
+
+    if (this.paused) {
+      return 0;
+    }
+
+    if (this.isInTunnel(position) || this.isInGhostHouse(position)) {
       return this.transitionSpeed;
-    } if (mode === 'scared') {
+    }
+
+    if (mode === 'scared') {
       return this.scaredSpeed;
     }
+
     return this.defaultSpeed;
   }
 
