@@ -312,7 +312,7 @@ class Ghost {
         case 'clyde':
           return { x: 0, y: 30 };
         default:
-          return { x: 27, y: 0 };
+          return { x: 0, y: 0 };
       }
     }
 

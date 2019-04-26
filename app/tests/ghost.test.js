@@ -342,6 +342,27 @@ describe('ghost', () => {
     });
   });
 
+  describe('determineClydeTarget', () => {
+    it('returns Pacman\'s position when far away', () => {
+      comp.calculateDistance = sinon.fake.returns(10);
+
+      const result = comp.determineClydeTarget(
+        { x: 1, y: 1 }, { x: 2, y: 2 },
+      );
+      assert(comp.calculateDistance.calledWith(
+        { x: 1, y: 1 }, { x: 2, y: 2 },
+      ));
+      assert.deepEqual(result, { x: 2, y: 2 });
+    });
+
+    it('returns the bottom-left corner\'s position when close', () => {
+      comp.calculateDistance = sinon.fake.returns(1);
+
+      const result = comp.determineClydeTarget();
+      assert.deepEqual(result, { x: 0, y: 30 });
+    });
+  });
+
   describe('getTarget', () => {
     const pacmanPos = { x: 1, y: 1 };
 
@@ -366,8 +387,11 @@ describe('ghost', () => {
       result = comp.getTarget('pinky', undefined, pacmanPos, 'scatter');
       assert.deepEqual(result, { x: 0, y: 0 });
 
+      result = comp.getTarget('clyde', undefined, pacmanPos, 'scatter');
+      assert.deepEqual(result, { x: 0, y: 30 });
+
       result = comp.getTarget(undefined, undefined, pacmanPos, 'scatter');
-      assert.deepEqual(result, { x: 27, y: 0 });
+      assert.deepEqual(result, { x: 0, y: 0 });
     });
 
     it('returns various targets for chase mode', () => {
@@ -377,6 +401,10 @@ describe('ghost', () => {
       comp.determinePinkyTarget = sinon.fake();
       result = comp.getTarget('pinky', undefined, pacmanPos, 'chase');
       assert(comp.determinePinkyTarget.calledWith(pacmanPos));
+
+      comp.determineClydeTarget = sinon.fake();
+      result = comp.getTarget('clyde', { x: 1, y: 1 }, pacmanPos, 'chase');
+      assert(comp.determineClydeTarget.calledWith({ x: 1, y: 1 }, pacmanPos));
 
       result = comp.getTarget(undefined, undefined, pacmanPos, 'chase');
       assert.deepEqual(result, pacmanPos);
