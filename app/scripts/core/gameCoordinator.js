@@ -230,12 +230,17 @@ class GameCoordinator {
     }, delay);
   }
 
+  /**
+   * Releases a ghost from the Ghost House after a delay
+   */
   releaseGhost() {
     if (this.idleGhosts.length > 0) {
+      const delay = Math.max((8 - this.level) * 1000, 0);
+
       this.endIdleTimer = new Timer(() => {
         this.idleGhosts[0].endIdleMode();
         this.idleGhosts.shift();
-      }, 2000);
+      }, delay);
     }
   }
 
