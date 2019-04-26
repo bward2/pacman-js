@@ -65,6 +65,9 @@ class Ghost {
       case 'pinky':
         this.defaultDirection = this.characterUtil.directions.down;
         break;
+      case 'inky':
+        this.defaultDirection = this.characterUtil.directions.up;
+        break;
       case 'clyde':
         this.defaultDirection = this.characterUtil.directions.up;
         break;
@@ -121,6 +124,12 @@ class Ghost {
         this.defaultPosition = {
           top: scaledTileSize * 13.5,
           left: scaledTileSize * 13,
+        };
+        break;
+      case 'inky':
+        this.defaultPosition = {
+          top: scaledTileSize * 13.5,
+          left: scaledTileSize * 11,
         };
         break;
       case 'clyde':
