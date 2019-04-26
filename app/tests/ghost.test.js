@@ -55,6 +55,9 @@ describe('ghost', () => {
 
       comp.setMovementStats(pacman, 'pinky');
       assert.strictEqual(comp.direction, 'down');
+
+      comp.setMovementStats(pacman, 'clyde');
+      assert.strictEqual(comp.direction, 'up');
     });
   });
 
@@ -96,6 +99,13 @@ describe('ghost', () => {
         {
           top: comp.scaledTileSize * 13.5,
           left: comp.scaledTileSize * 13,
+        });
+
+      comp.setDefaultPosition(scaledTileSize, 'clyde');
+      assert.deepEqual(comp.defaultPosition,
+        {
+          top: scaledTileSize * 13.5,
+          left: scaledTileSize * 15,
         });
 
       comp.setDefaultPosition(scaledTileSize, undefined);
@@ -342,43 +352,71 @@ describe('ghost', () => {
     });
   });
 
+  describe('determineClydeTarget', () => {
+    it('returns Pacman\'s position when far away', () => {
+      comp.calculateDistance = sinon.fake.returns(10);
+
+      const result = comp.determineClydeTarget(
+        { x: 1, y: 1 }, { x: 2, y: 2 },
+      );
+      assert(comp.calculateDistance.calledWith(
+        { x: 1, y: 1 }, { x: 2, y: 2 },
+      ));
+      assert.deepEqual(result, { x: 2, y: 2 });
+    });
+
+    it('returns the bottom-left corner\'s position when close', () => {
+      comp.calculateDistance = sinon.fake.returns(1);
+
+      const result = comp.determineClydeTarget();
+      assert.deepEqual(result, { x: 0, y: 30 });
+    });
+  });
+
   describe('getTarget', () => {
     const pacmanPos = { x: 1, y: 1 };
 
     it('returns the ghost-house\'s door for eyes mode', () => {
-      const result = comp.getTarget(undefined, undefined, 'eyes');
+      const result = comp.getTarget(undefined, undefined, undefined, 'eyes');
       assert.deepEqual(result, { x: 13.5, y: 10 });
     });
 
     it('returns Pacman\'s position for scared mode', () => {
-      const result = comp.getTarget(undefined, pacmanPos, 'scared');
+      const result = comp.getTarget(undefined, undefined, pacmanPos, 'scared');
       assert.deepEqual(result, pacmanPos);
     });
 
     it('returns corners for scatter mode', () => {
-      let result = comp.getTarget('blinky', pacmanPos, 'scatter');
+      let result = comp.getTarget('blinky', undefined, pacmanPos, 'scatter');
       assert.deepEqual(result, { x: 27, y: 0 });
 
       comp.cruiseElroy = true;
-      result = comp.getTarget('blinky', pacmanPos, 'scatter');
+      result = comp.getTarget('blinky', undefined, pacmanPos, 'scatter');
       assert.deepEqual(result, pacmanPos);
 
-      result = comp.getTarget('pinky', pacmanPos, 'scatter');
+      result = comp.getTarget('pinky', undefined, pacmanPos, 'scatter');
       assert.deepEqual(result, { x: 0, y: 0 });
 
-      result = comp.getTarget(undefined, pacmanPos, 'scatter');
-      assert.deepEqual(result, { x: 27, y: 0 });
+      result = comp.getTarget('clyde', undefined, pacmanPos, 'scatter');
+      assert.deepEqual(result, { x: 0, y: 30 });
+
+      result = comp.getTarget(undefined, undefined, pacmanPos, 'scatter');
+      assert.deepEqual(result, { x: 0, y: 0 });
     });
 
     it('returns various targets for chase mode', () => {
-      let result = comp.getTarget('blinky', pacmanPos, 'chase');
+      let result = comp.getTarget('blinky', undefined, pacmanPos, 'chase');
       assert.deepEqual(result, pacmanPos);
 
       comp.determinePinkyTarget = sinon.fake();
-      result = comp.getTarget('pinky', pacmanPos, 'chase');
+      result = comp.getTarget('pinky', undefined, pacmanPos, 'chase');
       assert(comp.determinePinkyTarget.calledWith(pacmanPos));
 
-      result = comp.getTarget(undefined, pacmanPos, 'chase');
+      comp.determineClydeTarget = sinon.fake();
+      result = comp.getTarget('clyde', { x: 1, y: 1 }, pacmanPos, 'chase');
+      assert(comp.determineClydeTarget.calledWith({ x: 1, y: 1 }, pacmanPos));
+
+      result = comp.getTarget(undefined, undefined, pacmanPos, 'chase');
       assert.deepEqual(result, pacmanPos);
     });
   });
@@ -400,21 +438,21 @@ describe('ghost', () => {
 
     it('returns the greatest distance from Pacman when scared', () => {
       const result = comp.determineBestMove(
-        'blinky', possibleMoves, pacmanPos, 'scared',
+        'blinky', possibleMoves, undefined, pacmanPos, 'scared',
       );
       assert.strictEqual(result, 'left');
     });
 
     it('returns the shortest distance to the target otherwise', () => {
       const result = comp.determineBestMove(
-        'blinky', possibleMoves, pacmanPos, 'chase',
+        'blinky', possibleMoves, undefined, pacmanPos, 'chase',
       );
       assert.strictEqual(result, 'right');
     });
 
     it('returns UNDEFINED if there are no possible moves', () => {
       const result = comp.determineBestMove(
-        'blinky', {}, pacmanPos, 'chase',
+        'blinky', {}, undefined, pacmanPos, 'chase',
       );
       assert.strictEqual(result, undefined);
     });
@@ -554,12 +592,18 @@ describe('ghost', () => {
     });
 
     it('vacates the ghost when idleMode is LEAVING', () => {
+      global.window = {
+        dispatchEvent: sinon.fake(),
+      };
+      global.Event = sinon.fake();
+
       comp.idleMode = 'leaving';
       position = { x: 13.5, y: 10.9 };
       let result = comp.handleIdleMovement(elapsedMs, position, velocity);
       assert.strictEqual(comp.idleMode, undefined);
       assert.strictEqual(result.top, comp.scaledTileSize * 10.5);
       assert.strictEqual(comp.direction, 'left');
+      assert(window.dispatchEvent.calledWith(new Event('releaseGhost')));
 
       comp.idleMode = 'leaving';
       position = { x: 13.41, y: 10 };

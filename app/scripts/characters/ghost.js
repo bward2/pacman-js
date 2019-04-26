@@ -65,6 +65,9 @@ class Ghost {
       case 'pinky':
         this.defaultDirection = this.characterUtil.directions.down;
         break;
+      case 'clyde':
+        this.defaultDirection = this.characterUtil.directions.up;
+        break;
       default:
         this.defaultDirection = this.characterUtil.directions.left;
         break;
@@ -118,6 +121,12 @@ class Ghost {
         this.defaultPosition = {
           top: scaledTileSize * 13.5,
           left: scaledTileSize * 13,
+        };
+        break;
+      case 'clyde':
+        this.defaultPosition = {
+          top: scaledTileSize * 13.5,
+          left: scaledTileSize * 15,
         };
         break;
       default:
@@ -262,13 +271,26 @@ class Ghost {
   }
 
   /**
+   * Clyde targets Pacman when the two are far apart, but retreats to the
+   * lower-left corner when the two are within eight tiles of each other
+   * @param {({x: number, y: number})} gridPosition
+   * @param {({x: number, y: number})} pacmanGridPosition
+   * @returns {({x: number, y: number})}
+   */
+  determineClydeTarget(gridPosition, pacmanGridPosition) {
+    const distance = this.calculateDistance(gridPosition, pacmanGridPosition);
+    return (distance > 8) ? pacmanGridPosition : { x: 0, y: 30 };
+  }
+
+  /**
    * Determines the appropriate target for the ghost's AI
    * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
+   * @param {({x: number, y: number})} gridPosition - The current x-y position on the 2D Maze Array
    * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
    * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {({x: number, y: number})}
    */
-  getTarget(name, pacmanGridPosition, mode) {
+  getTarget(name, gridPosition, pacmanGridPosition, mode) {
     // Ghosts return to the ghost-house after eaten
     if (mode === 'eyes') {
       return { x: 13.5, y: 10 };
@@ -287,8 +309,10 @@ class Ghost {
           return (this.cruiseElroy ? pacmanGridPosition : { x: 27, y: 0 });
         case 'pinky':
           return { x: 0, y: 0 };
+        case 'clyde':
+          return { x: 0, y: 30 };
         default:
-          return { x: 27, y: 0 };
+          return { x: 0, y: 0 };
       }
     }
 
@@ -298,6 +322,8 @@ class Ghost {
         return pacmanGridPosition;
       case 'pinky':
         return this.determinePinkyTarget(pacmanGridPosition);
+      case 'clyde':
+        return this.determineClydeTarget(gridPosition, pacmanGridPosition);
       default:
         // TODO: Other ghosts
         return pacmanGridPosition;
@@ -308,14 +334,17 @@ class Ghost {
    * Calls the appropriate function to determine the best move depending on the ghost's name
    * @param {('inky'|'blinky'|'pinky'|'clyde')} name - The name of the current ghost
    * @param {Object} possibleMoves - All of the moves the ghost could choose to make this turn
+   * @param {({x: number, y: number})} gridPosition - The current x-y position on the 2D Maze Array
    * @param {({x: number, y: number})} pacmanGridPosition - x-y position on the 2D Maze Array
    * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {('up'|'down'|'left'|'right')}
    */
-  determineBestMove(name, possibleMoves, pacmanGridPosition, mode) {
+  determineBestMove(
+    name, possibleMoves, gridPosition, pacmanGridPosition, mode,
+  ) {
     let bestDistance = (mode === 'scared') ? 0 : Infinity;
     let bestMove;
-    const target = this.getTarget(name, pacmanGridPosition, mode);
+    const target = this.getTarget(name, gridPosition, pacmanGridPosition, mode);
 
     Object.keys(possibleMoves).forEach((move) => {
       const distance = this.calculateDistance(
@@ -356,7 +385,7 @@ class Ghost {
       [newDirection] = Object.keys(possibleMoves);
     } else if (Object.keys(possibleMoves).length > 1) {
       newDirection = this.determineBestMove(
-        name, possibleMoves, pacmanGridPosition, mode,
+        name, possibleMoves, gridPosition, pacmanGridPosition, mode,
       );
     }
 
@@ -373,7 +402,7 @@ class Ghost {
   handleIdleMovement(elapsedMs, position, velocity) {
     const newPosition = Object.assign({}, this.position);
 
-    if (position.y <= 13.5 && this.idleMode !== 'leaving') {
+    if (position.y <= 13.5) {
       this.direction = this.characterUtil.directions.down;
     } else if (position.y >= 14.5) {
       this.direction = this.characterUtil.directions.up;
@@ -384,6 +413,7 @@ class Ghost {
         this.idleMode = undefined;
         newPosition.top = this.scaledTileSize * 10.5;
         this.direction = this.characterUtil.directions.left;
+        window.dispatchEvent(new Event('releaseGhost'));
       } else if (position.x > 13.4 && position.x < 13.6) {
         newPosition.left = this.scaledTileSize * 13;
         this.direction = this.characterUtil.directions.up;

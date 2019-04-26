@@ -92,6 +92,10 @@ class GameCoordinator {
         this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
         this.level, new CharacterUtil(),
       ),
+      this.clyde = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'clyde',
+        this.level, new CharacterUtil(),
+      ),
       this.fruit = new Pickup(
         'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
         this.mazeDiv, 100,
@@ -101,6 +105,7 @@ class GameCoordinator {
     this.ghosts = [
       this.blinky,
       this.pinky,
+      this.clyde,
     ];
 
     this.pickups = [
@@ -199,11 +204,13 @@ class GameCoordinator {
       });
 
       this.ghostCycle('scatter');
-    }, duration);
 
-    this.endIdleTimer = new Timer(() => {
-      this.pinky.endIdleMode();
-    }, duration + 2000);
+      this.idleGhosts = [
+        this.pinky,
+        this.clyde,
+      ];
+      this.releaseGhost();
+    }, duration);
   }
 
   /**
@@ -224,6 +231,20 @@ class GameCoordinator {
   }
 
   /**
+   * Releases a ghost from the Ghost House after a delay
+   */
+  releaseGhost() {
+    if (this.idleGhosts.length > 0) {
+      const delay = Math.max((8 - this.level) * 1000, 0);
+
+      this.endIdleTimer = new Timer(() => {
+        this.idleGhosts[0].endIdleMode();
+        this.idleGhosts.shift();
+      }, delay);
+    }
+  }
+
+  /**
    * Register listeners for various game sequences
    */
   registerEventListeners() {
@@ -235,6 +256,7 @@ class GameCoordinator {
     window.addEventListener('eatGhost', this.eatGhost.bind(this));
     window.addEventListener('addTimer', this.addTimer.bind(this));
     window.addEventListener('removeTimer', this.removeTimer.bind(this));
+    window.addEventListener('releaseGhost', this.releaseGhost.bind(this));
   }
 
   /**

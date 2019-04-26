@@ -127,6 +127,23 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('releaseGhost', () => {
+    it('releases a ghost after a delay', () => {
+      const spy = sinon.fake();
+      comp.idleGhosts = [{ endIdleMode: spy }];
+      comp.level = 1;
+
+      comp.releaseGhost();
+      clock.tick(10000);
+      assert.deepEqual(comp.idleGhosts, []);
+    });
+
+    it('does nothing unless there is an idle ghost to release', () => {
+      comp.idleGhosts = [];
+      comp.releaseGhost();
+    });
+  });
+
   describe('registerEventListeners', () => {
     it('registers listeners for various game events', () => {
       global.window = {
@@ -142,6 +159,7 @@ describe('gameCoordinator', () => {
       assert(global.window.addEventListener.calledWith('eatGhost'));
       assert(global.window.addEventListener.calledWith('addTimer'));
       assert(global.window.addEventListener.calledWith('removeTimer'));
+      assert(global.window.addEventListener.calledWith('releaseGhost'));
     });
   });
 
