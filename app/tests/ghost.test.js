@@ -55,6 +55,9 @@ describe('ghost', () => {
 
       comp.setMovementStats(pacman, 'pinky');
       assert.strictEqual(comp.direction, 'down');
+
+      comp.setMovementStats(pacman, 'clyde');
+      assert.strictEqual(comp.direction, 'up');
     });
   });
 
@@ -96,6 +99,13 @@ describe('ghost', () => {
         {
           top: comp.scaledTileSize * 13.5,
           left: comp.scaledTileSize * 13,
+        });
+
+      comp.setDefaultPosition(scaledTileSize, 'clyde');
+      assert.deepEqual(comp.defaultPosition,
+        {
+          top: scaledTileSize * 13.5,
+          left: scaledTileSize * 15,
         });
 
       comp.setDefaultPosition(scaledTileSize, undefined);
