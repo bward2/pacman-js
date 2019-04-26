@@ -134,8 +134,7 @@ describe('gameCoordinator', () => {
       comp.level = 1;
 
       comp.releaseGhost();
-      clock.tick(10000);
-      assert.deepEqual(comp.idleGhosts, []);
+      clock.tick(7000);
     });
 
     it('does nothing unless there is an idle ghost to release', () => {

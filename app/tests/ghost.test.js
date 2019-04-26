@@ -56,6 +56,9 @@ describe('ghost', () => {
       comp.setMovementStats(pacman, 'pinky');
       assert.strictEqual(comp.direction, 'down');
 
+      comp.setMovementStats(pacman, 'inky');
+      assert.strictEqual(comp.direction, 'up');
+
       comp.setMovementStats(pacman, 'clyde');
       assert.strictEqual(comp.direction, 'up');
     });
@@ -99,6 +102,13 @@ describe('ghost', () => {
         {
           top: comp.scaledTileSize * 13.5,
           left: comp.scaledTileSize * 13,
+        });
+
+      comp.setDefaultPosition(scaledTileSize, 'inky');
+      assert.deepEqual(comp.defaultPosition,
+        {
+          top: scaledTileSize * 13.5,
+          left: scaledTileSize * 11,
         });
 
       comp.setDefaultPosition(scaledTileSize, 'clyde');
@@ -334,21 +344,51 @@ describe('ghost', () => {
     });
   });
 
-  describe('determinePinkyTarget', () => {
-    const pacmanPos = { x: 10, y: 10 };
+  describe('getPositionInFrontOfPacman', () => {
+    it('returns the correct result for any orientation', () => {
+      const pacmanPos = { x: 10, y: 10 };
 
-    it('returns the correct target for any Pacman orientation', () => {
       comp.pacman.direction = 'up';
-      assert.deepEqual(comp.determinePinkyTarget(pacmanPos), { x: 10, y: 6 });
+      assert.deepEqual(comp.getPositionInFrontOfPacman(pacmanPos, 4),
+        { x: 10, y: 6 });
 
       comp.pacman.direction = 'down';
-      assert.deepEqual(comp.determinePinkyTarget(pacmanPos), { x: 10, y: 14 });
+      assert.deepEqual(comp.getPositionInFrontOfPacman(pacmanPos, 4),
+        { x: 10, y: 14 });
 
       comp.pacman.direction = 'left';
-      assert.deepEqual(comp.determinePinkyTarget(pacmanPos), { x: 6, y: 10 });
+      assert.deepEqual(comp.getPositionInFrontOfPacman(pacmanPos, 4),
+        { x: 6, y: 10 });
 
       comp.pacman.direction = 'right';
-      assert.deepEqual(comp.determinePinkyTarget(pacmanPos), { x: 14, y: 10 });
+      assert.deepEqual(comp.getPositionInFrontOfPacman(pacmanPos, 4),
+        { x: 14, y: 10 });
+    });
+  });
+
+  describe('determinePinkyTarget', () => {
+    it('returns the correct target for Pinky', () => {
+      comp.getPositionInFrontOfPacman = sinon.fake();
+      const pacmanPos = { x: 10, y: 10 };
+
+      comp.determinePinkyTarget(pacmanPos);
+      assert(comp.getPositionInFrontOfPacman.calledWith(pacmanPos, 4));
+    });
+  });
+
+  describe('determineInkyTarget', () => {
+    it('returns the correct target for Inky', () => {
+      const pacmanPos = { x: 10, y: 10 };
+      comp.blinky = {};
+      comp.characterUtil.determineGridPosition = sinon.fake.returns(
+        { x: 0, y: 0 },
+      );
+      comp.getPositionInFrontOfPacman = sinon.fake.returns(
+        { x: 12, y: 10 },
+      );
+
+      const result = comp.determineInkyTarget(pacmanPos);
+      assert.deepEqual(result, { x: 24, y: 20 });
     });
   });
 
@@ -397,6 +437,9 @@ describe('ghost', () => {
       result = comp.getTarget('pinky', undefined, pacmanPos, 'scatter');
       assert.deepEqual(result, { x: 0, y: 0 });
 
+      result = comp.getTarget('inky', undefined, pacmanPos, 'scatter');
+      assert.deepEqual(result, { x: 27, y: 30 });
+
       result = comp.getTarget('clyde', undefined, pacmanPos, 'scatter');
       assert.deepEqual(result, { x: 0, y: 30 });
 
@@ -411,6 +454,10 @@ describe('ghost', () => {
       comp.determinePinkyTarget = sinon.fake();
       result = comp.getTarget('pinky', undefined, pacmanPos, 'chase');
       assert(comp.determinePinkyTarget.calledWith(pacmanPos));
+
+      comp.determineInkyTarget = sinon.fake();
+      result = comp.getTarget('inky', undefined, pacmanPos, 'chase');
+      assert(comp.determineInkyTarget.calledWith(pacmanPos));
 
       comp.determineClydeTarget = sinon.fake();
       result = comp.getTarget('clyde', { x: 1, y: 1 }, pacmanPos, 'chase');
