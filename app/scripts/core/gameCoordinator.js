@@ -92,6 +92,10 @@ class GameCoordinator {
         this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
         this.level, new CharacterUtil(),
       ),
+      this.inky = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'inky',
+        this.level, new CharacterUtil(), this.blinky,
+      ),
       this.clyde = new Ghost(
         this.scaledTileSize, this.mazeArray, this.pacman, 'clyde',
         this.level, new CharacterUtil(),
@@ -105,6 +109,7 @@ class GameCoordinator {
     this.ghosts = [
       this.blinky,
       this.pinky,
+      this.inky,
       this.clyde,
     ];
 
@@ -207,6 +212,7 @@ class GameCoordinator {
 
       this.idleGhosts = [
         this.pinky,
+        this.inky,
         this.clyde,
       ];
       this.releaseGhost();

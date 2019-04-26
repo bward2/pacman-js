@@ -1,11 +1,14 @@
 class Ghost {
-  constructor(scaledTileSize, mazeArray, pacman, name, level, characterUtil) {
+  constructor(
+    scaledTileSize, mazeArray, pacman, name, level, characterUtil, blinky,
+  ) {
     this.scaledTileSize = scaledTileSize;
     this.mazeArray = mazeArray;
     this.pacman = pacman;
     this.name = name;
     this.level = level;
     this.characterUtil = characterUtil;
+    this.blinky = blinky;
     this.animationTarget = document.getElementById(name);
 
     this.reset();
@@ -65,6 +68,9 @@ class Ghost {
       case 'pinky':
         this.defaultDirection = this.characterUtil.directions.down;
         break;
+      case 'inky':
+        this.defaultDirection = this.characterUtil.directions.up;
+        break;
       case 'clyde':
         this.defaultDirection = this.characterUtil.directions.up;
         break;
@@ -121,6 +127,12 @@ class Ghost {
         this.defaultPosition = {
           top: scaledTileSize * 13.5,
           left: scaledTileSize * 13,
+        };
+        break;
+      case 'inky':
+        this.defaultPosition = {
+          top: scaledTileSize * 13.5,
+          left: scaledTileSize * 11,
         };
         break;
       case 'clyde':
@@ -254,20 +266,51 @@ class Ghost {
   }
 
   /**
-   * Determines Pinky's target, which is four tiles in front of Pacman's direction
+   * Gets a position a number of spaces in front of Pacman's direction
    * @param {({x: number, y: number})} pacmanGridPosition
-   * @returns {({x: number, y: number})}
+   * @param {number} spaces
    */
-  determinePinkyTarget(pacmanGridPosition) {
+  getPositionInFrontOfPacman(pacmanGridPosition, spaces) {
     const target = Object.assign({}, pacmanGridPosition);
     const pacDirection = this.pacman.direction;
     const propToChange = (pacDirection === 'up' || pacDirection === 'down')
       ? 'y' : 'x';
     const tileOffset = (pacDirection === 'up' || pacDirection === 'left')
-      ? -4 : 4;
+      ? (spaces * -1) : spaces;
     target[propToChange] += tileOffset;
 
     return target;
+  }
+
+  /**
+   * Determines Pinky's target, which is four tiles in front of Pacman's direction
+   * @param {({x: number, y: number})} pacmanGridPosition
+   * @returns {({x: number, y: number})}
+   */
+  determinePinkyTarget(pacmanGridPosition) {
+    return this.getPositionInFrontOfPacman(
+      pacmanGridPosition, 4,
+    );
+  }
+
+  /**
+   * Determines Inky's target, which is a mirror image of Blinky's position
+   * reflected across a point two tiles in front of Pacman's direction.
+   * Example @ app\style\graphics\spriteSheets\references\inky_target.png
+   * @param {({x: number, y: number})} pacmanGridPosition
+   * @returns {({x: number, y: number})}
+   */
+  determineInkyTarget(pacmanGridPosition) {
+    const blinkyGridPosition = this.characterUtil.determineGridPosition(
+      this.blinky.position, this.scaledTileSize,
+    );
+    const pivotPoint = this.getPositionInFrontOfPacman(
+      pacmanGridPosition, 2,
+    );
+    return {
+      x: pivotPoint.x + (pivotPoint.x - blinkyGridPosition.x),
+      y: pivotPoint.y + (pivotPoint.y - blinkyGridPosition.y),
+    };
   }
 
   /**
@@ -309,6 +352,8 @@ class Ghost {
           return (this.cruiseElroy ? pacmanGridPosition : { x: 27, y: 0 });
         case 'pinky':
           return { x: 0, y: 0 };
+        case 'inky':
+          return { x: 27, y: 30 };
         case 'clyde':
           return { x: 0, y: 30 };
         default:
@@ -322,6 +367,8 @@ class Ghost {
         return pacmanGridPosition;
       case 'pinky':
         return this.determinePinkyTarget(pacmanGridPosition);
+      case 'inky':
+        return this.determineInkyTarget(pacmanGridPosition);
       case 'clyde':
         return this.determineClydeTarget(gridPosition, pacmanGridPosition);
       default:
