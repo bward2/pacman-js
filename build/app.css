@@ -1,0 +1,44 @@
+.ghost {
+  position: absolute;
+  margin: 0;
+  z-index: 2; }
+
+#maze-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; }
+
+#maze-cover {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: black;
+  z-index: 100;
+  visibility: hidden; }
+
+#maze {
+  margin: 0 auto;
+  position: relative; }
+
+.maze-row {
+  display: flex; }
+
+#pacman {
+  position: absolute;
+  z-index: 1;
+  margin: 0; }
+
+#pacman-arrow {
+  position: absolute;
+  z-index: 1;
+  margin: 0; }
+
+#fpsDisplay {
+  position: absolute;
+  top: 10px;
+  left: 10px; }
