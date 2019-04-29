@@ -1729,7 +1729,7 @@ class GameCoordinator {
 
 class GameEngine {
   constructor(maxFps, entityList) {
-    this.fpsDisplay = document.getElementById('fpsDisplay');
+    this.fpsDisplay = document.getElementById('fps-display');
     this.elapsedMs = 0;
     this.lastFrameTimeMs = 0;
     this.entityList = entityList;
