@@ -38,7 +38,11 @@
   z-index: 1;
   margin: 0; }
 
-#fpsDisplay {
+#fps-display {
   position: absolute;
   top: 10px;
   left: 10px; }
+
+#dev-message {
+  width: 100%;
+  text-align: center; }
