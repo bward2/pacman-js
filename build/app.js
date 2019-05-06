@@ -1217,6 +1217,7 @@ class GameCoordinator {
       this.fruit,
     ];
 
+    this.preloadImages();
     this.registerEventListeners();
     this.drawMaze(this.mazeArray, this.entityList);
     setInterval(() => {
@@ -1227,6 +1228,100 @@ class GameCoordinator {
     this.gameEngine.start();
 
     this.startGameplay();
+  }
+
+  preloadImages() {
+    const preloadDiv = document.getElementById('preload-div');
+    const base = 'app/style/graphics/spriteSheets/';
+    const sources = [
+      // Pacman
+      `${base}characters/pacman/arrow_down.svg`,
+      `${base}characters/pacman/arrow_left.svg`,
+      `${base}characters/pacman/arrow_right.svg`,
+      `${base}characters/pacman/arrow_up.svg`,
+      `${base}characters/pacman/pacman_death.svg`,
+      `${base}characters/pacman/pacman_down.svg`,
+      `${base}characters/pacman/pacman_left.svg`,
+      `${base}characters/pacman/pacman_right.svg`,
+      `${base}characters/pacman/pacman_up.svg`,
+
+      // Blinky
+      `${base}characters/ghosts/blinky/blinky_down_angry.svg`,
+      `${base}characters/ghosts/blinky/blinky_down_annoyed.svg`,
+      `${base}characters/ghosts/blinky/blinky_down.svg`,
+      `${base}characters/ghosts/blinky/blinky_left_angry.svg`,
+      `${base}characters/ghosts/blinky/blinky_left_annoyed.svg`,
+      `${base}characters/ghosts/blinky/blinky_left.svg`,
+      `${base}characters/ghosts/blinky/blinky_right_angry.svg`,
+      `${base}characters/ghosts/blinky/blinky_right_annoyed.svg`,
+      `${base}characters/ghosts/blinky/blinky_right.svg`,
+      `${base}characters/ghosts/blinky/blinky_up_angry.svg`,
+      `${base}characters/ghosts/blinky/blinky_up_annoyed.svg`,
+      `${base}characters/ghosts/blinky/blinky_up.svg`,
+
+      // Clyde
+      `${base}characters/ghosts/clyde/clyde_down.svg`,
+      `${base}characters/ghosts/clyde/clyde_left.svg`,
+      `${base}characters/ghosts/clyde/clyde_right.svg`,
+      `${base}characters/ghosts/clyde/clyde_up.svg`,
+
+      // Inky
+      `${base}characters/ghosts/inky/inky_down.svg`,
+      `${base}characters/ghosts/inky/inky_left.svg`,
+      `${base}characters/ghosts/inky/inky_right.svg`,
+      `${base}characters/ghosts/inky/inky_up.svg`,
+
+      // Pinky
+      `${base}characters/ghosts/pinky/pinky_down.svg`,
+      `${base}characters/ghosts/pinky/pinky_left.svg`,
+      `${base}characters/ghosts/pinky/pinky_right.svg`,
+      `${base}characters/ghosts/pinky/pinky_up.svg`,
+
+      // Ghosts Common
+      `${base}characters/ghosts/eyes_down.svg`,
+      `${base}characters/ghosts/eyes_left.svg`,
+      `${base}characters/ghosts/eyes_right.svg`,
+      `${base}characters/ghosts/eyes_up.svg`,
+      `${base}characters/ghosts/scared_blue.svg`,
+      `${base}characters/ghosts/scared_white.svg`,
+
+      // Dots
+      `${base}pickups/pacdot.svg`,
+      `${base}pickups/powerPellet.svg`,
+
+      // Fruit
+      `${base}pickups/apple.svg`,
+      `${base}pickups/bell.svg`,
+      `${base}pickups/cherry.svg`,
+      `${base}pickups/galaxian.svg`,
+      `${base}pickups/key.svg`,
+      `${base}pickups/melon.svg`,
+      `${base}pickups/orange.svg`,
+      `${base}pickups/strawberry.svg`,
+
+      // Text
+      `${base}text/ready.svg`,
+
+      // Points
+      `${base}text/100.svg`,
+      `${base}text/200.svg`,
+      `${base}text/300.svg`,
+      `${base}text/400.svg`,
+      `${base}text/500.svg`,
+      `${base}text/700.svg`,
+      `${base}text/800.svg`,
+      `${base}text/1000.svg`,
+      `${base}text/1600.svg`,
+      `${base}text/2000.svg`,
+      `${base}text/3000.svg`,
+      `${base}text/5000.svg`,
+    ];
+
+    sources.forEach((source) => {
+      const image = new Image();
+      preloadDiv.appendChild(image);
+      image.src = source;
+    });
   }
 
   /**
