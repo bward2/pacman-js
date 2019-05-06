@@ -47,12 +47,26 @@ describe('gameCoordinator', () => {
       }),
     };
 
+    global.Image = class {};
+
     clock = sinon.useFakeTimers();
     comp = new GameCoordinator();
   });
 
   afterEach(() => {
     clock.restore();
+  });
+
+  describe('preloadImages', () => {
+    it('adds a new Image tag for each file listed', () => {
+      const spy = sinon.fake();
+      global.document.getElementById = sinon.fake.returns({
+        appendChild: spy,
+      });
+
+      comp.preloadImages();
+      assert.strictEqual(spy.callCount, 62);
+    });
   });
 
   describe('drawMaze', () => {

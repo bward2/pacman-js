@@ -43,6 +43,9 @@
   top: 10px;
   left: 10px; }
 
+#preload-div {
+  visibility: hidden; }
+
 #dev-message {
   width: 100%;
   text-align: center; }
