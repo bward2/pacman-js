@@ -130,6 +130,10 @@ class GameCoordinator {
     this.startGameplay();
   }
 
+  /**
+   * Load all SVG's into a hidden Div to pre-load them into memory.
+   * There is probably a better way to read all of these file names.
+   */
   preloadImages() {
     const preloadDiv = document.getElementById('preload-div');
     const base = 'app/style/graphics/spriteSheets/';
