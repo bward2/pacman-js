@@ -177,6 +177,10 @@ describe('gameCoordinator', () => {
   });
 
   describe('handleKeyDown', () => {
+    beforeEach(() => {
+      comp.gameEngine = {};
+    });
+
     it('calls handlePauseKey when esc is pressed', () => {
       comp.handlePauseKey = sinon.fake();
 
@@ -255,7 +259,9 @@ describe('gameCoordinator', () => {
 
   describe('handlePauseKey', () => {
     beforeEach(() => {
-      comp.gameEngine.changePausedState = sinon.fake();
+      comp.gameEngine = {
+        changePausedState: sinon.fake(),
+      };
       comp.activeTimers = [{}];
     });
 
