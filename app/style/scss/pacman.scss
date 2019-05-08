@@ -1,7 +1,12 @@
+$loading-pacman-duration: 1s;
+$loading-container-duration: 0.5s;
+$loading-cover-duration: 0.5s;
+
 body {
   position: relative;
   margin: 0;
   height: 100vh;
+  overflow: hidden;
 }
 
 #pacman {
@@ -37,16 +42,20 @@ body {
 
 .left {
   left: 0;
+  transition: left $loading-cover-duration ($loading-container-duration + $loading-pacman-duration);
 }
 
 .right {
   right: 0;
+  transition: right $loading-cover-duration ($loading-container-duration + $loading-pacman-duration);
 }
 
 #loading-container {
   position: absolute;
+  transition: opacity $loading-container-duration $loading-pacman-duration;
   top: 50%;
   left: 50%;
+  height: 48px;
   width: 50vw;
   transform: translateX(-50%) translateY(-50%);
   background-color: black;
@@ -56,8 +65,12 @@ body {
 }
 
 #loading-pacman {
+  position: absolute;
+  transition: left $loading-pacman-duration;
   height: 48px;
   width: 48px;
+  border-radius: 10px;
+  background-color: black;
   background-size: 192px;
   background-image: url('../app/style/graphics/spriteSheets/characters/pacman/pacman_right.svg');
   animation: loading-animation 0.3s steps(4) infinite;
@@ -65,7 +78,18 @@ body {
 }
 
 @keyframes loading-animation {
-  100% { background-position: 192px };
+  100% { background-position: -192px };
+}
+
+#loading-dot-mask {
+  position: absolute;
+  transition: width $loading-pacman-duration;
+  top: 0;
+  left: 0;
+  border-radius: 10px;
+  background-color: black;
+  height: 48px;
+  z-index: -1;
 }
 
 .loading-dot {
@@ -75,7 +99,7 @@ body {
   top: 50%;
   transform: translateY(-50%);
   background-image: url(../app/style/graphics/spriteSheets/pickups/pacdot.svg);
-  z-index: -1;
+  z-index: -2;
 }
 
 ._5{ left: 5%; }

@@ -127,7 +127,7 @@ class GameCoordinator {
       this.gameEngine = new GameEngine(this.maxFps, this.entityList);
       this.gameEngine.start();
 
-      this.startGameplay();
+      this.startGameplay(true);
     });
   }
 
@@ -137,7 +137,15 @@ class GameCoordinator {
    */
   preloadImages() {
     const promise = new Promise((resolve) => {
+      const loadingContainer = document.getElementById('loading-container');
+      const loadingPacman = document.getElementById('loading-pacman');
+      const containerWidth = loadingContainer.scrollWidth
+        - loadingPacman.scrollWidth;
+      const loadingDotMask = document.getElementById('loading-dot-mask');
       const preloadDiv = document.getElementById('preload-div');
+      const leftCover = document.getElementById('left-cover');
+      const rightCover = document.getElementById('right-cover');
+
       const base = 'app/style/graphics/spriteSheets/';
       const sources = [
         // Pacman
@@ -231,7 +239,15 @@ class GameCoordinator {
 
         image.onload = (() => {
           remainingSources -= 1;
+          const percentLoaded = ((sources.length - remainingSources)
+            / sources.length);
+          loadingPacman.style.left = `${percentLoaded * containerWidth}px`;
+          loadingDotMask.style.width = loadingPacman.style.left;
+
           if (remainingSources === 0) {
+            loadingContainer.style.opacity = 0;
+            leftCover.style.left = '-50%';
+            rightCover.style.right = '-50%';
             resolve();
           }
         });
