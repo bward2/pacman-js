@@ -18,7 +18,7 @@
   height: 100%;
   width: 100%;
   background: black;
-  z-index: 100;
+  z-index: 10;
   visibility: hidden; }
 
 #maze {
@@ -27,6 +27,11 @@
 
 .maze-row {
   display: flex; }
+
+body {
+  position: relative;
+  margin: 0;
+  height: 100vh; }
 
 #pacman {
   position: absolute;
@@ -45,6 +50,109 @@
 
 #preload-div {
   visibility: hidden; }
+
+.loading-cover {
+  position: absolute;
+  height: 100vh;
+  width: 50vw;
+  top: 0;
+  z-index: 15;
+  background: #FAB9B0; }
+
+.left {
+  left: 0; }
+
+.right {
+  right: 0; }
+
+#loading-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50vw;
+  transform: translateX(-50%) translateY(-50%);
+  background-color: black;
+  border-radius: 10px;
+  border: 5px solid blue;
+  z-index: 20; }
+
+#loading-pacman {
+  height: 48px;
+  width: 48px;
+  background-size: 192px;
+  background-image: url("../app/style/graphics/spriteSheets/characters/pacman/pacman_right.svg");
+  animation: loading-animation 0.3s steps(4) infinite;
+  z-index: 22; }
+
+@keyframes loading-animation {
+  100% {
+    background-position: 192px; } }
+
+.loading-dot {
+  position: absolute;
+  height: 6px;
+  width: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-image: url(../app/style/graphics/spriteSheets/pickups/pacdot.svg);
+  z-index: -1; }
+
+._5 {
+  left: 5%; }
+
+._10 {
+  left: 10%; }
+
+._15 {
+  left: 15%; }
+
+._20 {
+  left: 20%; }
+
+._25 {
+  left: 25%; }
+
+._30 {
+  left: 30%; }
+
+._35 {
+  left: 35%; }
+
+._40 {
+  left: 40%; }
+
+._45 {
+  left: 45%; }
+
+._50 {
+  left: 50%; }
+
+._55 {
+  left: 55%; }
+
+._60 {
+  left: 60%; }
+
+._65 {
+  left: 65%; }
+
+._70 {
+  left: 70%; }
+
+._75 {
+  left: 75%; }
+
+._80 {
+  left: 80%; }
+
+._85 {
+  left: 85%; }
+
+._90 {
+  left: 90%; }
+
+._95 {
+  left: 95%; }
 
 #dev-message {
   width: 100%;
