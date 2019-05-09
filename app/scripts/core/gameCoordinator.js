@@ -118,16 +118,6 @@ class GameCoordinator {
     ];
 
     this.preloadImages();
-    this.registerEventListeners();
-    this.drawMaze(this.mazeArray, this.entityList);
-    setInterval(() => {
-      this.collisionDetectionLoop();
-    }, 500);
-
-    this.gameEngine = new GameEngine(this.maxFps, this.entityList);
-    this.gameEngine.start();
-
-    this.startGameplay();
   }
 
   /**
@@ -135,7 +125,15 @@ class GameCoordinator {
    * There is probably a better way to read all of these file names.
    */
   preloadImages() {
+    const loadingContainer = document.getElementById('loading-container');
+    const loadingPacman = document.getElementById('loading-pacman');
+    const containerWidth = loadingContainer.scrollWidth
+      - loadingPacman.scrollWidth;
+    const loadingDotMask = document.getElementById('loading-dot-mask');
     const preloadDiv = document.getElementById('preload-div');
+    const leftCover = document.getElementById('left-cover');
+    const rightCover = document.getElementById('right-cover');
+
     const base = 'app/style/graphics/spriteSheets/';
     const sources = [
       // Pacman
@@ -221,11 +219,42 @@ class GameCoordinator {
       `${base}text/5000.svg`,
     ];
 
+    let remainingSources = sources.length;
+
     sources.forEach((source) => {
       const image = new Image();
       preloadDiv.appendChild(image);
+
+      image.onload = (() => {
+        remainingSources -= 1;
+        const percentLoaded = ((sources.length - remainingSources)
+          / sources.length);
+        loadingPacman.style.left = `${percentLoaded * containerWidth}px`;
+        loadingDotMask.style.width = loadingPacman.style.left;
+
+        if (remainingSources === 0) {
+          loadingContainer.style.opacity = 0;
+          leftCover.style.left = '-50%';
+          rightCover.style.right = '-50%';
+          this.init();
+        }
+      });
+
       image.src = source;
     });
+  }
+
+  init() {
+    this.registerEventListeners();
+    this.drawMaze(this.mazeArray, this.entityList);
+    setInterval(() => {
+      this.collisionDetectionLoop();
+    }, 500);
+
+    this.gameEngine = new GameEngine(this.maxFps, this.entityList);
+    this.gameEngine.start();
+
+    this.startGameplay(true);
   }
 
   /**
