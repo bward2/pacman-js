@@ -57,6 +57,24 @@ describe('gameCoordinator', () => {
     clock.restore();
   });
 
+  describe('init', () => {
+    it('calls necessary setup functions to start the game', () => {
+      comp.registerEventListeners = sinon.fake();
+      comp.drawMaze = sinon.fake();
+      comp.collisionDetectionLoop = sinon.fake();
+      comp.startGameplay = sinon.fake();
+
+      comp.init();
+      assert(comp.registerEventListeners.called);
+      assert(comp.drawMaze.calledWith(comp.mazeArray, comp.entityList));
+      assert(!comp.collisionDetectionLoop.called);
+      assert(comp.startGameplay.calledWith(true));
+
+      clock.tick(500);
+      assert(comp.collisionDetectionLoop.called);
+    });
+  });
+
   describe('preloadImages', () => {
     it('adds a new Image tag for each file listed', () => {
       Object.defineProperties(global.Image.prototype, {
@@ -70,6 +88,8 @@ describe('gameCoordinator', () => {
       const spy = sinon.fake();
       global.document.getElementById = sinon.fake.returns({
         appendChild: spy,
+        style: {},
+        scrollWidth: 500,
       });
 
       comp.preloadImages();
@@ -86,13 +106,18 @@ describe('gameCoordinator', () => {
   });
 
   describe('collisionDetectionLoop', () => {
-    beforeEach(() => {
+    it('calls checkPacmanProximity for each pickup', () => {
       comp.pacman.position = { left: 0, top: 0 };
       comp.pacman.velocityPerMs = 1;
-      comp.pickups = [{ checkPacmanProximity: sinon.fake() }];
+      const spy = sinon.fake();
+      comp.pickups = [{ checkPacmanProximity: spy }];
+
+      comp.collisionDetectionLoop();
+      assert(spy.called);
     });
 
-    it('calls checkPacmanProximity for each pickup', () => {
+    it('does nothing if Pacman\'s position is undefined', () => {
+      comp.pacman.position = undefined;
       comp.collisionDetectionLoop();
     });
   });
