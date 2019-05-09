@@ -1,123 +1,126 @@
 class GameCoordinator {
   constructor() {
-    this.mazeDiv = document.getElementById('maze');
-    this.mazeCover = document.getElementById('maze-cover');
+    // TODO: Find a cleaner way to wait for the CSS file to load
+    new Timer(() => {
+      this.mazeDiv = document.getElementById('maze');
+      this.mazeCover = document.getElementById('maze-cover');
 
-    this.animate = true;
-    this.maxFps = 120;
-    this.tileSize = 8;
-    this.scale = 3;
-    this.scaledTileSize = this.tileSize * this.scale;
-    this.activeTimers = [];
-    this.points = 0;
-    this.level = 1;
-    this.remainingDots = 0;
+      this.animate = true;
+      this.maxFps = 120;
+      this.tileSize = 8;
+      this.scale = 3;
+      this.scaledTileSize = this.tileSize * this.scale;
+      this.activeTimers = [];
+      this.points = 0;
+      this.level = 1;
+      this.remainingDots = 0;
 
-    this.movementKeys = {
-      // WASD
-      87: 'up',
-      83: 'down',
-      65: 'left',
-      68: 'right',
+      this.movementKeys = {
+        // WASD
+        87: 'up',
+        83: 'down',
+        65: 'left',
+        68: 'right',
 
-      // Arrow Keys
-      38: 'up',
-      40: 'down',
-      37: 'left',
-      39: 'right',
-    };
+        // Arrow Keys
+        38: 'up',
+        40: 'down',
+        37: 'left',
+        39: 'right',
+      };
 
-    this.fruitPoints = {
-      1: 100,
-      2: 300,
-      3: 500,
-      4: 700,
-      5: 1000,
-      6: 2000,
-      7: 3000,
-      8: 5000,
-    };
+      this.fruitPoints = {
+        1: 100,
+        2: 300,
+        3: 500,
+        4: 700,
+        5: 1000,
+        6: 2000,
+        7: 3000,
+        8: 5000,
+      };
 
-    this.allowKeyPresses = true;
-    this.allowPacmanMovement = false;
-    this.allowPause = true;
+      this.allowKeyPresses = true;
+      this.allowPacmanMovement = false;
+      this.allowPause = true;
 
-    this.mazeArray = [
-      ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
-      ['XooooooooooooXXooooooooooooX'],
-      ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
-      ['XOXXXXoXXXXXoXXoXXXXXoXXXXOX'],
-      ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
-      ['XooooooooooooooooooooooooooX'],
-      ['XoXXXXoXXoXXXXXXXXoXXoXXXXoX'],
-      ['XoXXXXoXXoXXXXXXXXoXXoXXXXoX'],
-      ['XooooooXXooooXXooooXXooooooX'],
-      ['XXXXXXoXXXXX XX XXXXXoXXXXXX'],
-      ['XXXXXXoXXXXX XX XXXXXoXXXXXX'],
-      ['XXXXXXoXX          XXoXXXXXX'],
-      ['XXXXXXoXX XXXXXXXX XXoXXXXXX'],
-      ['XXXXXXoXX X      X XXoXXXXXX'],
-      ['      o   X      X   o      '],
-      ['XXXXXXoXX X      X XXoXXXXXX'],
-      ['XXXXXXoXX XXXXXXXX XXoXXXXXX'],
-      ['XXXXXXoXX          XXoXXXXXX'],
-      ['XXXXXXoXX XXXXXXXX XXoXXXXXX'],
-      ['XXXXXXoXX XXXXXXXX XXoXXXXXX'],
-      ['XooooooooooooXXooooooooooooX'],
-      ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
-      ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
-      ['XOooXXooooooo  oooooooXXooOX'],
-      ['XXXoXXoXXoXXXXXXXXoXXoXXoXXX'],
-      ['XXXoXXoXXoXXXXXXXXoXXoXXoXXX'],
-      ['XooooooXXooooXXooooXXooooooX'],
-      ['XoXXXXXXXXXXoXXoXXXXXXXXXXoX'],
-      ['XoXXXXXXXXXXoXXoXXXXXXXXXXoX'],
-      ['XooooooooooooooooooooooooooX'],
-      ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
-    ];
+      this.mazeArray = [
+        ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
+        ['XooooooooooooXXooooooooooooX'],
+        ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
+        ['XOXXXXoXXXXXoXXoXXXXXoXXXXOX'],
+        ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
+        ['XooooooooooooooooooooooooooX'],
+        ['XoXXXXoXXoXXXXXXXXoXXoXXXXoX'],
+        ['XoXXXXoXXoXXXXXXXXoXXoXXXXoX'],
+        ['XooooooXXooooXXooooXXooooooX'],
+        ['XXXXXXoXXXXX XX XXXXXoXXXXXX'],
+        ['XXXXXXoXXXXX XX XXXXXoXXXXXX'],
+        ['XXXXXXoXX          XXoXXXXXX'],
+        ['XXXXXXoXX XXXXXXXX XXoXXXXXX'],
+        ['XXXXXXoXX X      X XXoXXXXXX'],
+        ['      o   X      X   o      '],
+        ['XXXXXXoXX X      X XXoXXXXXX'],
+        ['XXXXXXoXX XXXXXXXX XXoXXXXXX'],
+        ['XXXXXXoXX          XXoXXXXXX'],
+        ['XXXXXXoXX XXXXXXXX XXoXXXXXX'],
+        ['XXXXXXoXX XXXXXXXX XXoXXXXXX'],
+        ['XooooooooooooXXooooooooooooX'],
+        ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
+        ['XoXXXXoXXXXXoXXoXXXXXoXXXXoX'],
+        ['XOooXXooooooo  oooooooXXooOX'],
+        ['XXXoXXoXXoXXXXXXXXoXXoXXoXXX'],
+        ['XXXoXXoXXoXXXXXXXXoXXoXXoXXX'],
+        ['XooooooXXooooXXooooXXooooooX'],
+        ['XoXXXXXXXXXXoXXoXXXXXXXXXXoX'],
+        ['XoXXXXXXXXXXoXXoXXXXXXXXXXoX'],
+        ['XooooooooooooooooooooooooooX'],
+        ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
+      ];
 
-    this.mazeArray.forEach((row, rowIndex) => {
-      this.mazeArray[rowIndex] = row[0].split('');
-    });
+      this.mazeArray.forEach((row, rowIndex) => {
+        this.mazeArray[rowIndex] = row[0].split('');
+      });
 
-    this.entityList = [
-      this.pacman = new Pacman(
-        this.scaledTileSize, this.mazeArray, new CharacterUtil(),
-      ),
-      this.blinky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
-        this.level, new CharacterUtil(),
-      ),
-      this.pinky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
-        this.level, new CharacterUtil(),
-      ),
-      this.inky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'inky',
-        this.level, new CharacterUtil(), this.blinky,
-      ),
-      this.clyde = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'clyde',
-        this.level, new CharacterUtil(),
-      ),
-      this.fruit = new Pickup(
-        'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
-        this.mazeDiv, 100,
-      ),
-    ];
+      this.entityList = [
+        this.pacman = new Pacman(
+          this.scaledTileSize, this.mazeArray, new CharacterUtil(),
+        ),
+        this.blinky = new Ghost(
+          this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
+          this.level, new CharacterUtil(),
+        ),
+        this.pinky = new Ghost(
+          this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
+          this.level, new CharacterUtil(),
+        ),
+        this.inky = new Ghost(
+          this.scaledTileSize, this.mazeArray, this.pacman, 'inky',
+          this.level, new CharacterUtil(), this.blinky,
+        ),
+        this.clyde = new Ghost(
+          this.scaledTileSize, this.mazeArray, this.pacman, 'clyde',
+          this.level, new CharacterUtil(),
+        ),
+        this.fruit = new Pickup(
+          'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
+          this.mazeDiv, 100,
+        ),
+      ];
 
-    this.ghosts = [
-      this.blinky,
-      this.pinky,
-      this.inky,
-      this.clyde,
-    ];
+      this.ghosts = [
+        this.blinky,
+        this.pinky,
+        this.inky,
+        this.clyde,
+      ];
 
-    this.pickups = [
-      this.fruit,
-    ];
+      this.pickups = [
+        this.fruit,
+      ];
 
-    this.preloadImages();
+      this.preloadImages();
+    }, 10);
   }
 
   /**
@@ -244,6 +247,7 @@ class GameCoordinator {
     });
   }
 
+  // Calls necessary setup functions to start the game
   init() {
     this.registerEventListeners();
     this.drawMaze(this.mazeArray, this.entityList);
