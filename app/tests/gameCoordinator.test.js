@@ -59,6 +59,14 @@ describe('gameCoordinator', () => {
 
   describe('preloadImages', () => {
     it('adds a new Image tag for each file listed', () => {
+      Object.defineProperties(global.Image.prototype, {
+        src: {
+          set() {
+            this.onload();
+          },
+        },
+      });
+
       const spy = sinon.fake();
       global.document.getElementById = sinon.fake.returns({
         appendChild: spy,
@@ -687,14 +695,14 @@ describe('gameCoordinator', () => {
       assert(global.window.clearTimeout.calledWith(1));
       assert.strictEqual(comp.activeTimers.length, 1);
     });
-  });
 
-  it('checks if a timer exists before removing it', () => {
-    comp.timerExists = sinon.fake.returns(false);
+    it('checks if a timer exists before removing it', () => {
+      comp.timerExists = sinon.fake.returns(false);
 
-    comp.removeTimer({
-      detail: { id: 1 },
+      comp.removeTimer({
+        detail: { id: 1 },
+      });
+      assert(comp.timerExists.called);
     });
-    assert(comp.timerExists.called);
   });
 });

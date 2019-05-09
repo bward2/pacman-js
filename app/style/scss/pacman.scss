@@ -3,6 +3,11 @@ $loading-container-duration: 0.5s;
 $loading-cover-duration: 0.5s;
 
 body {
+  overflow: hidden;
+  margin: 0;
+}
+
+#overflow-mask {
   position: relative;
   margin: 0;
   height: 100vh;
@@ -56,7 +61,7 @@ body {
   top: 50%;
   left: 50%;
   height: 48px;
-  width: 50vw;
+  width: 500px;
   transform: translateX(-50%) translateY(-50%);
   background-color: black;
   border-radius: 10px;
