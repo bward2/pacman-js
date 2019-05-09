@@ -1,5 +1,6 @@
 class GameCoordinator {
   constructor() {
+    // TODO: Find a cleaner way to wait for the CSS file to load
     new Timer(() => {
       this.mazeDiv = document.getElementById('maze');
       this.mazeCover = document.getElementById('maze-cover');
