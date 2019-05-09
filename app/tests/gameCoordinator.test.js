@@ -34,6 +34,9 @@ describe('gameCoordinator', () => {
     };
 
     global.document = {
+      getElementsByTagName: () => ([
+        { appendChild: () => { } },
+      ]),
       getElementById: () => ({
         appendChild: () => { },
         removeChild: () => { },

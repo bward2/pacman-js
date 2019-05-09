@@ -117,7 +117,14 @@ class GameCoordinator {
       this.fruit,
     ];
 
-    this.preloadImages();
+    const head = document.getElementsByTagName('head')[0];
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'build/app.css';
+
+    link.onload = this.preloadImages.bind(this);
+
+    head.appendChild(link);
   }
 
   /**
