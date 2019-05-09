@@ -51,6 +51,7 @@ describe('gameCoordinator', () => {
 
     clock = sinon.useFakeTimers();
     comp = new GameCoordinator();
+    clock.tick(10);
   });
 
   afterEach(() => {
