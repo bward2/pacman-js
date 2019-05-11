@@ -228,6 +228,9 @@ class GameCoordinator {
 
     let remainingSources = sources.length;
 
+    loadingPacman.style.left = '0px';
+    loadingDotMask.style.left = '0px';
+
     sources.forEach((source) => {
       const image = new Image();
       preloadDiv.appendChild(image);
