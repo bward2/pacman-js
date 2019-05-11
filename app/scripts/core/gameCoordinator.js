@@ -228,8 +228,8 @@ class GameCoordinator {
 
     let remainingSources = sources.length;
 
-    loadingPacman.style.left = '0px';
-    loadingDotMask.style.left = '0px';
+    loadingPacman.style.left = '0';
+    loadingDotMask.style.width = '0';
 
     sources.forEach((source) => {
       const image = new Image();
