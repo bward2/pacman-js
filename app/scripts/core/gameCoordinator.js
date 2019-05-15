@@ -117,6 +117,28 @@ class GameCoordinator {
       this.fruit,
     ];
 
+    const gameStartButton = document.getElementById('game-start');
+    gameStartButton.addEventListener('click', () => {
+      const leftCover = document.getElementById('left-cover');
+      const rightCover = document.getElementById('right-cover');
+
+      leftCover.style.left = '-50%';
+      rightCover.style.right = '-50%';
+      gameStartButton.style.opacity = 0;
+      gameStartButton.disabled = true;
+
+      this.init();
+
+      const preloadDiv = document.getElementById('preload-div');
+      const blah = document.createElement('audio');
+      preloadDiv.appendChild(blah);
+      blah.addEventListener('canplaythrough', () => {
+        const audio = new Audio('app/style/audio/game_start.mp3');
+        audio.play();
+      });
+      blah.src = 'app/style/audio/game_start.mp3';
+    });
+
     const head = document.getElementsByTagName('head')[0];
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -138,8 +160,6 @@ class GameCoordinator {
       - loadingPacman.scrollWidth;
     const loadingDotMask = document.getElementById('loading-dot-mask');
     const preloadDiv = document.getElementById('preload-div');
-    const leftCover = document.getElementById('left-cover');
-    const rightCover = document.getElementById('right-cover');
 
     const base = 'app/style/graphics/spriteSheets/';
     const sources = [
@@ -244,9 +264,13 @@ class GameCoordinator {
 
         if (remainingSources === 0) {
           loadingContainer.style.opacity = 0;
-          leftCover.style.left = '-50%';
-          rightCover.style.right = '-50%';
-          this.init();
+
+          setTimeout(() => {
+            loadingContainer.remove();
+            const gameStartButton = document.getElementById('game-start');
+            gameStartButton.style.opacity = 1;
+            gameStartButton.style.visibility = 'visible';
+          }, 1500);
         }
       });
 
@@ -332,7 +356,7 @@ class GameCoordinator {
 
     const left = this.scaledTileSize * 11;
     const top = this.scaledTileSize * 16.5;
-    const duration = initialStart ? 4000 : 2000;
+    const duration = initialStart ? 4500 : 2000;
     const width = this.scaledTileSize * 6;
     const height = this.scaledTileSize * 2;
 

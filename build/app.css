@@ -28,6 +28,9 @@
 .maze-row {
   display: flex; }
 
+* {
+  font-family: 'Roboto', sans-serif; }
+
 body {
   overflow: hidden;
   margin: 0; }
@@ -62,15 +65,32 @@ body {
   width: 50vw;
   top: 0;
   z-index: 15;
-  background: #FAB9B0; }
+  background: #FFDF00; }
 
 .left {
   left: 0;
-  transition: left 0.5s 1.5s; }
+  transition: left 0.5s 0.5s; }
 
 .right {
   right: 0;
-  transition: right 0.5s 1.5s; }
+  transition: right 0.5s 0.5s; }
+
+#game-start {
+  position: absolute;
+  z-index: 20;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.25s;
+  background-color: #ff5e00;
+  color: white;
+  font-size: 48px;
+  border-radius: 10px;
+  border: none;
+  padding: 16px;
+  box-shadow: 5px 5px rgba(0, 0, 0, 0.2);
+  visibility: hidden; }
 
 #loading-container {
   position: absolute;
@@ -82,7 +102,7 @@ body {
   transform: translateX(-50%) translateY(-50%);
   background-color: black;
   border-radius: 10px;
-  border: 5px solid blue;
+  border: 5px solid #0235FF;
   z-index: 20; }
 
 #loading-pacman {
