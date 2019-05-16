@@ -5,7 +5,7 @@ const GameCoordinator = require('../scripts/core/gameCoordinator');
 let comp;
 const mazeArray = [
   ['X', 'X', 'X'],
-  ['X', 'o', ' '],
+  ['X', 'o', 'O'],
   ['X', ' ', 'X'],
 ];
 let clock;
@@ -40,6 +40,7 @@ describe('gameCoordinator', () => {
       getElementById: () => ({
         appendChild: () => { },
         removeChild: () => { },
+        addEventListener: () => { },
       }),
       createElement: () => ({
         classList: {
@@ -51,6 +52,9 @@ describe('gameCoordinator', () => {
     };
 
     global.Image = class {};
+    global.Audio = class {
+      addEventListener() { }
+    };
 
     clock = sinon.useFakeTimers();
     comp = new GameCoordinator();
@@ -58,6 +62,62 @@ describe('gameCoordinator', () => {
 
   afterEach(() => {
     clock.restore();
+  });
+
+  describe('startButtonClick', () => {
+    it('calls init', () => {
+      global.document.getElementById = sinon.fake.returns({
+        style: {},
+      });
+      comp.init = sinon.fake();
+
+      comp.startButtonClick();
+      assert(comp.init.called);
+    });
+  });
+
+  describe('preloadAssets', () => {
+    it('calls createElements for images and audio', () => {
+      const spy = sinon.fake();
+      global.document.getElementById = sinon.fake.returns({
+        style: {},
+        scrollWidth: 500,
+        remove: spy,
+      });
+      comp.createElements = sinon.fake.resolves();
+
+      comp.preloadAssets().then(() => {
+        assert(comp.createElements.calledTwice);
+        clock.tick(1500);
+        assert(spy.called);
+      });
+    });
+  });
+
+  describe('createElements', () => {
+    it('creates elements given a list of sources', () => {
+      const spy = sinon.fake();
+      global.document.getElementById = sinon.fake.returns({
+        appendChild: spy,
+        style: {},
+        scrollWidth: 500,
+      });
+      Object.defineProperties(global.Image.prototype, {
+        src: {
+          set() {
+            this.onload();
+          },
+        },
+      });
+
+      comp.createElements(['src1', 'src2'], 'img', 100, comp).then(() => {
+        assert(spy.calledTwice);
+      });
+
+      comp.createElements(['src'], 'audio', 100, comp).then(() => {
+        assert(spy.called);
+      });
+    });
   });
 
   describe('init', () => {
@@ -78,33 +138,11 @@ describe('gameCoordinator', () => {
     });
   });
 
-  describe('preloadImages', () => {
-    it('adds a new Image tag for each file listed', () => {
-      Object.defineProperties(global.Image.prototype, {
-        src: {
-          set() {
-            this.onload();
-          },
-        },
-      });
-
-      const spy = sinon.fake();
-      global.document.getElementById = sinon.fake.returns({
-        appendChild: spy,
-        style: {},
-        scrollWidth: 500,
-      });
-
-      comp.preloadImages();
-      assert.strictEqual(spy.callCount, 62);
-    });
-  });
-
   describe('drawMaze', () => {
     it('creates the maze and adds entities for a given maze array', () => {
       const entityList = [];
       comp.drawMaze(mazeArray, entityList);
-      assert.strictEqual(entityList.length, 1);
+      assert.strictEqual(entityList.length, 2);
     });
   });
 
@@ -156,12 +194,12 @@ describe('gameCoordinator', () => {
           top: comp.scaledTileSize * 16.5,
         },
         'ready',
-        4000,
+        4500,
         comp.scaledTileSize * 6,
         comp.scaledTileSize * 2,
       ));
 
-      clock.tick(4000);
+      clock.tick(4500);
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
     });

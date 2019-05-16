@@ -3,30 +3,8 @@
   margin: 0;
   z-index: 2; }
 
-#maze-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%; }
-
-#maze-cover {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background: black;
-  z-index: 10;
-  visibility: hidden; }
-
-#maze {
-  margin: 0 auto;
-  position: relative; }
-
-.maze-row {
-  display: flex; }
+* {
+  font-family: 'Roboto', sans-serif; }
 
 body {
   overflow: hidden;
@@ -37,16 +15,6 @@ body {
   margin: 0;
   height: 100vh;
   overflow: hidden; }
-
-#pacman {
-  position: absolute;
-  z-index: 1;
-  margin: 0; }
-
-#pacman-arrow {
-  position: absolute;
-  z-index: 1;
-  margin: 0; }
 
 #fps-display {
   position: absolute;
@@ -62,15 +30,41 @@ body {
   width: 50vw;
   top: 0;
   z-index: 15;
-  background: #FAB9B0; }
+  background: #FFDF00; }
 
 .left {
   left: 0;
-  transition: left 0.5s 1.5s; }
+  transition: left 0.5s 0.5s; }
 
 .right {
   right: 0;
-  transition: right 0.5s 1.5s; }
+  transition: right 0.5s 0.5s; }
+
+#game-start {
+  position: absolute;
+  z-index: 20;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.25s;
+  background-color: #ff5e00;
+  color: white;
+  font-size: 48px;
+  border-radius: 10px;
+  border: none;
+  padding: 16px;
+  box-shadow: 5px 5px rgba(0, 0, 0, 0.2);
+  visibility: hidden;
+  outline: none;
+  cursor: pointer; }
+
+#game-start:active {
+  transform: translateX(calc(-50% + 5px)) translateY(calc(-50% + 5px));
+  box-shadow: none; }
+
+#game-start:disabled {
+  cursor: default; }
 
 #loading-container {
   position: absolute;
@@ -82,7 +76,7 @@ body {
   transform: translateX(-50%) translateY(-50%);
   background-color: black;
   border-radius: 10px;
-  border: 5px solid blue;
+  border: 5px solid #0235FF;
   z-index: 20; }
 
 #loading-pacman {
@@ -180,3 +174,38 @@ body {
 #dev-message {
   width: 100%;
   text-align: center; }
+
+#maze-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; }
+
+#maze-cover {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: black;
+  z-index: 10;
+  visibility: hidden; }
+
+#maze {
+  margin: 0 auto;
+  position: relative; }
+
+.maze-row {
+  display: flex; }
+
+#pacman {
+  position: absolute;
+  z-index: 1;
+  margin: 0; }
+
+#pacman-arrow {
+  position: absolute;
+  z-index: 1;
+  margin: 0; }

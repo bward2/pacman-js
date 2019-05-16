@@ -1217,144 +1217,214 @@ class GameCoordinator {
       this.fruit,
     ];
 
+    const gameStartButton = document.getElementById('game-start');
+    gameStartButton.addEventListener('click', this.startButtonClick.bind(this));
+
     const head = document.getElementsByTagName('head')[0];
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'build/app.css';
 
-    link.onload = this.preloadImages.bind(this);
+    link.onload = this.preloadAssets.bind(this);
 
     head.appendChild(link);
   }
 
   /**
-   * Load all SVG's into a hidden Div to pre-load them into memory.
+   * Reveals the game underneath the loading covers and starts gameplay
+   */
+  startButtonClick() {
+    const gameStartButton = document.getElementById('game-start');
+    const leftCover = document.getElementById('left-cover');
+    const rightCover = document.getElementById('right-cover');
+
+    leftCover.style.left = '-50%';
+    rightCover.style.right = '-50%';
+    gameStartButton.style.opacity = 0;
+    gameStartButton.disabled = true;
+
+    this.init();
+  }
+
+  /**
+   * Load all assets into a hidden Div to pre-load them into memory.
    * There is probably a better way to read all of these file names.
    */
-  preloadImages() {
+  preloadAssets() {
+    return new Promise((resolve) => {
+      const loadingContainer = document.getElementById('loading-container');
+      const loadingPacman = document.getElementById('loading-pacman');
+      const loadingDotMask = document.getElementById('loading-dot-mask');
+
+      const imgBase = 'app/style/graphics/spriteSheets/';
+      const imgSources = [
+        // Pacman
+        `${imgBase}characters/pacman/arrow_down.svg`,
+        `${imgBase}characters/pacman/arrow_left.svg`,
+        `${imgBase}characters/pacman/arrow_right.svg`,
+        `${imgBase}characters/pacman/arrow_up.svg`,
+        `${imgBase}characters/pacman/pacman_death.svg`,
+        `${imgBase}characters/pacman/pacman_down.svg`,
+        `${imgBase}characters/pacman/pacman_left.svg`,
+        `${imgBase}characters/pacman/pacman_right.svg`,
+        `${imgBase}characters/pacman/pacman_up.svg`,
+
+        // Blinky
+        `${imgBase}characters/ghosts/blinky/blinky_down_angry.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_down_annoyed.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_down.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_left_angry.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_left_annoyed.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_left.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_right_angry.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_right_annoyed.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_right.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_up_angry.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_up_annoyed.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_up.svg`,
+
+        // Clyde
+        `${imgBase}characters/ghosts/clyde/clyde_down.svg`,
+        `${imgBase}characters/ghosts/clyde/clyde_left.svg`,
+        `${imgBase}characters/ghosts/clyde/clyde_right.svg`,
+        `${imgBase}characters/ghosts/clyde/clyde_up.svg`,
+
+        // Inky
+        `${imgBase}characters/ghosts/inky/inky_down.svg`,
+        `${imgBase}characters/ghosts/inky/inky_left.svg`,
+        `${imgBase}characters/ghosts/inky/inky_right.svg`,
+        `${imgBase}characters/ghosts/inky/inky_up.svg`,
+
+        // Pinky
+        `${imgBase}characters/ghosts/pinky/pinky_down.svg`,
+        `${imgBase}characters/ghosts/pinky/pinky_left.svg`,
+        `${imgBase}characters/ghosts/pinky/pinky_right.svg`,
+        `${imgBase}characters/ghosts/pinky/pinky_up.svg`,
+
+        // Ghosts Common
+        `${imgBase}characters/ghosts/eyes_down.svg`,
+        `${imgBase}characters/ghosts/eyes_left.svg`,
+        `${imgBase}characters/ghosts/eyes_right.svg`,
+        `${imgBase}characters/ghosts/eyes_up.svg`,
+        `${imgBase}characters/ghosts/scared_blue.svg`,
+        `${imgBase}characters/ghosts/scared_white.svg`,
+
+        // Dots
+        `${imgBase}pickups/pacdot.svg`,
+        `${imgBase}pickups/powerPellet.svg`,
+
+        // Fruit
+        `${imgBase}pickups/apple.svg`,
+        `${imgBase}pickups/bell.svg`,
+        `${imgBase}pickups/cherry.svg`,
+        `${imgBase}pickups/galaxian.svg`,
+        `${imgBase}pickups/key.svg`,
+        `${imgBase}pickups/melon.svg`,
+        `${imgBase}pickups/orange.svg`,
+        `${imgBase}pickups/strawberry.svg`,
+
+        // Text
+        `${imgBase}text/ready.svg`,
+
+        // Points
+        `${imgBase}text/100.svg`,
+        `${imgBase}text/200.svg`,
+        `${imgBase}text/300.svg`,
+        `${imgBase}text/400.svg`,
+        `${imgBase}text/500.svg`,
+        `${imgBase}text/700.svg`,
+        `${imgBase}text/800.svg`,
+        `${imgBase}text/1000.svg`,
+        `${imgBase}text/1600.svg`,
+        `${imgBase}text/2000.svg`,
+        `${imgBase}text/3000.svg`,
+        `${imgBase}text/5000.svg`,
+      ];
+
+      const audioBase = 'app/style/audio/';
+      const audioSources = [
+        `${audioBase}game_start.mp3`,
+      ];
+
+      const totalSources = imgSources.length + audioSources.length;
+      this.remainingSources = totalSources;
+
+      loadingPacman.style.left = '0';
+      loadingDotMask.style.width = '0';
+
+      Promise.all([
+        this.createElements(
+          imgSources, 'img', totalSources, this,
+        ),
+        this.createElements(
+          audioSources, 'audio', totalSources, this,
+        ),
+      ]).then(() => {
+        loadingContainer.style.opacity = 0;
+        resolve();
+
+        setTimeout(() => {
+          loadingContainer.remove();
+          const gameStartButton = document.getElementById('game-start');
+          gameStartButton.style.opacity = 1;
+          gameStartButton.style.visibility = 'visible';
+        }, 1500);
+      });
+    });
+  }
+
+  /**
+   * Iterates through a list of sources and updates the loading bar as the assets load in
+   * @param {String[]} sources
+   * @param {('img'|'audio')} type
+   * @param {Number} totalSources
+   * @param {Object} gameCoord
+   * @returns {Promise}
+   */
+  createElements(sources, type, totalSources, gameCoord) {
     const loadingContainer = document.getElementById('loading-container');
+    const preloadDiv = document.getElementById('preload-div');
     const loadingPacman = document.getElementById('loading-pacman');
     const containerWidth = loadingContainer.scrollWidth
       - loadingPacman.scrollWidth;
     const loadingDotMask = document.getElementById('loading-dot-mask');
-    const preloadDiv = document.getElementById('preload-div');
-    const leftCover = document.getElementById('left-cover');
-    const rightCover = document.getElementById('right-cover');
 
-    const base = 'app/style/graphics/spriteSheets/';
-    const sources = [
-      // Pacman
-      `${base}characters/pacman/arrow_down.svg`,
-      `${base}characters/pacman/arrow_left.svg`,
-      `${base}characters/pacman/arrow_right.svg`,
-      `${base}characters/pacman/arrow_up.svg`,
-      `${base}characters/pacman/pacman_death.svg`,
-      `${base}characters/pacman/pacman_down.svg`,
-      `${base}characters/pacman/pacman_left.svg`,
-      `${base}characters/pacman/pacman_right.svg`,
-      `${base}characters/pacman/pacman_up.svg`,
+    const gameCoordRef = gameCoord;
 
-      // Blinky
-      `${base}characters/ghosts/blinky/blinky_down_angry.svg`,
-      `${base}characters/ghosts/blinky/blinky_down_annoyed.svg`,
-      `${base}characters/ghosts/blinky/blinky_down.svg`,
-      `${base}characters/ghosts/blinky/blinky_left_angry.svg`,
-      `${base}characters/ghosts/blinky/blinky_left_annoyed.svg`,
-      `${base}characters/ghosts/blinky/blinky_left.svg`,
-      `${base}characters/ghosts/blinky/blinky_right_angry.svg`,
-      `${base}characters/ghosts/blinky/blinky_right_annoyed.svg`,
-      `${base}characters/ghosts/blinky/blinky_right.svg`,
-      `${base}characters/ghosts/blinky/blinky_up_angry.svg`,
-      `${base}characters/ghosts/blinky/blinky_up_annoyed.svg`,
-      `${base}characters/ghosts/blinky/blinky_up.svg`,
+    return new Promise((resolve) => {
+      let loadedSources = 0;
 
-      // Clyde
-      `${base}characters/ghosts/clyde/clyde_down.svg`,
-      `${base}characters/ghosts/clyde/clyde_left.svg`,
-      `${base}characters/ghosts/clyde/clyde_right.svg`,
-      `${base}characters/ghosts/clyde/clyde_up.svg`,
+      sources.forEach((source) => {
+        const element = (type === 'img')
+          ? new Image() : new Audio();
+        preloadDiv.appendChild(element);
 
-      // Inky
-      `${base}characters/ghosts/inky/inky_down.svg`,
-      `${base}characters/ghosts/inky/inky_left.svg`,
-      `${base}characters/ghosts/inky/inky_right.svg`,
-      `${base}characters/ghosts/inky/inky_up.svg`,
+        const elementReady = () => {
+          gameCoordRef.remainingSources -= 1;
+          loadedSources += 1;
+          const percent = 1 - (gameCoordRef.remainingSources / totalSources);
+          loadingPacman.style.left = `${percent * containerWidth}px`;
+          loadingDotMask.style.width = loadingPacman.style.left;
 
-      // Pinky
-      `${base}characters/ghosts/pinky/pinky_down.svg`,
-      `${base}characters/ghosts/pinky/pinky_left.svg`,
-      `${base}characters/ghosts/pinky/pinky_right.svg`,
-      `${base}characters/ghosts/pinky/pinky_up.svg`,
+          if (loadedSources === sources.length) {
+            resolve();
+          }
+        };
 
-      // Ghosts Common
-      `${base}characters/ghosts/eyes_down.svg`,
-      `${base}characters/ghosts/eyes_left.svg`,
-      `${base}characters/ghosts/eyes_right.svg`,
-      `${base}characters/ghosts/eyes_up.svg`,
-      `${base}characters/ghosts/scared_blue.svg`,
-      `${base}characters/ghosts/scared_white.svg`,
-
-      // Dots
-      `${base}pickups/pacdot.svg`,
-      `${base}pickups/powerPellet.svg`,
-
-      // Fruit
-      `${base}pickups/apple.svg`,
-      `${base}pickups/bell.svg`,
-      `${base}pickups/cherry.svg`,
-      `${base}pickups/galaxian.svg`,
-      `${base}pickups/key.svg`,
-      `${base}pickups/melon.svg`,
-      `${base}pickups/orange.svg`,
-      `${base}pickups/strawberry.svg`,
-
-      // Text
-      `${base}text/ready.svg`,
-
-      // Points
-      `${base}text/100.svg`,
-      `${base}text/200.svg`,
-      `${base}text/300.svg`,
-      `${base}text/400.svg`,
-      `${base}text/500.svg`,
-      `${base}text/700.svg`,
-      `${base}text/800.svg`,
-      `${base}text/1000.svg`,
-      `${base}text/1600.svg`,
-      `${base}text/2000.svg`,
-      `${base}text/3000.svg`,
-      `${base}text/5000.svg`,
-    ];
-
-    let remainingSources = sources.length;
-
-    loadingPacman.style.left = '0';
-    loadingDotMask.style.width = '0';
-
-    sources.forEach((source) => {
-      const image = new Image();
-      preloadDiv.appendChild(image);
-
-      image.onload = (() => {
-        remainingSources -= 1;
-        const percentLoaded = ((sources.length - remainingSources)
-          / sources.length);
-        loadingPacman.style.left = `${percentLoaded * containerWidth}px`;
-        loadingDotMask.style.width = loadingPacman.style.left;
-
-        if (remainingSources === 0) {
-          loadingContainer.style.opacity = 0;
-          leftCover.style.left = '-50%';
-          rightCover.style.right = '-50%';
-          this.init();
+        if (type === 'img') {
+          element.onload = elementReady;
+        } else {
+          element.addEventListener('canplaythrough', elementReady);
         }
-      });
 
-      image.src = source;
+        element.src = source;
+      });
     });
   }
 
-  // Calls necessary setup functions to start the game
+  /**
+   * Calls necessary setup functions to start the game
+   */
   init() {
     this.registerEventListeners();
     this.drawMaze(this.mazeArray, this.entityList);
@@ -1432,7 +1502,7 @@ class GameCoordinator {
 
     const left = this.scaledTileSize * 11;
     const top = this.scaledTileSize * 16.5;
-    const duration = initialStart ? 4000 : 2000;
+    const duration = initialStart ? 4500 : 2000;
     const width = this.scaledTileSize * 6;
     const height = this.scaledTileSize * 2;
 
