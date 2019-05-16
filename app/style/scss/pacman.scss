@@ -74,6 +74,17 @@ body {
   padding: 16px;
   box-shadow: 5px 5px rgba(0,0,0,0.2);
   visibility: hidden;
+  outline: none;
+  cursor: pointer;
+}
+
+#game-start:active {
+  transform: translateX(calc(-50% + 5px)) translateY(calc(-50% + 5px));
+  box-shadow: none;
+}
+
+#game-start:disabled {
+  cursor: default;
 }
 
 #loading-container {
