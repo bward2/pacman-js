@@ -78,7 +78,7 @@ describe('gameCoordinator', () => {
     });
   });
 
-  describe('preloadImages', () => {
+  describe('preloadAssets', () => {
     it('adds a new Image tag for each file listed', () => {
       Object.defineProperties(global.Image.prototype, {
         src: {
@@ -95,7 +95,7 @@ describe('gameCoordinator', () => {
         scrollWidth: 500,
       });
 
-      comp.preloadImages();
+      comp.preloadAssets();
       assert.strictEqual(spy.callCount, 62);
     });
   });

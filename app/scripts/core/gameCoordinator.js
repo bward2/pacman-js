@@ -128,15 +128,6 @@ class GameCoordinator {
       gameStartButton.disabled = true;
 
       this.init();
-
-      const preloadDiv = document.getElementById('preload-div');
-      const blah = document.createElement('audio');
-      preloadDiv.appendChild(blah);
-      blah.addEventListener('canplaythrough', () => {
-        const audio = new Audio('app/style/audio/game_start.mp3');
-        audio.play();
-      });
-      blah.src = 'app/style/audio/game_start.mp3';
     });
 
     const head = document.getElementsByTagName('head')[0];
@@ -144,7 +135,7 @@ class GameCoordinator {
     link.rel = 'stylesheet';
     link.href = 'build/app.css';
 
-    link.onload = this.preloadImages.bind(this);
+    link.onload = this.preloadAssets.bind(this);
 
     head.appendChild(link);
   }
@@ -153,128 +144,164 @@ class GameCoordinator {
    * Load all SVG's into a hidden Div to pre-load them into memory.
    * There is probably a better way to read all of these file names.
    */
-  preloadImages() {
+  preloadAssets() {
     const loadingContainer = document.getElementById('loading-container');
     const loadingPacman = document.getElementById('loading-pacman');
-    const containerWidth = loadingContainer.scrollWidth
-      - loadingPacman.scrollWidth;
     const loadingDotMask = document.getElementById('loading-dot-mask');
-    const preloadDiv = document.getElementById('preload-div');
 
-    const base = 'app/style/graphics/spriteSheets/';
-    const sources = [
+    const imgBase = 'app/style/graphics/spriteSheets/';
+    const imgSources = [
       // Pacman
-      `${base}characters/pacman/arrow_down.svg`,
-      `${base}characters/pacman/arrow_left.svg`,
-      `${base}characters/pacman/arrow_right.svg`,
-      `${base}characters/pacman/arrow_up.svg`,
-      `${base}characters/pacman/pacman_death.svg`,
-      `${base}characters/pacman/pacman_down.svg`,
-      `${base}characters/pacman/pacman_left.svg`,
-      `${base}characters/pacman/pacman_right.svg`,
-      `${base}characters/pacman/pacman_up.svg`,
+      `${imgBase}characters/pacman/arrow_down.svg`,
+      `${imgBase}characters/pacman/arrow_left.svg`,
+      `${imgBase}characters/pacman/arrow_right.svg`,
+      `${imgBase}characters/pacman/arrow_up.svg`,
+      `${imgBase}characters/pacman/pacman_death.svg`,
+      `${imgBase}characters/pacman/pacman_down.svg`,
+      `${imgBase}characters/pacman/pacman_left.svg`,
+      `${imgBase}characters/pacman/pacman_right.svg`,
+      `${imgBase}characters/pacman/pacman_up.svg`,
 
       // Blinky
-      `${base}characters/ghosts/blinky/blinky_down_angry.svg`,
-      `${base}characters/ghosts/blinky/blinky_down_annoyed.svg`,
-      `${base}characters/ghosts/blinky/blinky_down.svg`,
-      `${base}characters/ghosts/blinky/blinky_left_angry.svg`,
-      `${base}characters/ghosts/blinky/blinky_left_annoyed.svg`,
-      `${base}characters/ghosts/blinky/blinky_left.svg`,
-      `${base}characters/ghosts/blinky/blinky_right_angry.svg`,
-      `${base}characters/ghosts/blinky/blinky_right_annoyed.svg`,
-      `${base}characters/ghosts/blinky/blinky_right.svg`,
-      `${base}characters/ghosts/blinky/blinky_up_angry.svg`,
-      `${base}characters/ghosts/blinky/blinky_up_annoyed.svg`,
-      `${base}characters/ghosts/blinky/blinky_up.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_down_angry.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_down_annoyed.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_down.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_left_angry.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_left_annoyed.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_left.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_right_angry.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_right_annoyed.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_right.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_up_angry.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_up_annoyed.svg`,
+      `${imgBase}characters/ghosts/blinky/blinky_up.svg`,
 
       // Clyde
-      `${base}characters/ghosts/clyde/clyde_down.svg`,
-      `${base}characters/ghosts/clyde/clyde_left.svg`,
-      `${base}characters/ghosts/clyde/clyde_right.svg`,
-      `${base}characters/ghosts/clyde/clyde_up.svg`,
+      `${imgBase}characters/ghosts/clyde/clyde_down.svg`,
+      `${imgBase}characters/ghosts/clyde/clyde_left.svg`,
+      `${imgBase}characters/ghosts/clyde/clyde_right.svg`,
+      `${imgBase}characters/ghosts/clyde/clyde_up.svg`,
 
       // Inky
-      `${base}characters/ghosts/inky/inky_down.svg`,
-      `${base}characters/ghosts/inky/inky_left.svg`,
-      `${base}characters/ghosts/inky/inky_right.svg`,
-      `${base}characters/ghosts/inky/inky_up.svg`,
+      `${imgBase}characters/ghosts/inky/inky_down.svg`,
+      `${imgBase}characters/ghosts/inky/inky_left.svg`,
+      `${imgBase}characters/ghosts/inky/inky_right.svg`,
+      `${imgBase}characters/ghosts/inky/inky_up.svg`,
 
       // Pinky
-      `${base}characters/ghosts/pinky/pinky_down.svg`,
-      `${base}characters/ghosts/pinky/pinky_left.svg`,
-      `${base}characters/ghosts/pinky/pinky_right.svg`,
-      `${base}characters/ghosts/pinky/pinky_up.svg`,
+      `${imgBase}characters/ghosts/pinky/pinky_down.svg`,
+      `${imgBase}characters/ghosts/pinky/pinky_left.svg`,
+      `${imgBase}characters/ghosts/pinky/pinky_right.svg`,
+      `${imgBase}characters/ghosts/pinky/pinky_up.svg`,
 
       // Ghosts Common
-      `${base}characters/ghosts/eyes_down.svg`,
-      `${base}characters/ghosts/eyes_left.svg`,
-      `${base}characters/ghosts/eyes_right.svg`,
-      `${base}characters/ghosts/eyes_up.svg`,
-      `${base}characters/ghosts/scared_blue.svg`,
-      `${base}characters/ghosts/scared_white.svg`,
+      `${imgBase}characters/ghosts/eyes_down.svg`,
+      `${imgBase}characters/ghosts/eyes_left.svg`,
+      `${imgBase}characters/ghosts/eyes_right.svg`,
+      `${imgBase}characters/ghosts/eyes_up.svg`,
+      `${imgBase}characters/ghosts/scared_blue.svg`,
+      `${imgBase}characters/ghosts/scared_white.svg`,
 
       // Dots
-      `${base}pickups/pacdot.svg`,
-      `${base}pickups/powerPellet.svg`,
+      `${imgBase}pickups/pacdot.svg`,
+      `${imgBase}pickups/powerPellet.svg`,
 
       // Fruit
-      `${base}pickups/apple.svg`,
-      `${base}pickups/bell.svg`,
-      `${base}pickups/cherry.svg`,
-      `${base}pickups/galaxian.svg`,
-      `${base}pickups/key.svg`,
-      `${base}pickups/melon.svg`,
-      `${base}pickups/orange.svg`,
-      `${base}pickups/strawberry.svg`,
+      `${imgBase}pickups/apple.svg`,
+      `${imgBase}pickups/bell.svg`,
+      `${imgBase}pickups/cherry.svg`,
+      `${imgBase}pickups/galaxian.svg`,
+      `${imgBase}pickups/key.svg`,
+      `${imgBase}pickups/melon.svg`,
+      `${imgBase}pickups/orange.svg`,
+      `${imgBase}pickups/strawberry.svg`,
 
       // Text
-      `${base}text/ready.svg`,
+      `${imgBase}text/ready.svg`,
 
       // Points
-      `${base}text/100.svg`,
-      `${base}text/200.svg`,
-      `${base}text/300.svg`,
-      `${base}text/400.svg`,
-      `${base}text/500.svg`,
-      `${base}text/700.svg`,
-      `${base}text/800.svg`,
-      `${base}text/1000.svg`,
-      `${base}text/1600.svg`,
-      `${base}text/2000.svg`,
-      `${base}text/3000.svg`,
-      `${base}text/5000.svg`,
+      `${imgBase}text/100.svg`,
+      `${imgBase}text/200.svg`,
+      `${imgBase}text/300.svg`,
+      `${imgBase}text/400.svg`,
+      `${imgBase}text/500.svg`,
+      `${imgBase}text/700.svg`,
+      `${imgBase}text/800.svg`,
+      `${imgBase}text/1000.svg`,
+      `${imgBase}text/1600.svg`,
+      `${imgBase}text/2000.svg`,
+      `${imgBase}text/3000.svg`,
+      `${imgBase}text/5000.svg`,
     ];
 
-    let remainingSources = sources.length;
+    const audioBase = 'app/style/audio/';
+    const audioSources = [
+      `${audioBase}game_start.mp3`,
+    ];
+
+    const totalSources = imgSources.length + audioSources.length;
+    this.remainingSources = totalSources;
 
     loadingPacman.style.left = '0';
     loadingDotMask.style.width = '0';
 
-    sources.forEach((source) => {
-      const image = new Image();
-      preloadDiv.appendChild(image);
+    Promise.all([
+      this.createElements(
+        imgSources, 'img', totalSources, this,
+      ),
+      this.createElements(
+        audioSources, 'audio', totalSources, this,
+      ),
+    ]).then(() => {
+      loadingContainer.style.opacity = 0;
 
-      image.onload = (() => {
-        remainingSources -= 1;
-        const percentLoaded = ((sources.length - remainingSources)
-          / sources.length);
-        loadingPacman.style.left = `${percentLoaded * containerWidth}px`;
-        loadingDotMask.style.width = loadingPacman.style.left;
+      setTimeout(() => {
+        loadingContainer.remove();
+        const gameStartButton = document.getElementById('game-start');
+        gameStartButton.style.opacity = 1;
+        gameStartButton.style.visibility = 'visible';
+      }, 1500);
+    });
+  }
 
-        if (remainingSources === 0) {
-          loadingContainer.style.opacity = 0;
+  createElements(sources, type, totalSources, gameCoord) {
+    const loadingContainer = document.getElementById('loading-container');
+    const preloadDiv = document.getElementById('preload-div');
+    const loadingPacman = document.getElementById('loading-pacman');
+    const containerWidth = loadingContainer.scrollWidth
+      - loadingPacman.scrollWidth;
+    const loadingDotMask = document.getElementById('loading-dot-mask');
 
-          setTimeout(() => {
-            loadingContainer.remove();
-            const gameStartButton = document.getElementById('game-start');
-            gameStartButton.style.opacity = 1;
-            gameStartButton.style.visibility = 'visible';
-          }, 1500);
+    const gameCoordRef = gameCoord;
+
+    return new Promise((resolve) => {
+      let loadedSources = 0;
+
+      sources.forEach((source) => {
+        const element = (type === 'img')
+          ? new Image() : new Audio();
+        preloadDiv.appendChild(element);
+
+        const elementReady = () => {
+          gameCoordRef.remainingSources -= 1;
+          loadedSources += 1;
+          const percent = 1 - (gameCoordRef.remainingSources / totalSources);
+          loadingPacman.style.left = `${percent * containerWidth}px`;
+          loadingDotMask.style.width = loadingPacman.style.left;
+
+          if (loadedSources === sources.length) {
+            resolve();
+          }
+        };
+
+        if (type === 'img') {
+          element.onload = elementReady;
+        } else {
+          element.addEventListener('canplaythrough', elementReady);
         }
-      });
 
-      image.src = source;
+        element.src = source;
+      });
     });
   }
 
