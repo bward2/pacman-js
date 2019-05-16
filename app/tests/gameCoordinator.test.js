@@ -52,6 +52,9 @@ describe('gameCoordinator', () => {
     };
 
     global.Image = class {};
+    global.Audio = class {
+      addEventListener() { }
+    };
 
     clock = sinon.useFakeTimers();
     comp = new GameCoordinator();
@@ -59,6 +62,62 @@ describe('gameCoordinator', () => {
 
   afterEach(() => {
     clock.restore();
+  });
+
+  describe('startButtonClick', () => {
+    it('calls init', () => {
+      global.document.getElementById = sinon.fake.returns({
+        style: {},
+      });
+      comp.init = sinon.fake();
+
+      comp.startButtonClick();
+      assert(comp.init.called);
+    });
+  });
+
+  describe('preloadAssets', () => {
+    it('calls createElements for images and audio', () => {
+      const spy = sinon.fake();
+      global.document.getElementById = sinon.fake.returns({
+        style: {},
+        scrollWidth: 500,
+        remove: spy,
+      });
+      comp.createElements = sinon.fake.resolves();
+
+      comp.preloadAssets();
+      assert(comp.createElements.calledTwice);
+
+      clock.tick(1500);
+      assert(spy.called);
+    });
+  });
+
+  describe('createElements', () => {
+    it('creates elements given a list of sources', () => {
+      const spy = sinon.fake();
+      global.document.getElementById = sinon.fake.returns({
+        appendChild: spy,
+        style: {},
+        scrollWidth: 500,
+      });
+      Object.defineProperties(global.Image.prototype, {
+        src: {
+          set() {
+            this.onload();
+          },
+        },
+      });
+
+      comp.createElements(['source'], 'img', 100, comp).then(() => {
+        assert(spy.called);
+      });
+
+      comp.createElements(['source'], 'audio', 100, comp).then(() => {
+        assert(spy.called);
+      });
+    });
   });
 
   describe('init', () => {
@@ -76,28 +135,6 @@ describe('gameCoordinator', () => {
 
       clock.tick(500);
       assert(comp.collisionDetectionLoop.called);
-    });
-  });
-
-  describe('preloadAssets', () => {
-    it('adds a new Image tag for each file listed', () => {
-      Object.defineProperties(global.Image.prototype, {
-        src: {
-          set() {
-            this.onload();
-          },
-        },
-      });
-
-      const spy = sinon.fake();
-      global.document.getElementById = sinon.fake.returns({
-        appendChild: spy,
-        style: {},
-        scrollWidth: 500,
-      });
-
-      comp.preloadAssets();
-      assert.strictEqual(spy.callCount, 62);
     });
   });
 

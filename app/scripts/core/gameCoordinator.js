@@ -118,17 +118,7 @@ class GameCoordinator {
     ];
 
     const gameStartButton = document.getElementById('game-start');
-    gameStartButton.addEventListener('click', () => {
-      const leftCover = document.getElementById('left-cover');
-      const rightCover = document.getElementById('right-cover');
-
-      leftCover.style.left = '-50%';
-      rightCover.style.right = '-50%';
-      gameStartButton.style.opacity = 0;
-      gameStartButton.disabled = true;
-
-      this.init();
-    });
+    gameStartButton.addEventListener('click', this.startButtonClick.bind(this));
 
     const head = document.getElementsByTagName('head')[0];
     const link = document.createElement('link');
@@ -138,6 +128,22 @@ class GameCoordinator {
     link.onload = this.preloadAssets.bind(this);
 
     head.appendChild(link);
+  }
+
+  /**
+   * Reveals the game underneath the loading covers and starts gameplay
+   */
+  startButtonClick() {
+    const gameStartButton = document.getElementById('game-start');
+    const leftCover = document.getElementById('left-cover');
+    const rightCover = document.getElementById('right-cover');
+
+    leftCover.style.left = '-50%';
+    rightCover.style.right = '-50%';
+    gameStartButton.style.opacity = 0;
+    gameStartButton.disabled = true;
+
+    this.init();
   }
 
   /**
@@ -264,6 +270,14 @@ class GameCoordinator {
     });
   }
 
+  /**
+   * Iterates through a list of sources and updates the loading bar as the assets load in
+   * @param {String[]} sources
+   * @param {('img'|'audio')} type
+   * @param {Number} totalSources
+   * @param {Object} gameCoord
+   * @returns {Promise}
+   */
   createElements(sources, type, totalSources, gameCoord) {
     const loadingContainer = document.getElementById('loading-container');
     const preloadDiv = document.getElementById('preload-div');
