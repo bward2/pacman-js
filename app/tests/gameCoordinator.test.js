@@ -86,11 +86,11 @@ describe('gameCoordinator', () => {
       });
       comp.createElements = sinon.fake.resolves();
 
-      comp.preloadAssets();
-      assert(comp.createElements.calledTwice);
-
-      clock.tick(1500);
-      assert(spy.called);
+      comp.preloadAssets().then(() => {
+        assert(comp.createElements.calledTwice);
+        clock.tick(1500);
+        assert(spy.called);
+      });
     });
   });
 

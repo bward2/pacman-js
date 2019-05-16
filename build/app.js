@@ -1251,122 +1251,125 @@ class GameCoordinator {
    * There is probably a better way to read all of these file names.
    */
   preloadAssets() {
-    const loadingContainer = document.getElementById('loading-container');
-    const loadingPacman = document.getElementById('loading-pacman');
-    const loadingDotMask = document.getElementById('loading-dot-mask');
+    return new Promise((resolve) => {
+      const loadingContainer = document.getElementById('loading-container');
+      const loadingPacman = document.getElementById('loading-pacman');
+      const loadingDotMask = document.getElementById('loading-dot-mask');
 
-    const imgBase = 'app/style/graphics/spriteSheets/';
-    const imgSources = [
-      // Pacman
-      `${imgBase}characters/pacman/arrow_down.svg`,
-      `${imgBase}characters/pacman/arrow_left.svg`,
-      `${imgBase}characters/pacman/arrow_right.svg`,
-      `${imgBase}characters/pacman/arrow_up.svg`,
-      `${imgBase}characters/pacman/pacman_death.svg`,
-      `${imgBase}characters/pacman/pacman_down.svg`,
-      `${imgBase}characters/pacman/pacman_left.svg`,
-      `${imgBase}characters/pacman/pacman_right.svg`,
-      `${imgBase}characters/pacman/pacman_up.svg`,
+      const imgBase = 'app/style/graphics/spriteSheets/';
+      const imgSources = [
+        // Pacman
+        `${imgBase}characters/pacman/arrow_down.svg`,
+        `${imgBase}characters/pacman/arrow_left.svg`,
+        `${imgBase}characters/pacman/arrow_right.svg`,
+        `${imgBase}characters/pacman/arrow_up.svg`,
+        `${imgBase}characters/pacman/pacman_death.svg`,
+        `${imgBase}characters/pacman/pacman_down.svg`,
+        `${imgBase}characters/pacman/pacman_left.svg`,
+        `${imgBase}characters/pacman/pacman_right.svg`,
+        `${imgBase}characters/pacman/pacman_up.svg`,
 
-      // Blinky
-      `${imgBase}characters/ghosts/blinky/blinky_down_angry.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_down_annoyed.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_down.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_left_angry.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_left_annoyed.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_left.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_right_angry.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_right_annoyed.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_right.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_up_angry.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_up_annoyed.svg`,
-      `${imgBase}characters/ghosts/blinky/blinky_up.svg`,
+        // Blinky
+        `${imgBase}characters/ghosts/blinky/blinky_down_angry.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_down_annoyed.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_down.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_left_angry.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_left_annoyed.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_left.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_right_angry.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_right_annoyed.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_right.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_up_angry.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_up_annoyed.svg`,
+        `${imgBase}characters/ghosts/blinky/blinky_up.svg`,
 
-      // Clyde
-      `${imgBase}characters/ghosts/clyde/clyde_down.svg`,
-      `${imgBase}characters/ghosts/clyde/clyde_left.svg`,
-      `${imgBase}characters/ghosts/clyde/clyde_right.svg`,
-      `${imgBase}characters/ghosts/clyde/clyde_up.svg`,
+        // Clyde
+        `${imgBase}characters/ghosts/clyde/clyde_down.svg`,
+        `${imgBase}characters/ghosts/clyde/clyde_left.svg`,
+        `${imgBase}characters/ghosts/clyde/clyde_right.svg`,
+        `${imgBase}characters/ghosts/clyde/clyde_up.svg`,
 
-      // Inky
-      `${imgBase}characters/ghosts/inky/inky_down.svg`,
-      `${imgBase}characters/ghosts/inky/inky_left.svg`,
-      `${imgBase}characters/ghosts/inky/inky_right.svg`,
-      `${imgBase}characters/ghosts/inky/inky_up.svg`,
+        // Inky
+        `${imgBase}characters/ghosts/inky/inky_down.svg`,
+        `${imgBase}characters/ghosts/inky/inky_left.svg`,
+        `${imgBase}characters/ghosts/inky/inky_right.svg`,
+        `${imgBase}characters/ghosts/inky/inky_up.svg`,
 
-      // Pinky
-      `${imgBase}characters/ghosts/pinky/pinky_down.svg`,
-      `${imgBase}characters/ghosts/pinky/pinky_left.svg`,
-      `${imgBase}characters/ghosts/pinky/pinky_right.svg`,
-      `${imgBase}characters/ghosts/pinky/pinky_up.svg`,
+        // Pinky
+        `${imgBase}characters/ghosts/pinky/pinky_down.svg`,
+        `${imgBase}characters/ghosts/pinky/pinky_left.svg`,
+        `${imgBase}characters/ghosts/pinky/pinky_right.svg`,
+        `${imgBase}characters/ghosts/pinky/pinky_up.svg`,
 
-      // Ghosts Common
-      `${imgBase}characters/ghosts/eyes_down.svg`,
-      `${imgBase}characters/ghosts/eyes_left.svg`,
-      `${imgBase}characters/ghosts/eyes_right.svg`,
-      `${imgBase}characters/ghosts/eyes_up.svg`,
-      `${imgBase}characters/ghosts/scared_blue.svg`,
-      `${imgBase}characters/ghosts/scared_white.svg`,
+        // Ghosts Common
+        `${imgBase}characters/ghosts/eyes_down.svg`,
+        `${imgBase}characters/ghosts/eyes_left.svg`,
+        `${imgBase}characters/ghosts/eyes_right.svg`,
+        `${imgBase}characters/ghosts/eyes_up.svg`,
+        `${imgBase}characters/ghosts/scared_blue.svg`,
+        `${imgBase}characters/ghosts/scared_white.svg`,
 
-      // Dots
-      `${imgBase}pickups/pacdot.svg`,
-      `${imgBase}pickups/powerPellet.svg`,
+        // Dots
+        `${imgBase}pickups/pacdot.svg`,
+        `${imgBase}pickups/powerPellet.svg`,
 
-      // Fruit
-      `${imgBase}pickups/apple.svg`,
-      `${imgBase}pickups/bell.svg`,
-      `${imgBase}pickups/cherry.svg`,
-      `${imgBase}pickups/galaxian.svg`,
-      `${imgBase}pickups/key.svg`,
-      `${imgBase}pickups/melon.svg`,
-      `${imgBase}pickups/orange.svg`,
-      `${imgBase}pickups/strawberry.svg`,
+        // Fruit
+        `${imgBase}pickups/apple.svg`,
+        `${imgBase}pickups/bell.svg`,
+        `${imgBase}pickups/cherry.svg`,
+        `${imgBase}pickups/galaxian.svg`,
+        `${imgBase}pickups/key.svg`,
+        `${imgBase}pickups/melon.svg`,
+        `${imgBase}pickups/orange.svg`,
+        `${imgBase}pickups/strawberry.svg`,
 
-      // Text
-      `${imgBase}text/ready.svg`,
+        // Text
+        `${imgBase}text/ready.svg`,
 
-      // Points
-      `${imgBase}text/100.svg`,
-      `${imgBase}text/200.svg`,
-      `${imgBase}text/300.svg`,
-      `${imgBase}text/400.svg`,
-      `${imgBase}text/500.svg`,
-      `${imgBase}text/700.svg`,
-      `${imgBase}text/800.svg`,
-      `${imgBase}text/1000.svg`,
-      `${imgBase}text/1600.svg`,
-      `${imgBase}text/2000.svg`,
-      `${imgBase}text/3000.svg`,
-      `${imgBase}text/5000.svg`,
-    ];
+        // Points
+        `${imgBase}text/100.svg`,
+        `${imgBase}text/200.svg`,
+        `${imgBase}text/300.svg`,
+        `${imgBase}text/400.svg`,
+        `${imgBase}text/500.svg`,
+        `${imgBase}text/700.svg`,
+        `${imgBase}text/800.svg`,
+        `${imgBase}text/1000.svg`,
+        `${imgBase}text/1600.svg`,
+        `${imgBase}text/2000.svg`,
+        `${imgBase}text/3000.svg`,
+        `${imgBase}text/5000.svg`,
+      ];
 
-    const audioBase = 'app/style/audio/';
-    const audioSources = [
-      `${audioBase}game_start.mp3`,
-    ];
+      const audioBase = 'app/style/audio/';
+      const audioSources = [
+        `${audioBase}game_start.mp3`,
+      ];
 
-    const totalSources = imgSources.length + audioSources.length;
-    this.remainingSources = totalSources;
+      const totalSources = imgSources.length + audioSources.length;
+      this.remainingSources = totalSources;
 
-    loadingPacman.style.left = '0';
-    loadingDotMask.style.width = '0';
+      loadingPacman.style.left = '0';
+      loadingDotMask.style.width = '0';
 
-    Promise.all([
-      this.createElements(
-        imgSources, 'img', totalSources, this,
-      ),
-      this.createElements(
-        audioSources, 'audio', totalSources, this,
-      ),
-    ]).then(() => {
-      loadingContainer.style.opacity = 0;
+      Promise.all([
+        this.createElements(
+          imgSources, 'img', totalSources, this,
+        ),
+        this.createElements(
+          audioSources, 'audio', totalSources, this,
+        ),
+      ]).then(() => {
+        loadingContainer.style.opacity = 0;
+        resolve();
 
-      setTimeout(() => {
-        loadingContainer.remove();
-        const gameStartButton = document.getElementById('game-start');
-        gameStartButton.style.opacity = 1;
-        gameStartButton.style.visibility = 'visible';
-      }, 1500);
+        setTimeout(() => {
+          loadingContainer.remove();
+          const gameStartButton = document.getElementById('game-start');
+          gameStartButton.style.opacity = 1;
+          gameStartButton.style.visibility = 'visible';
+        }, 1500);
+      });
     });
   }
 
