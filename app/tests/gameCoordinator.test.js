@@ -40,6 +40,7 @@ describe('gameCoordinator', () => {
       getElementById: () => ({
         appendChild: () => { },
         removeChild: () => { },
+        addEventListener: () => { },
       }),
       createElement: () => ({
         classList: {
@@ -156,12 +157,12 @@ describe('gameCoordinator', () => {
           top: comp.scaledTileSize * 16.5,
         },
         'ready',
-        4000,
+        4500,
         comp.scaledTileSize * 6,
         comp.scaledTileSize * 2,
       ));
 
-      clock.tick(4000);
+      clock.tick(4500);
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
     });

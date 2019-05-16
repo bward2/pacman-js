@@ -141,7 +141,7 @@ class GameCoordinator {
   }
 
   /**
-   * Load all SVG's into a hidden Div to pre-load them into memory.
+   * Load all assets into a hidden Div to pre-load them into memory.
    * There is probably a better way to read all of these file names.
    */
   preloadAssets() {
@@ -305,7 +305,9 @@ class GameCoordinator {
     });
   }
 
-  // Calls necessary setup functions to start the game
+  /**
+   * Calls necessary setup functions to start the game
+   */
   init() {
     this.registerEventListeners();
     this.drawMaze(this.mazeArray, this.entityList);
