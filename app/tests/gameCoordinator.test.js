@@ -5,7 +5,7 @@ const GameCoordinator = require('../scripts/core/gameCoordinator');
 let comp;
 const mazeArray = [
   ['X', 'X', 'X'],
-  ['X', 'o', ' '],
+  ['X', 'o', 'O'],
   ['X', ' ', 'X'],
 ];
 let clock;
@@ -110,11 +110,11 @@ describe('gameCoordinator', () => {
         },
       });
 
-      comp.createElements(['source'], 'img', 100, comp).then(() => {
-        assert(spy.called);
+      comp.createElements(['src1', 'src2'], 'img', 100, comp).then(() => {
+        assert(spy.calledTwice);
       });
 
-      comp.createElements(['source'], 'audio', 100, comp).then(() => {
+      comp.createElements(['src'], 'audio', 100, comp).then(() => {
         assert(spy.called);
       });
     });
@@ -142,7 +142,7 @@ describe('gameCoordinator', () => {
     it('creates the maze and adds entities for a given maze array', () => {
       const entityList = [];
       comp.drawMaze(mazeArray, entityList);
-      assert.strictEqual(entityList.length, 1);
+      assert.strictEqual(entityList.length, 2);
     });
   });
 
