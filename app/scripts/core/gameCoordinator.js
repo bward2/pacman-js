@@ -335,6 +335,8 @@ class GameCoordinator {
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
 
+    this.soundManager = new SoundManager();
+
     this.startGameplay(true);
   }
 
@@ -398,6 +400,10 @@ class GameCoordinator {
    * @param {Boolean} initialStart - Special condition for the game's beginning
    */
   startGameplay(initialStart) {
+    if (initialStart) {
+      this.soundManager.play('game_start');
+    }
+
     this.allowPacmanMovement = false;
 
     const left = this.scaledTileSize * 11;

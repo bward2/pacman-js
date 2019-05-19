@@ -126,6 +126,7 @@ describe('gameCoordinator', () => {
       comp.drawMaze = sinon.fake();
       comp.collisionDetectionLoop = sinon.fake();
       comp.startGameplay = sinon.fake();
+      global.SoundManager = class { };
 
       comp.init();
       assert(comp.registerEventListeners.called);
