@@ -187,8 +187,13 @@ describe('gameCoordinator', () => {
 
     it('waits longer for the initialStart', () => {
       comp.displayText = sinon.fake();
+      const spy = sinon.fake();
+      comp.soundManager = {
+        play: spy,
+      };
 
       comp.startGameplay(true);
+      assert(spy.called);
       assert(comp.displayText.calledWith(
         {
           left: comp.scaledTileSize * 11,
