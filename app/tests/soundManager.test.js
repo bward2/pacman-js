@@ -1,5 +1,5 @@
-// const assert = require('assert');
-// const sinon = require('sinon');
+const assert = require('assert');
+const sinon = require('sinon');
 const SoundManager = require('../scripts/utilities/soundManager');
 
 let comp;
@@ -15,7 +15,10 @@ describe('soundManager', () => {
 
   describe('play', () => {
     it('plays a given sound effect', () => {
-      comp.play();
+      const spy = sinon.spy(global, 'Audio');
+
+      comp.play('some_sound');
+      assert(spy.calledWith('app/style/audio/some_sound.mp3'));
     });
   });
 });
