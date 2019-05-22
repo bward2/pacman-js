@@ -244,6 +244,7 @@ class GameCoordinator {
       const audioBase = 'app/style/audio/';
       const audioSources = [
         `${audioBase}game_start.mp3`,
+        `${audioBase}siren_1.mp3`,
       ];
 
       const totalSources = imgSources.length + audioSources.length;
