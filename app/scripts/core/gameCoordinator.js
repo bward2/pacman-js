@@ -416,6 +416,8 @@ class GameCoordinator {
     this.displayText({ left, top }, 'ready', duration, width, height);
 
     new Timer(() => {
+      this.soundManager.setAmbience('siren_1');
+
       this.allowPacmanMovement = true;
       this.pacman.moving = true;
 
