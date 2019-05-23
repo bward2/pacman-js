@@ -111,7 +111,7 @@ describe('gameCoordinator', () => {
       });
 
       comp.createElements(['src1', 'src2'], 'img', 100, comp).then(() => {
-        assert(spy.calledTwice);
+        assert(spy.called);
       });
 
       comp.createElements(['src'], 'audio', 100, comp).then(() => {
