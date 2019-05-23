@@ -9,6 +9,7 @@ describe('soundManager', () => {
     global.Audio = class {
       play() { }
     };
+    global.AudioContext = class { };
 
     comp = new SoundManager();
   });
