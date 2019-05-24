@@ -244,6 +244,7 @@ class GameCoordinator {
       const audioBase = 'app/style/audio/';
       const audioSources = [
         `${audioBase}game_start.mp3`,
+        `${audioBase}siren_1.mp3`,
       ];
 
       const totalSources = imgSources.length + audioSources.length;
@@ -415,6 +416,8 @@ class GameCoordinator {
     this.displayText({ left, top }, 'ready', duration, width, height);
 
     new Timer(() => {
+      this.soundManager.setAmbience('siren_1');
+
       this.allowPacmanMovement = true;
       this.pacman.moving = true;
 

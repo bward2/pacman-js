@@ -111,7 +111,7 @@ describe('gameCoordinator', () => {
       });
 
       comp.createElements(['src1', 'src2'], 'img', 100, comp).then(() => {
-        assert(spy.calledTwice);
+        assert(spy.called);
       });
 
       comp.createElements(['src'], 'audio', 100, comp).then(() => {
@@ -167,6 +167,10 @@ describe('gameCoordinator', () => {
   describe('startGameplay', () => {
     it('calls displayText, then kicks off movement', () => {
       comp.displayText = sinon.fake();
+      const ambientSpy = sinon.fake();
+      comp.soundManager = {
+        setAmbience: ambientSpy,
+      };
 
       comp.startGameplay();
       assert(comp.displayText.calledWith(
@@ -183,17 +187,20 @@ describe('gameCoordinator', () => {
       clock.tick(2000);
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
+      assert(comp.soundManager.setAmbience.calledWith('siren_1'));
     });
 
     it('waits longer for the initialStart', () => {
       comp.displayText = sinon.fake();
-      const spy = sinon.fake();
+      const playSpy = sinon.fake();
+      const ambientSpy = sinon.fake();
       comp.soundManager = {
-        play: spy,
+        play: playSpy,
+        setAmbience: ambientSpy,
       };
 
       comp.startGameplay(true);
-      assert(spy.called);
+      assert(playSpy.calledWith('game_start'));
       assert(comp.displayText.calledWith(
         {
           left: comp.scaledTileSize * 11,
@@ -208,6 +215,7 @@ describe('gameCoordinator', () => {
       clock.tick(4500);
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
+      assert(comp.soundManager.setAmbience.calledWith('siren_1'));
     });
   });
 
