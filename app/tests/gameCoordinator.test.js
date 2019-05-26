@@ -33,6 +33,18 @@ describe('gameCoordinator', () => {
       start() { }
     };
 
+    global.SoundManager = class {
+      play() {}
+
+      setAmbience() {}
+
+      playDotSound() {}
+
+      resumeAmbience() {}
+
+      stopAmbience() {}
+    };
+
     global.document = {
       getElementsByTagName: () => ([
         { appendChild: () => { } },
@@ -58,6 +70,7 @@ describe('gameCoordinator', () => {
 
     clock = sinon.useFakeTimers();
     comp = new GameCoordinator();
+    comp.soundManager = new SoundManager();
   });
 
   afterEach(() => {
@@ -187,7 +200,9 @@ describe('gameCoordinator', () => {
       clock.tick(2000);
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
-      assert(comp.soundManager.setAmbience.calledWith('siren_1'));
+      assert(comp.soundManager.setAmbience.calledWith(
+        comp.determineSiren(comp.remainingDors),
+      ));
     });
 
     it('waits longer for the initialStart', () => {
@@ -215,7 +230,9 @@ describe('gameCoordinator', () => {
       clock.tick(4500);
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
-      assert(comp.soundManager.setAmbience.calledWith('siren_1'));
+      assert(comp.soundManager.setAmbience.calledWith(
+        comp.determineSiren(comp.remainingDors),
+      ));
     });
   });
 
@@ -325,11 +342,11 @@ describe('gameCoordinator', () => {
 
     it('won\'t call changeDirection if allowKeyPresses is FALSE', () => {
       comp.allowKeyPresses = false;
-      comp.gameEngine.changePausedState = sinon.fake();
+      comp.handlePauseKey = sinon.fake();
       comp.pacman.changeDirection = sinon.fake();
 
       comp.handleKeyDown({ keyCode: 27 });
-      assert(comp.gameEngine.changePausedState.called);
+      assert(comp.handlePauseKey.called);
       comp.handleKeyDown({ keyCode: 87 });
       assert(!comp.pacman.changeDirection.called);
     });

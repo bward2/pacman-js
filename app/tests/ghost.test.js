@@ -595,12 +595,15 @@ describe('ghost', () => {
     it('snaps y to 14 and sends ghost up once entered', () => {
       comp.enteredGhostHouse = sinon.fake.returns(true);
       comp.characterUtil.snapToGrid = sinon.fake();
+      window.dispatchEvent = sinon.fake();
+      global.Event = sinon.fake();
 
       const result = comp.handleGhostHouse({ x: 0, y: 0 });
       assert.strictEqual(comp.direction, 'up');
       assert.deepEqual(result, { x: 0, y: 14 });
       assert(comp.characterUtil.snapToGrid.called);
       assert.strictEqual(comp.mode, comp.defaultMode);
+      assert(window.dispatchEvent.calledWith(new Event('restoreGhost')));
     });
 
     it('snaps y to 11 and sends ghost left once exited', () => {
