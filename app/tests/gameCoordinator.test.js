@@ -776,13 +776,25 @@ describe('gameCoordinator', () => {
       comp.soundManager.setAmbience = sinon.fake();
     });
 
+    it('only calls setAmbience when there are zero eye ghosts', () => {
+      comp.eyeGhosts = 2;
+      comp.restoreGhost();
+      assert(!comp.soundManager.setAmbience.called);
+    });
+
     it('subtracts from eyeGhost and calls setAmbience', () => {
       comp.eyeGhosts = 1;
 
       comp.restoreGhost();
       assert.strictEqual(comp.eyeGhosts, 0);
-      assert(comp.determineSiren.calledWith(comp.remainingDots));
-      assert(comp.soundManager.setAmbience.called);
+      assert(comp.soundManager.setAmbience.calledWith(
+        comp.determineSiren(comp.remainingDots),
+      ));
+
+      comp.eyeGhosts = 1;
+      comp.scaredGhosts = [1, 2, 3];
+      comp.restoreGhost();
+      assert(comp.soundManager.setAmbience.calledWith('power_up'));
     });
   });
 
