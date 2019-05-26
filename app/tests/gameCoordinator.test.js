@@ -201,7 +201,7 @@ describe('gameCoordinator', () => {
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
       assert(comp.soundManager.setAmbience.calledWith(
-        comp.determineSiren(comp.remainingDors),
+        comp.determineSiren(comp.remainingDots),
       ));
     });
 
@@ -580,6 +580,14 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('determineSiren', () => {
+    it('determines the correct siren ambience', () => {
+      assert.strictEqual(comp.determineSiren(100), 'siren_1');
+      assert.strictEqual(comp.determineSiren(30), 'siren_2');
+      assert.strictEqual(comp.determineSiren(10), 'siren_3');
+    });
+  });
+
   describe('advanceLevel', () => {
     it('runs the sequence for advancing to the next level', () => {
       const ghost = new Ghost();
@@ -714,6 +722,22 @@ describe('gameCoordinator', () => {
       assert(comp.allowPacmanMovement);
       assert(e.detail.ghost.display);
       assert(comp.pacman.moving);
+    });
+  });
+
+  describe('restoreGhost', () => {
+    beforeEach(() => {
+      comp.determineSiren = sinon.fake();
+      comp.soundManager.setAmbience = sinon.fake();
+    });
+
+    it('subtracts from eyeGhost and calls setAmbience', () => {
+      comp.eyeGhosts = 1;
+
+      comp.restoreGhost();
+      assert.strictEqual(comp.eyeGhosts, 0);
+      assert(comp.determineSiren.calledWith(comp.remainingDots));
+      assert(comp.soundManager.setAmbience.called);
     });
   });
 

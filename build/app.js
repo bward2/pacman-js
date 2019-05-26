@@ -1752,6 +1752,12 @@ class GameCoordinator {
     }
   }
 
+
+  /**
+   * Determines the correct siren ambience
+   * @param {Number} remainingDots
+   * @returns {String}
+   */
   determineSiren(remainingDots) {
     let sirenNum;
 
@@ -1921,6 +1927,9 @@ class GameCoordinator {
     }, pauseDuration);
   }
 
+  /**
+   * Decrements the count of "eye" ghosts and updates the ambience
+   */
   restoreGhost() {
     this.eyeGhosts -= 1;
 
