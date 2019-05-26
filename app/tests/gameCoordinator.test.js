@@ -231,7 +231,7 @@ describe('gameCoordinator', () => {
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
       assert(comp.soundManager.setAmbience.calledWith(
-        comp.determineSiren(comp.remainingDors),
+        comp.determineSiren(comp.remainingDots),
       ));
     });
   });
@@ -572,11 +572,35 @@ describe('gameCoordinator', () => {
   });
 
   describe('speedUpBlinky', () => {
-    it('calls the speedUp function for Blinky', () => {
+    beforeEach(() => {
       comp.blinky.speedUp = sinon.fake();
+    });
 
+    it('calls the speedUp function for Blinky', () => {
       comp.speedUpBlinky();
       assert(comp.blinky.speedUp.called);
+    });
+
+    it('calls setAmbience if there are no scared or eye ghosts', () => {
+      comp.scaredGhosts = [];
+      comp.eyeGhosts = 0;
+      comp.soundManager.setAmbience = sinon.fake();
+      comp.determineSiren = sinon.fake();
+
+      comp.speedUpBlinky();
+      assert(comp.soundManager.setAmbience.calledWith(
+        comp.determineSiren(comp.remainingDots),
+      ));
+    });
+
+    it('does not call setAmbience otherwise', () => {
+      comp.scaredGhosts = [];
+      comp.eyeGhosts = 1;
+      comp.soundManager.setAmbience = sinon.fake();
+      comp.determineSiren = sinon.fake();
+
+      comp.speedUpBlinky();
+      assert(!comp.soundManager.setAmbience.called);
     });
   });
 
@@ -635,10 +659,31 @@ describe('gameCoordinator', () => {
         endScared: sinon.fake(),
       }];
       sinon.spy(comp, 'flashGhosts');
+      comp.soundManager.setAmbience = sinon.fake();
+      comp.determineSiren = sinon.fake();
+      comp.eyeGhosts = 0;
 
       comp.flashGhosts(0, 9);
       clock.tick(10000);
       assert.strictEqual(comp.flashGhosts.callCount, 10);
+      assert(comp.soundManager.setAmbience.calledWith(
+        comp.determineSiren(comp.remainingDots),
+      ));
+    });
+
+    it('will not set ambience if there are eye ghosts', () => {
+      comp.scaredGhosts = [{
+        toggleScaredColor: sinon.fake(),
+        endScared: sinon.fake(),
+      }];
+      sinon.spy(comp, 'flashGhosts');
+      comp.soundManager.setAmbience = sinon.fake();
+      comp.eyeGhosts = 1;
+
+      comp.flashGhosts(0, 9);
+      clock.tick(10000);
+      assert.strictEqual(comp.flashGhosts.callCount, 10);
+      assert(!comp.soundManager.setAmbience.called);
     });
 
     it('stops calls if there are no more scared ghosts', () => {
