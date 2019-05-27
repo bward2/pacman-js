@@ -34,6 +34,14 @@ describe('soundManager', () => {
       comp.playDotSound();
       assert(spy.calledWith('app/style/audio/dot_2.mp3'));
     });
+
+    it('does nothing if another dot sound is already playing', () => {
+      comp.dotPlayer = {};
+      const spy = sinon.spy(global, 'Audio');
+
+      comp.playDotSound();
+      assert(!spy.called);
+    });
   });
 
   describe('dotSoundEnded', () => {
@@ -92,9 +100,12 @@ describe('soundManager', () => {
 
   describe('resumeAmbience', () => {
     it('resumes an existing ambience', () => {
-      comp.ambienceSource = {};
       comp.setAmbience = sinon.fake();
 
+      comp.resumeAmbience();
+      assert(!comp.setAmbience.called);
+
+      comp.ambienceSource = {};
       comp.resumeAmbience();
       assert(comp.setAmbience.calledWith(comp.currentAmbience));
     });
@@ -102,12 +113,13 @@ describe('soundManager', () => {
 
   describe('stopAmbience', () => {
     it('stops existing ambience', () => {
+      comp.stopAmbience();
+
       comp.ambienceSource = {
         stop: sinon.fake(),
       };
-
       comp.stopAmbience();
-      assert(comp.ambienceSource.stop.called);
+      assert(comp.ambienceSource.stop.calledOnce);
     });
   });
 });
