@@ -23,6 +23,36 @@ describe('soundManager', () => {
     });
   });
 
+  describe('playDotSound', () => {
+    it('alternates between two dot sounds', () => {
+      const spy = sinon.spy(global, 'Audio');
+
+      comp.playDotSound();
+      assert(spy.calledWith('app/style/audio/dot_1.mp3'));
+
+      comp.dotPlayer = undefined;
+      comp.playDotSound();
+      assert(spy.calledWith('app/style/audio/dot_2.mp3'));
+    });
+  });
+
+  describe('dotSoundEnded', () => {
+    it('deletes the current dotPlayer', () => {
+      comp.dotPlayer = {};
+
+      comp.dotSoundEnded();
+      assert.strictEqual(comp.dotPlayer, undefined);
+    });
+
+    it('calls playDotSound if queuedDotSound is TRUE', () => {
+      comp.queuedDotSound = true;
+      comp.playDotSound = sinon.fake();
+
+      comp.dotSoundEnded();
+      assert(comp.playDotSound.called);
+    });
+  });
+
   describe('setAmbience', () => {
     const arraySpy = sinon.fake();
     const connectSpy = sinon.fake();

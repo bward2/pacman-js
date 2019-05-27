@@ -15,24 +15,33 @@ class SoundManager {
     audio.play();
   }
 
+  /**
+   * Special method for eating dots. The dots should alternate between two
+   * sound effects, but not too quickly.
+   */
   playDotSound() {
     this.queuedDotSound = true;
 
     if (!this.dotPlayer) {
       this.queuedDotSound = false;
-      this.dotSound = (this.dotSound === 2) ? 1 : 2;
+      this.dotSound = (this.dotSound === 1) ? 2 : 1;
 
       this.dotPlayer = new Audio(
         `${this.baseUrl}dot_${this.dotSound}.${this.fileFormat}`,
       );
-      this.dotPlayer.onended = () => {
-        this.dotPlayer = undefined;
-
-        if (this.queuedDotSound) {
-          this.playDotSound();
-        }
-      };
+      this.dotPlayer.onended = this.dotSoundEnded.bind(this);
       this.dotPlayer.play();
+    }
+  }
+
+  /**
+   * Deletes the dotSound player and plays another dot sound if needed
+   */
+  dotSoundEnded() {
+    this.dotPlayer = undefined;
+
+    if (this.queuedDotSound) {
+      this.playDotSound();
     }
   }
 
