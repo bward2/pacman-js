@@ -46,17 +46,38 @@ describe('soundManager', () => {
       assert(comp.ambience.decodeAudioData.called);
       assert(comp.ambience.createBufferSource.called);
       assert(connectSpy.calledWith(comp.ambience.destination));
-      assert.strictEqual(comp.source.loop, true);
+      assert.strictEqual(comp.ambienceSource.loop, true);
       assert(startSpy.called);
     });
 
     it('stops previously running ambience', () => {
-      comp.source = {
+      comp.ambienceSource = {
         stop: sinon.fake(),
       };
 
       comp.setAmbience('some_sound');
-      assert(comp.source.stop.called);
+      assert(comp.ambienceSource.stop.called);
+    });
+  });
+
+  describe('resumeAmbience', () => {
+    it('resumes an existing ambience', () => {
+      comp.ambienceSource = {};
+      comp.setAmbience = sinon.fake();
+
+      comp.resumeAmbience();
+      assert(comp.setAmbience.calledWith(comp.currentAmbience));
+    });
+  });
+
+  describe('stopAmbience', () => {
+    it('stops existing ambience', () => {
+      comp.ambienceSource = {
+        stop: sinon.fake(),
+      };
+
+      comp.stopAmbience();
+      assert(comp.ambienceSource.stop.called);
     });
   });
 });
