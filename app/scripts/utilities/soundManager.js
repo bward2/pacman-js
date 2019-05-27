@@ -16,23 +16,75 @@ class SoundManager {
   }
 
   /**
+   * Special method for eating dots. The dots should alternate between two
+   * sound effects, but not too quickly.
+   */
+  playDotSound() {
+    this.queuedDotSound = true;
+
+    if (!this.dotPlayer) {
+      this.queuedDotSound = false;
+      this.dotSound = (this.dotSound === 1) ? 2 : 1;
+
+      this.dotPlayer = new Audio(
+        `${this.baseUrl}dot_${this.dotSound}.${this.fileFormat}`,
+      );
+      this.dotPlayer.onended = this.dotSoundEnded.bind(this);
+      this.dotPlayer.play();
+    }
+  }
+
+  /**
+   * Deletes the dotSound player and plays another dot sound if needed
+   */
+  dotSoundEnded() {
+    this.dotPlayer = undefined;
+
+    if (this.queuedDotSound) {
+      this.playDotSound();
+    }
+  }
+
+  /**
    * Loops an ambient sound
    * @param {String} sound
    */
   async setAmbience(sound) {
-    if (this.source) {
-      this.source.stop();
+    this.currentAmbience = sound;
+
+    if (this.ambienceSource) {
+      this.ambienceSource.stop();
     }
 
     const response = await fetch(`${this.baseUrl}${sound}.${this.fileFormat}`);
     const arrayBuffer = await response.arrayBuffer();
     const audioBuffer = await this.ambience.decodeAudioData(arrayBuffer);
 
-    this.source = this.ambience.createBufferSource();
-    this.source.buffer = audioBuffer;
-    this.source.connect(this.ambience.destination);
-    this.source.loop = true;
-    this.source.start();
+    this.ambienceSource = this.ambience.createBufferSource();
+    this.ambienceSource.buffer = audioBuffer;
+    this.ambienceSource.connect(this.ambience.destination);
+    this.ambienceSource.loop = true;
+    this.ambienceSource.start();
+  }
+
+  /**
+   * Resumes the ambience
+   */
+  resumeAmbience() {
+    if (this.ambienceSource) {
+      // Resetting the ambience since an AudioBufferSourceNode can only
+      // have 'start()' called once
+      this.setAmbience(this.currentAmbience);
+    }
+  }
+
+  /**
+   * Stops the ambience
+   */
+  stopAmbience() {
+    if (this.ambienceSource) {
+      this.ambienceSource.stop();
+    }
   }
 }
 

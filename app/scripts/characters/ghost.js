@@ -571,6 +571,7 @@ class Ghost {
         gridPositionCopy, this.direction, this.scaledTileSize,
       );
       this.mode = this.defaultMode;
+      window.dispatchEvent(new Event('restoreGhost'));
     }
 
     if (this.leavingGhostHouse(this.mode, gridPosition)) {

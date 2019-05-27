@@ -33,6 +33,18 @@ describe('gameCoordinator', () => {
       start() { }
     };
 
+    global.SoundManager = class {
+      play() {}
+
+      setAmbience() {}
+
+      playDotSound() {}
+
+      resumeAmbience() {}
+
+      stopAmbience() {}
+    };
+
     global.document = {
       getElementsByTagName: () => ([
         { appendChild: () => { } },
@@ -58,6 +70,7 @@ describe('gameCoordinator', () => {
 
     clock = sinon.useFakeTimers();
     comp = new GameCoordinator();
+    comp.soundManager = new SoundManager();
   });
 
   afterEach(() => {
@@ -187,7 +200,9 @@ describe('gameCoordinator', () => {
       clock.tick(2000);
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
-      assert(comp.soundManager.setAmbience.calledWith('siren_1'));
+      assert(comp.soundManager.setAmbience.calledWith(
+        comp.determineSiren(comp.remainingDots),
+      ));
     });
 
     it('waits longer for the initialStart', () => {
@@ -215,7 +230,9 @@ describe('gameCoordinator', () => {
       clock.tick(4500);
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
-      assert(comp.soundManager.setAmbience.calledWith('siren_1'));
+      assert(comp.soundManager.setAmbience.calledWith(
+        comp.determineSiren(comp.remainingDots),
+      ));
     });
   });
 
@@ -325,11 +342,11 @@ describe('gameCoordinator', () => {
 
     it('won\'t call changeDirection if allowKeyPresses is FALSE', () => {
       comp.allowKeyPresses = false;
-      comp.gameEngine.changePausedState = sinon.fake();
+      comp.handlePauseKey = sinon.fake();
       comp.pacman.changeDirection = sinon.fake();
 
       comp.handleKeyDown({ keyCode: 27 });
-      assert(comp.gameEngine.changePausedState.called);
+      assert(comp.handlePauseKey.called);
       comp.handleKeyDown({ keyCode: 87 });
       assert(!comp.pacman.changeDirection.called);
     });
@@ -555,11 +572,43 @@ describe('gameCoordinator', () => {
   });
 
   describe('speedUpBlinky', () => {
-    it('calls the speedUp function for Blinky', () => {
+    beforeEach(() => {
       comp.blinky.speedUp = sinon.fake();
+    });
 
+    it('calls the speedUp function for Blinky', () => {
       comp.speedUpBlinky();
       assert(comp.blinky.speedUp.called);
+    });
+
+    it('calls setAmbience if there are no scared or eye ghosts', () => {
+      comp.scaredGhosts = [];
+      comp.eyeGhosts = 0;
+      comp.soundManager.setAmbience = sinon.fake();
+      comp.determineSiren = sinon.fake();
+
+      comp.speedUpBlinky();
+      assert(comp.soundManager.setAmbience.calledWith(
+        comp.determineSiren(comp.remainingDots),
+      ));
+    });
+
+    it('does not call setAmbience otherwise', () => {
+      comp.scaredGhosts = [];
+      comp.eyeGhosts = 1;
+      comp.soundManager.setAmbience = sinon.fake();
+      comp.determineSiren = sinon.fake();
+
+      comp.speedUpBlinky();
+      assert(!comp.soundManager.setAmbience.called);
+    });
+  });
+
+  describe('determineSiren', () => {
+    it('determines the correct siren ambience', () => {
+      assert.strictEqual(comp.determineSiren(100), 'siren_1');
+      assert.strictEqual(comp.determineSiren(30), 'siren_2');
+      assert.strictEqual(comp.determineSiren(10), 'siren_3');
     });
   });
 
@@ -610,10 +659,31 @@ describe('gameCoordinator', () => {
         endScared: sinon.fake(),
       }];
       sinon.spy(comp, 'flashGhosts');
+      comp.soundManager.setAmbience = sinon.fake();
+      comp.determineSiren = sinon.fake();
+      comp.eyeGhosts = 0;
 
       comp.flashGhosts(0, 9);
       clock.tick(10000);
       assert.strictEqual(comp.flashGhosts.callCount, 10);
+      assert(comp.soundManager.setAmbience.calledWith(
+        comp.determineSiren(comp.remainingDots),
+      ));
+    });
+
+    it('will not set ambience if there are eye ghosts', () => {
+      comp.scaredGhosts = [{
+        toggleScaredColor: sinon.fake(),
+        endScared: sinon.fake(),
+      }];
+      sinon.spy(comp, 'flashGhosts');
+      comp.soundManager.setAmbience = sinon.fake();
+      comp.eyeGhosts = 1;
+
+      comp.flashGhosts(0, 9);
+      clock.tick(10000);
+      assert.strictEqual(comp.flashGhosts.callCount, 10);
+      assert(!comp.soundManager.setAmbience.called);
     });
 
     it('stops calls if there are no more scared ghosts', () => {
@@ -697,6 +767,34 @@ describe('gameCoordinator', () => {
       assert(comp.allowPacmanMovement);
       assert(e.detail.ghost.display);
       assert(comp.pacman.moving);
+    });
+  });
+
+  describe('restoreGhost', () => {
+    beforeEach(() => {
+      comp.determineSiren = sinon.fake();
+      comp.soundManager.setAmbience = sinon.fake();
+    });
+
+    it('only calls setAmbience when there are zero eye ghosts', () => {
+      comp.eyeGhosts = 2;
+      comp.restoreGhost();
+      assert(!comp.soundManager.setAmbience.called);
+    });
+
+    it('subtracts from eyeGhost and calls setAmbience', () => {
+      comp.eyeGhosts = 1;
+
+      comp.restoreGhost();
+      assert.strictEqual(comp.eyeGhosts, 0);
+      assert(comp.soundManager.setAmbience.calledWith(
+        comp.determineSiren(comp.remainingDots),
+      ));
+
+      comp.eyeGhosts = 1;
+      comp.scaredGhosts = [1, 2, 3];
+      comp.restoreGhost();
+      assert(comp.soundManager.setAmbience.calledWith('power_up'));
     });
   });
 
