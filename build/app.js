@@ -1141,7 +1141,8 @@ class GameCoordinator {
 
     this.allowKeyPresses = true;
     this.allowPacmanMovement = false;
-    this.allowPause = true;
+    this.allowPause = false;
+    this.cutscene = true;
 
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
@@ -1532,6 +1533,8 @@ class GameCoordinator {
     this.displayText({ left, top }, 'ready', duration, width, height);
 
     new Timer(() => {
+      this.allowPause = true;
+      this.cutscene = false;
       this.soundManager.setAmbience(this.determineSiren(this.remainingDots));
 
       this.allowPacmanMovement = true;
@@ -1625,7 +1628,9 @@ class GameCoordinator {
       this.allowPause = false;
 
       setTimeout(() => {
-        this.allowPause = true;
+        if (!this.cutscene) {
+          this.allowPause = true;
+        }
       }, 500);
 
       this.gameEngine.changePausedState(this.gameEngine.running);
@@ -1672,6 +1677,8 @@ class GameCoordinator {
    * the player has remaining lives.
    */
   deathSequence() {
+    this.allowPause = false;
+    this.cutscene = true;
     this.soundManager.stopAmbience();
     this.removeTimer({ detail: { timer: this.fruitTimer } });
     this.removeTimer({ detail: { timer: this.ghostCycleTimer } });
@@ -1776,6 +1783,8 @@ class GameCoordinator {
    * Resets the gameboard and prepares the next level
    */
   advanceLevel() {
+    this.allowPause = false;
+    this.cutscene = true;
     this.allowKeyPresses = false;
     this.soundManager.stopAmbience();
 
