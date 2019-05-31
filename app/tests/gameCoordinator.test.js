@@ -368,6 +368,8 @@ describe('gameCoordinator', () => {
         changePausedState: sinon.fake(),
       };
       comp.activeTimers = [{}];
+      comp.allowPause = true;
+      comp.cutscene = false;
     });
 
     it('calls changePausedState', () => {
@@ -403,6 +405,15 @@ describe('gameCoordinator', () => {
       comp.allowPause = false;
       comp.handlePauseKey();
       assert(!comp.gameEngine.changePausedState.called);
+    });
+
+    it('won\'t set allowPause to TRUE if a cutscene is playing', () => {
+      comp.activeTimers[0].pause = sinon.fake();
+      comp.handlePauseKey();
+      comp.cutscene = true;
+      assert(!comp.allowPause);
+      clock.tick(500);
+      assert(!comp.allowPause);
     });
   });
 
