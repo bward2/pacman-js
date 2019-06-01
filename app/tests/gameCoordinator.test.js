@@ -155,7 +155,15 @@ describe('gameCoordinator', () => {
   describe('drawMaze', () => {
     it('creates the maze and adds entities for a given maze array', () => {
       const entityList = [];
+      comp.mazeDiv.style = {};
+
       comp.drawMaze(mazeArray, entityList);
+      assert.strictEqual(
+        comp.mazeDiv.style.height, `${comp.scaledTileSize * 31}px`,
+      );
+      assert.strictEqual(
+        comp.mazeDiv.style.width, `${comp.scaledTileSize * 28}px`,
+      );
       assert.strictEqual(entityList.length, 2);
     });
   });

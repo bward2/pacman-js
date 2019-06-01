@@ -19,9 +19,7 @@ body {
   color: white; }
 
 #fps-display {
-  position: absolute;
-  top: 10px;
-  left: 10px; }
+  margin: 10px 0 0 10px; }
 
 #preload-div {
   visibility: hidden; }
