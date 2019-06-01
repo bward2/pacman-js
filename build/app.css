@@ -14,7 +14,9 @@ body {
   position: relative;
   margin: 0;
   height: 100vh;
-  overflow: hidden; }
+  overflow: hidden;
+  background-color: black;
+  color: white; }
 
 #fps-display {
   position: absolute;
@@ -196,6 +198,11 @@ body {
 #maze {
   margin: 0 auto;
   position: relative; }
+
+#maze-img {
+  position: absolute;
+  height: 100%;
+  width: 100%; }
 
 .maze-row {
   display: flex; }

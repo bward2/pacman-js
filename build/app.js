@@ -1102,6 +1102,7 @@ class Pacman {
 class GameCoordinator {
   constructor() {
     this.mazeDiv = document.getElementById('maze');
+    this.mazeImg = document.getElementById('maze-img');
     this.mazeCover = document.getElementById('maze-cover');
 
     this.animate = true;
@@ -1344,6 +1345,9 @@ class GameCoordinator {
         `${imgBase}text/2000.svg`,
         `${imgBase}text/3000.svg`,
         `${imgBase}text/5000.svg`,
+
+        // Maze
+        `${imgBase}maze/maze_blue.svg`,
       ];
 
       const audioBase = 'app/style/audio/';
@@ -1462,15 +1466,11 @@ class GameCoordinator {
    * @param {Array} entityList - List of entities to be used throughout the game
    */
   drawMaze(mazeArray, entityList) {
-    mazeArray.forEach((row, rowIndex) => {
-      const rowDiv = document.createElement('div');
-      rowDiv.classList.add('maze-row');
-      row.forEach((block, columnIndex) => {
-        const mazeBlock = document.createElement('div');
-        mazeBlock.style.width = `${this.scaledTileSize}px`;
-        mazeBlock.style.height = `${this.scaledTileSize}px`;
-        mazeBlock.style.background = block === 'X' ? 'black' : 'gray';
+    this.mazeDiv.style.height = `${this.scaledTileSize * 31}px`;
+    this.mazeDiv.style.width = `${this.scaledTileSize * 28}px`;
 
+    mazeArray.forEach((row, rowIndex) => {
+      row.forEach((block, columnIndex) => {
         if (block === 'o' || block === 'O') {
           const type = (block === 'o') ? 'pacdot' : 'powerPellet';
           const points = (block === 'o') ? 10 : 50;
@@ -1483,10 +1483,7 @@ class GameCoordinator {
           this.pickups.push(dot);
           this.remainingDots += 1;
         }
-
-        rowDiv.appendChild(mazeBlock);
       });
-      this.mazeDiv.appendChild(rowDiv);
     });
   }
 
