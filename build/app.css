@@ -204,7 +204,6 @@ body {
 
 #maze-img {
   position: absolute;
-  height: 100%;
   width: 100%; }
 
 .maze-row {
