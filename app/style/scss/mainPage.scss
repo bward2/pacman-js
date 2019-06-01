@@ -15,16 +15,21 @@ body {
   margin: 0;
   height: 100vh;
   overflow: hidden;
+  background-color: black;
+  color: white;
 }
 
 #fps-display {
-  position: absolute;
-  top: 10px;
-  left: 10px;
+  margin: 10px 0 0 10px;
 }
 
 #preload-div {
   visibility: hidden;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: baseline;
+  position: absolute;
+  bottom: 0;
 }
 
 .loading-cover {
