@@ -25,6 +25,11 @@ body {
 
 #preload-div {
   visibility: hidden;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: baseline;
+  position: absolute;
+  bottom: 0;
 }
 
 .loading-cover {

@@ -22,7 +22,12 @@ body {
   margin: 10px 0 0 10px; }
 
 #preload-div {
-  visibility: hidden; }
+  visibility: hidden;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: baseline;
+  position: absolute;
+  bottom: 0; }
 
 .loading-cover {
   position: absolute;
