@@ -510,8 +510,12 @@ class GameCoordinator {
   handleTouch(e) {
     const x = e.clientX;
     const y = e.clientY;
-    const h = document.documentElement.clientHeight || 0;
-    const w = document.documentElement.clientWidth || 0;
+    const h = Math.max(
+      document.documentElement.clientHeight, window.innerHeight || 0,
+    );
+    const w = Math.max(
+      document.documentElement.clientWidth, window.innerWidth || 0,
+    );
 
     const blah1 = ((x / w) + (y / h)) < 1 ? 1 : 0;
     const blah2 = (x / w) > (y / h) ? 1 : 0;
