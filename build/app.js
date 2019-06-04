@@ -1104,6 +1104,7 @@ class GameCoordinator {
     this.mazeDiv = document.getElementById('maze');
     this.mazeImg = document.getElementById('maze-img');
     this.mazeCover = document.getElementById('maze-cover');
+    this.mazeContainer = document.getElementById('maze-container');
 
     this.animate = true;
     this.maxFps = 120;
@@ -1248,6 +1249,10 @@ class GameCoordinator {
     rightCover.style.right = '-50%';
     gameStartButton.style.opacity = 0;
     gameStartButton.disabled = true;
+
+    setTimeout(() => {
+      gameStartButton.style.visibility = 'hidden';
+    }, 1000);
 
     this.init();
   }
@@ -1588,6 +1593,9 @@ class GameCoordinator {
    * Register listeners for various game sequences
    */
   registerEventListeners() {
+    this.mazeContainer.addEventListener(
+      'touchstart', this.handleTouch.bind(this),
+    );
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
     window.addEventListener('awardPoints', this.awardPoints.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
@@ -1598,6 +1606,27 @@ class GameCoordinator {
     window.addEventListener('addTimer', this.addTimer.bind(this));
     window.addEventListener('removeTimer', this.removeTimer.bind(this));
     window.addEventListener('releaseGhost', this.releaseGhost.bind(this));
+  }
+
+  handleTouch(e) {
+    const x = e.clientX;
+    const y = e.clientY;
+    const h = document.documentElement.clientHeight || 0;
+    const w = document.documentElement.clientWidth || 0;
+
+    const blah1 = ((x / w) + (y / h)) < 1 ? 1 : 0;
+    const blah2 = (x / w) > (y / h) ? 1 : 0;
+
+    const directions = [
+      ['down', 'right'],
+      ['left', 'up'],
+    ];
+
+    if (this.allowKeyPresses && this.gameEngine.running) {
+      this.pacman.changeDirection(
+        directions[blah1][blah2], this.allowPacmanMovement,
+      );
+    }
   }
 
   /**
