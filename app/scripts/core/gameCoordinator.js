@@ -493,7 +493,7 @@ class GameCoordinator {
    */
   registerEventListeners() {
     this.mazeContainer.addEventListener(
-      'touchstart', this.handleTouch.bind(this),
+      'mousedown', this.handleTouch.bind(this),
     );
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
     window.addEventListener('awardPoints', this.awardPoints.bind(this));
