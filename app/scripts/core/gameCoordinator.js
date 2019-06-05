@@ -508,8 +508,8 @@ class GameCoordinator {
   }
 
   handleTouch(e) {
-    const x = e.clientX;
-    const y = e.clientY;
+    const x = e.changedTouches[0].clientX;
+    const y = e.changedTouches[0].clientY;
     const h = Math.max(
       document.documentElement.clientHeight, window.innerHeight || 0,
     );
