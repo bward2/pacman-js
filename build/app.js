@@ -1593,9 +1593,6 @@ class GameCoordinator {
    * Register listeners for various game sequences
    */
   registerEventListeners() {
-    this.mazeContainer.addEventListener(
-      'touchstart', this.handleTouch.bind(this),
-    );
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
     window.addEventListener('awardPoints', this.awardPoints.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
@@ -1606,29 +1603,28 @@ class GameCoordinator {
     window.addEventListener('addTimer', this.addTimer.bind(this));
     window.addEventListener('removeTimer', this.removeTimer.bind(this));
     window.addEventListener('releaseGhost', this.releaseGhost.bind(this));
-  }
-
-  handleTouch(e) {
-    const x = e.changedTouches[0].clientX;
-    const y = e.changedTouches[0].clientY;
-    const h = Math.max(
-      document.documentElement.clientHeight, window.innerHeight || 0,
-    );
-    const w = Math.max(
-      document.documentElement.clientWidth, window.innerWidth || 0,
-    );
-
-    const blah1 = ((x / w) + (y / h)) < 1 ? 1 : 0;
-    const blah2 = (x / w) > (y / h) ? 1 : 0;
 
     const directions = [
-      ['down', 'right'],
-      ['left', 'up'],
+      'up', 'down', 'left', 'right',
     ];
 
+    directions.forEach((direction) => {
+      document.getElementById(`button-${direction}`).addEventListener(
+        'touchstart', () => {
+          this.changeDirection(direction);
+        },
+      );
+    });
+  }
+
+  /**
+   * Calls Pacman's changeDirection event if certain conditions are met
+   * @param {({'up'|'down'|'left'|'right'})} direction
+   */
+  changeDirection(direction) {
     if (this.allowKeyPresses && this.gameEngine.running) {
       this.pacman.changeDirection(
-        directions[blah1][blah2], this.allowPacmanMovement,
+        direction, this.allowPacmanMovement,
       );
     }
   }
@@ -1641,12 +1637,8 @@ class GameCoordinator {
     // ESC key
     if (e.keyCode === 27) {
       this.handlePauseKey();
-    } else if (this.movementKeys[e.keyCode] && this.allowKeyPresses) {
-      if (this.gameEngine.running) {
-        this.pacman.changeDirection(
-          this.movementKeys[e.keyCode], this.allowPacmanMovement,
-        );
-      }
+    } else if (this.movementKeys[e.keyCode]) {
+      this.changeDirection(this.movementKeys[e.keyCode]);
     }
   }
 
