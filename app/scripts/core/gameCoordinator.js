@@ -516,6 +516,10 @@ class GameCoordinator {
     });
   }
 
+  /**
+   * Calls Pacman's changeDirection event if certain conditions are met
+   * @param {({'up'|'down'|'left'|'right'})} direction
+   */
   changeDirection(direction) {
     if (this.allowKeyPresses && this.gameEngine.running) {
       this.pacman.changeDirection(
