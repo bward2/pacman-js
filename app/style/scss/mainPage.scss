@@ -1,5 +1,6 @@
 $loading-pacman-duration: 1s;
 $generic-duration: 0.5s;
+$blue: #2121FF;
 
 * {
   font-family: 'Roboto', sans-serif;
@@ -155,4 +156,73 @@ body {
 #dev-message {
   width: 100%;
   text-align: center;
+}
+
+#movement-buttons {
+  position: fixed;
+  bottom: 0;
+  height: 34%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: -3px;
+  }
+
+  button {
+    background: transparent;
+    color: $blue;
+    padding: 0;
+    border: 3px solid $blue;
+    border-radius: 5px;
+    height: 7vh;
+    outline: none;
+    user-select: none;
+  }
+
+  button:active {
+    background: radial-gradient(
+      closest-side, rgba(255, 255, 255, 0.25), transparent,
+    );
+  }
+
+  #button-up {
+    border-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  #button-left {
+    margin-right: calc(7vh - 6px);
+    border-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  #button-right {
+    border-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  #button-down {
+    border-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .material-icons {
+    font-size: 7vh;
+    margin: -3px;
+  }
+}
+
+@media (orientation: landscape) {
+  #movement-buttons {
+    visibility: hidden;
+  }
 }
