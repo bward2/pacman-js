@@ -85,6 +85,7 @@ describe('gameCoordinator', () => {
       comp.init = sinon.fake();
 
       comp.startButtonClick();
+      clock.tick(1000);
       assert(comp.init.called);
     });
   });
@@ -286,6 +287,27 @@ describe('gameCoordinator', () => {
       assert(global.window.addEventListener.calledWith('addTimer'));
       assert(global.window.addEventListener.calledWith('removeTimer'));
       assert(global.window.addEventListener.calledWith('releaseGhost'));
+    });
+
+    it('registers directional button touch events', () => {
+      comp.changeDirection = sinon.fake();
+      global.document = {
+        getElementById: sinon.stub().returns({
+          addEventListener: sinon.stub().callsFake((eventType, callback) => {
+            callback();
+          }),
+        }),
+      };
+
+      comp.registerEventListeners();
+      assert(global.document.getElementById.calledWith('button-up'));
+      assert(global.document.getElementById.calledWith('button-down'));
+      assert(global.document.getElementById.calledWith('button-left'));
+      assert(global.document.getElementById.calledWith('button-right'));
+      assert(comp.changeDirection.calledWith('up'));
+      assert(comp.changeDirection.calledWith('down'));
+      assert(comp.changeDirection.calledWith('left'));
+      assert(comp.changeDirection.calledWith('right'));
     });
   });
 

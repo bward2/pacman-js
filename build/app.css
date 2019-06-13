@@ -16,7 +16,8 @@ body {
   height: 100vh;
   overflow: hidden;
   background-color: black;
-  color: white; }
+  color: white;
+  touch-action: manipulation; }
 
 #fps-display {
   margin: 10px 0 0 10px; }
