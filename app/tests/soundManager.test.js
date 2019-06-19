@@ -77,6 +77,13 @@ describe('soundManager', () => {
       });
     });
 
+    it('does nothing if fetchingAmbience is TRUE', () => {
+      comp.fetchingAmbience = true;
+
+      comp.setAmbience('some_sound');
+      assert(!arraySpy.called);
+    });
+
     it('loops an ambient sound', async () => {
       await comp.setAmbience('some_sound');
       assert(global.fetch.calledWith('app/style/audio/some_sound.mp3'));
