@@ -1855,7 +1855,10 @@ class GameCoordinator {
    * Upon eating a power pellet, sets the ghosts to 'scared' mode
    */
   powerUp() {
-    this.soundManager.setAmbience('power_up');
+    if (this.remainingDots !== 0) {
+      this.soundManager.setAmbience('power_up');
+    }
+
     this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
 
     this.ghostCombo = 0;
