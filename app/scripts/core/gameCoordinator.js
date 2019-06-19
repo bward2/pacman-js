@@ -813,6 +813,7 @@ class GameCoordinator {
       const ghostRef = ghost;
       ghostRef.animate = false;
       ghostRef.pause(true);
+      ghostRef.allowCollision = false;
     });
 
     new Timer(() => {
@@ -828,6 +829,7 @@ class GameCoordinator {
         const ghostRef = ghost;
         ghostRef.animate = true;
         ghostRef.pause(false);
+        ghostRef.allowCollision = true;
       });
     }, pauseDuration);
   }
@@ -864,6 +866,7 @@ class GameCoordinator {
     pointsDiv.style.height = `${height || width}px`;
     pointsDiv.style.top = `${position.top}px`;
     pointsDiv.style.left = `${position.left}px`;
+    pointsDiv.style.zIndex = 2;
 
     this.mazeDiv.appendChild(pointsDiv);
 

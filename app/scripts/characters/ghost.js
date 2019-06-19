@@ -30,6 +30,7 @@ class Ghost {
    * Sets the default mode and idleMode behavior
    */
   setDefaultMode() {
+    this.allowCollision = true;
     this.defaultMode = 'scatter';
     this.mode = 'scatter';
     if (this.name !== 'blinky') {
@@ -753,7 +754,9 @@ class Ghost {
    * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array
    */
   checkCollision(position, pacman) {
-    if (this.calculateDistance(position, pacman) < 1 && this.mode !== 'eyes') {
+    if (this.calculateDistance(position, pacman) < 1
+      && this.mode !== 'eyes'
+      && this.allowCollision) {
       if (this.mode === 'scared') {
         window.dispatchEvent(new CustomEvent('eatGhost', {
           detail: {

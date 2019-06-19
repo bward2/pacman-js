@@ -30,6 +30,7 @@ class Ghost {
    * Sets the default mode and idleMode behavior
    */
   setDefaultMode() {
+    this.allowCollision = true;
     this.defaultMode = 'scatter';
     this.mode = 'scatter';
     if (this.name !== 'blinky') {
@@ -753,7 +754,9 @@ class Ghost {
    * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array
    */
   checkCollision(position, pacman) {
-    if (this.calculateDistance(position, pacman) < 1 && this.mode !== 'eyes') {
+    if (this.calculateDistance(position, pacman) < 1
+      && this.mode !== 'eyes'
+      && this.allowCollision) {
       if (this.mode === 'scared') {
         window.dispatchEvent(new CustomEvent('eatGhost', {
           detail: {
@@ -1914,6 +1917,7 @@ class GameCoordinator {
       const ghostRef = ghost;
       ghostRef.animate = false;
       ghostRef.pause(true);
+      ghostRef.allowCollision = false;
     });
 
     new Timer(() => {
@@ -1929,6 +1933,7 @@ class GameCoordinator {
         const ghostRef = ghost;
         ghostRef.animate = true;
         ghostRef.pause(false);
+        ghostRef.allowCollision = true;
       });
     }, pauseDuration);
   }
@@ -1965,6 +1970,7 @@ class GameCoordinator {
     pointsDiv.style.height = `${height || width}px`;
     pointsDiv.style.top = `${position.top}px`;
     pointsDiv.style.left = `${position.left}px`;
+    pointsDiv.style.zIndex = 2;
 
     this.mazeDiv.appendChild(pointsDiv);
 
@@ -2710,21 +2716,28 @@ class SoundManager {
    * @param {String} sound
    */
   async setAmbience(sound) {
-    this.currentAmbience = sound;
+    if (!this.fetchingAmbience) {
+      this.fetchingAmbience = true;
+      this.currentAmbience = sound;
 
-    if (this.ambienceSource) {
-      this.ambienceSource.stop();
+      if (this.ambienceSource) {
+        this.ambienceSource.stop();
+      }
+
+      const response = await fetch(
+        `${this.baseUrl}${sound}.${this.fileFormat}`,
+      );
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await this.ambience.decodeAudioData(arrayBuffer);
+
+      this.ambienceSource = this.ambience.createBufferSource();
+      this.ambienceSource.buffer = audioBuffer;
+      this.ambienceSource.connect(this.ambience.destination);
+      this.ambienceSource.loop = true;
+      this.ambienceSource.start();
+
+      this.fetchingAmbience = false;
     }
-
-    const response = await fetch(`${this.baseUrl}${sound}.${this.fileFormat}`);
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await this.ambience.decodeAudioData(arrayBuffer);
-
-    this.ambienceSource = this.ambience.createBufferSource();
-    this.ambienceSource.buffer = audioBuffer;
-    this.ambienceSource.connect(this.ambience.destination);
-    this.ambienceSource.loop = true;
-    this.ambienceSource.start();
   }
 
   /**

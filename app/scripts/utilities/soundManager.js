@@ -50,21 +50,28 @@ class SoundManager {
    * @param {String} sound
    */
   async setAmbience(sound) {
-    this.currentAmbience = sound;
+    if (!this.fetchingAmbience) {
+      this.fetchingAmbience = true;
+      this.currentAmbience = sound;
 
-    if (this.ambienceSource) {
-      this.ambienceSource.stop();
+      if (this.ambienceSource) {
+        this.ambienceSource.stop();
+      }
+
+      const response = await fetch(
+        `${this.baseUrl}${sound}.${this.fileFormat}`,
+      );
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await this.ambience.decodeAudioData(arrayBuffer);
+
+      this.ambienceSource = this.ambience.createBufferSource();
+      this.ambienceSource.buffer = audioBuffer;
+      this.ambienceSource.connect(this.ambience.destination);
+      this.ambienceSource.loop = true;
+      this.ambienceSource.start();
+
+      this.fetchingAmbience = false;
     }
-
-    const response = await fetch(`${this.baseUrl}${sound}.${this.fileFormat}`);
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await this.ambience.decodeAudioData(arrayBuffer);
-
-    this.ambienceSource = this.ambience.createBufferSource();
-    this.ambienceSource.buffer = audioBuffer;
-    this.ambienceSource.connect(this.ambience.destination);
-    this.ambienceSource.loop = true;
-    this.ambienceSource.start();
   }
 
   /**
