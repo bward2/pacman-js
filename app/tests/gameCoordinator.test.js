@@ -739,11 +739,17 @@ describe('gameCoordinator', () => {
   });
 
   describe('powerUp', () => {
+    beforeEach(() => {
+      comp.removeTimer = sinon.fake();
+      comp.ghosts = [
+        { becomeScared: sinon.fake(), mode: 'eyes' },
+        { becomeScared: sinon.fake(), mode: 'chase' },
+      ];
+      comp.flashGhosts = sinon.fake();
+    });
+
     it('establishes scaredGhosts and calls flashGhosts', () => {
       comp.timerExists = sinon.fake.returns(true);
-      comp.removeTimer = sinon.fake();
-      comp.ghosts = [{ becomeScared: sinon.fake() }];
-      comp.flashGhosts = sinon.fake();
 
       comp.powerUp();
       clock.tick(6000);
@@ -754,15 +760,17 @@ describe('gameCoordinator', () => {
 
     it('won\'t push EYES mode ghosts to the scaredGhosts array', () => {
       comp.timerExists = sinon.fake.returns(false);
-      comp.removeTimer = sinon.fake();
-      comp.ghosts = [
-        { becomeScared: sinon.fake(), mode: 'eyes' },
-        { becomeScared: sinon.fake(), mode: 'chase' },
-      ];
-      comp.flashGhosts = sinon.fake();
 
       comp.powerUp();
       assert.strictEqual(comp.scaredGhosts.length, 1);
+    });
+
+    it('calls setAmbience if remainingDots is greater than zero', () => {
+      comp.soundManager.setAmbience = sinon.fake();
+      comp.remainingDots = 1;
+
+      comp.powerUp();
+      assert(comp.soundManager.setAmbience.called);
     });
   });
 
