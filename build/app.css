@@ -68,13 +68,13 @@ body {
   margin-top: 25vh; }
 
 #game-start {
-  background-color: #ff5e00;
-  color: white;
+  background-color: #FCC73F;
+  color: #231F20;
   font-size: 48px;
   border-radius: 10px;
-  border: none;
+  border: 5px solid #231F20;
   padding: 16px;
-  box-shadow: 5px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 5px 5px #EE2A29;
   outline: none;
   cursor: pointer; }
 
