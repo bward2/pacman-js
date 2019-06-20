@@ -1244,17 +1244,18 @@ class GameCoordinator {
    * Reveals the game underneath the loading covers and starts gameplay
    */
   startButtonClick() {
+    const mainMenu = document.getElementById('main-menu-container');
     const gameStartButton = document.getElementById('game-start');
     const leftCover = document.getElementById('left-cover');
     const rightCover = document.getElementById('right-cover');
 
     leftCover.style.left = '-50%';
     rightCover.style.right = '-50%';
-    gameStartButton.style.opacity = 0;
+    mainMenu.style.opacity = 0;
     gameStartButton.disabled = true;
 
     setTimeout(() => {
-      gameStartButton.style.visibility = 'hidden';
+      mainMenu.style.visibility = 'hidden';
     }, 1000);
 
     this.init();
@@ -1393,9 +1394,9 @@ class GameCoordinator {
 
         setTimeout(() => {
           loadingContainer.remove();
-          const gameStartButton = document.getElementById('game-start');
-          gameStartButton.style.opacity = 1;
-          gameStartButton.style.visibility = 'visible';
+          const mainMenu = document.getElementById('main-menu-container');
+          mainMenu.style.opacity = 1;
+          mainMenu.style.visibility = 'visible';
         }, 1500);
       });
     });
