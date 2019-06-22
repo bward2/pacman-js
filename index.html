@@ -20,15 +20,15 @@
   </head>
 
   <body>
-    <div id='overflow-mask'>
-      <img id='backdrop' src='app/style/graphics/backdrop.png'>
+    <div id='overflow-mask' class='overflow-mask'>
+      <img id='backdrop' class='backdrop' src='app/style/graphics/backdrop.png'>
 
-      <div id='fps-display'></div>
-      <div id='preload-div'></div>
+      <div id='fps-display' class='fps-display'></div>
+      <div id='preload-div' class='preload-div'></div>
 
-      <div id='main-menu-container'>
-        <img id='logo' src='app/style/graphics/pacman_logo.png'>
-        <button id='game-start'>
+      <div id='main-menu-container' class='main-menu-container'>
+        <img id='logo' class='logo' src='app/style/graphics/pacman_logo.png'>
+        <button id='game-start' class='game-start'>
           PLAY
         </button>
       </div>
@@ -46,22 +46,22 @@
         </div>
       </div>
 
-      <div id='movement-buttons'>
+      <div id='movement-buttons' class='movement-buttons'>
         <div class='row'>
-          <button id='button-up'>
+          <button id='button-up' class='button-up'>
             <i class="material-icons">keyboard_arrow_up</i>
           </button>
         </div>
         <div class='row'>
-          <button id='button-left'>
+          <button id='button-left' class='button-left'>
             <i class="material-icons">keyboard_arrow_left</i>
           </button>
-          <button id='button-right'>
+          <button id='button-right' class='button-right'>
             <i class="material-icons">keyboard_arrow_right</i>
           </button>
         </div>
         <div class='row'>
-          <button id='button-down'>
+          <button id='button-down' class='button-down'>
             <i class="material-icons">keyboard_arrow_down</i>
           </button>
         </div>
@@ -69,9 +69,9 @@
 
       <div id='left-cover' class='loading-cover left'></div>
       <div id='right-cover' class='loading-cover right'></div>
-      <div id='loading-container'>
-        <div id='loading-pacman'></div>
-        <div id='loading-dot-mask'></div>
+      <div id='loading-container' class='loading-container'>
+        <div id='loading-pacman' class='loading-pacman'></div>
+        <div id='loading-dot-mask' class='loading-dot-mask'></div>
         <div class='loading-dot _5'></div>
         <div class='loading-dot _10'></div>
         <div class='loading-dot _15'></div>
