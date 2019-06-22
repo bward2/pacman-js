@@ -1,6 +1,6 @@
 .ghost {
-  position: absolute;
   margin: 0;
+  position: absolute;
   z-index: 2; }
 
 * {
@@ -239,36 +239,36 @@ body {
   #movement-buttons {
     visibility: hidden; } }
 
-#maze-container {
+.maze-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  left: 0;
   position: fixed;
   top: 0;
-  left: 0;
   width: 100%; }
 
 @media (orientation: landscape) {
-  #maze-container {
+  .maze-container {
     height: 100%; } }
 
 @media (orientation: portrait) {
-  #maze-container {
+  .maze-container {
     height: 66%; } }
 
-#maze-cover {
-  position: absolute;
+.maze-cover {
+  background: #000;
   height: 100%;
+  position: absolute;
+  visibility: hidden;
   width: 100%;
-  background: black;
-  z-index: 3;
-  visibility: hidden; }
+  z-index: 3; }
 
-#maze {
+.maze {
   margin: 0 auto;
   position: relative; }
 
-#maze-img {
+.maze-img {
   position: absolute;
   user-select: none;
   width: 100%; }
@@ -276,12 +276,7 @@ body {
 .maze-row {
   display: flex; }
 
-#pacman {
+.pacman {
+  margin: 0;
   position: absolute;
-  z-index: 1;
-  margin: 0; }
-
-#pacman-arrow {
-  position: absolute;
-  z-index: 1;
-  margin: 0; }
+  z-index: 1; }

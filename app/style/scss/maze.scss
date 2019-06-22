@@ -1,40 +1,42 @@
-#maze-container {
+@import 'variables';
+
+.maze-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  left: 0;
   position: fixed;
   top: 0;
-  left: 0;
   width: 100%;
 }
 
 @media (orientation: landscape) {
-  #maze-container {
+  .maze-container {
     height: 100%;
   }
 }
 
 @media (orientation: portrait) {
-  #maze-container {
+  .maze-container {
     height: 66%;
   }
 }
 
-#maze-cover {
-  position: absolute;
+.maze-cover {
+  background: $black;
   height: 100%;
-  width: 100%;
-  background: black;
-  z-index: 3;
+  position: absolute;
   visibility: hidden;
+  width: 100%;
+  z-index: 3;
 }
 
-#maze {
+.maze {
   margin: 0 auto;
   position: relative;
 }
 
-#maze-img {
+.maze-img {
   position: absolute;
   user-select: none;
   width: 100%;
