@@ -25,7 +25,8 @@ body {
 
 #fps-display {
   margin: 10px 0 0 10px;
-  position: absolute; }
+  position: absolute;
+  visibility: hidden; }
 
 #preload-div {
   visibility: hidden;
@@ -189,12 +190,6 @@ body {
 
 ._95 {
   left: 95%; }
-
-#dev-message {
-  width: 100%;
-  text-align: center;
-  position: absolute;
-  margin-top: 10px; }
 
 #movement-buttons {
   position: fixed;

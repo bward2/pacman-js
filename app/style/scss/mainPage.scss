@@ -29,6 +29,7 @@ body {
 #fps-display {
   margin: 10px 0 0 10px;
   position: absolute;
+  visibility: hidden;
 }
 
 #preload-div {
@@ -126,7 +127,9 @@ body {
 }
 
 @keyframes loading-animation {
-  100% { background-position: -192px };
+  100% {
+    background-position: -192px;
+  }
 }
 
 #loading-dot-mask {
@@ -169,13 +172,6 @@ body {
 ._85 { left: 85%; }
 ._90 { left: 90%; }
 ._95 { left: 95%; }
-
-#dev-message {
-  width: 100%;
-  text-align: center;
-  position: absolute;
-  margin-top: 10px;
-}
 
 #movement-buttons {
   position: fixed;
