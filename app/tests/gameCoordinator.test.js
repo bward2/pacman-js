@@ -803,12 +803,21 @@ describe('gameCoordinator', () => {
       };
       comp.scaredGhosts = [ghost];
       comp.determineComboPoints = sinon.fake();
+      global.window.dispatchEvent = sinon.fake();
+      global.CustomEvent = class { };
 
       comp.eatGhost(e);
       assert(!comp.allowPacmanMovement);
       assert(!e.detail.ghost.display);
       assert(!comp.pacman.moving);
       assert(!comp.blinky.moving);
+      assert(global.window.dispatchEvent.calledWith(
+        new CustomEvent('awardPoints', {
+          detail: {
+            points: 200,
+          },
+        }),
+      ));
       assert(comp.displayText.called);
       assert(comp.determineComboPoints.called);
 
