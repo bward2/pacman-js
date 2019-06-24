@@ -157,6 +157,7 @@ describe('gameCoordinator', () => {
     it('creates the maze and adds entities for a given maze array', () => {
       const entityList = [];
       comp.mazeDiv.style = {};
+      comp.gameUi.style = {};
 
       comp.drawMaze(mazeArray, entityList);
       assert.strictEqual(
@@ -164,6 +165,9 @@ describe('gameCoordinator', () => {
       );
       assert.strictEqual(
         comp.mazeDiv.style.width, `${comp.scaledTileSize * 28}px`,
+      );
+      assert.strictEqual(
+        comp.gameUi.style.width, `${comp.scaledTileSize * 28}px`,
       );
       assert.strictEqual(entityList.length, 2);
     });
