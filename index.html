@@ -13,7 +13,6 @@
 
     <script src='build/app.js'></script>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">
@@ -35,10 +34,16 @@
       </div>
 
       <div id='game-ui' class='game-ui'>
-        <div id='points-display' class='points-display'></div>
-      </div>
-
-      <div id='maze-container' class='maze-container'>
+        <div class='row top'>
+          <div class='column _25'>
+            <div class='one-up'>1UP</div>
+            <div id='points-display'>00</div>
+          </div>
+          <div class='column _50'>
+            <div>HIGH SCORE</div>
+            <div>00</div>
+          </div>
+        </div>
         <div id='maze' class='maze'>
           <img id='maze-img' class='maze-img' src='app/style//graphics/spriteSheets/maze/maze_blue.svg'>
           <div id='maze-cover' class='maze-cover'></div>
@@ -48,6 +53,9 @@
           <p id='inky' class='ghost'></p>
           <p id='pinky' class='ghost'></p>
           <p id='blinky' class='ghost'></p>
+        </div>
+        <div>
+          Stuff
         </div>
       </div>
 

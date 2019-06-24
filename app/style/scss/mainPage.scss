@@ -12,7 +12,9 @@ body {
 .overflow-mask {
   background-color: $black;
   color: $white;
+  display: flex;
   height: 100vh;
+  justify-content: center;
   margin: 0;
   overflow: hidden;
   position: relative;
@@ -25,8 +27,9 @@ body {
 }
 
 .fps-display {
-  margin: 10px 0 0 10px;
+  left: 10px;
   position: absolute;
+  top: 10px;
   visibility: hidden;
 }
 
@@ -37,6 +40,63 @@ body {
   flex-wrap: wrap-reverse;
   position: absolute;
   visibility: hidden;
+}
+
+.game-ui {
+  display: flex;
+  flex-direction: column;
+  font-size: 25px;
+  justify-content: center;
+  line-height: 1.5;
+
+  .one-up {
+    animation: blink .6s infinite;
+  }
+
+  @keyframes blink {
+    0% {opacity: 0}
+    49%{opacity: 0}
+    50% {opacity: 1}
+  }
+
+  .row {
+    display: flex;
+  }
+
+  .top {
+    margin-bottom: 10px;
+
+    ._25 {
+      width: 25%;
+    }
+
+    ._50 {
+      width: 50%;
+    }
+
+    .column {
+      :first-child {
+        text-align: center;
+      }
+
+      :not(:first-child) {
+        margin-right: calc(50% - 3em);
+        text-align: right;
+      }
+    }
+  }
+}
+
+@media (orientation: landscape) {
+  .game-ui {
+    height: 100%;
+  }
+}
+
+@media (orientation: portrait) {
+  .game-ui {
+    height: 66%;
+  }
 }
 
 .loading-cover {

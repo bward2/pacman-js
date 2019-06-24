@@ -1104,6 +1104,7 @@ class Pacman {
 
 class GameCoordinator {
   constructor() {
+    this.gameUi = document.getElementById('game-ui');
     this.mazeDiv = document.getElementById('maze');
     this.mazeImg = document.getElementById('maze-img');
     this.mazeCover = document.getElementById('maze-cover');
@@ -1477,6 +1478,7 @@ class GameCoordinator {
   drawMaze(mazeArray, entityList) {
     this.mazeDiv.style.height = `${this.scaledTileSize * 31}px`;
     this.mazeDiv.style.width = `${this.scaledTileSize * 28}px`;
+    this.gameUi.style.width = `${this.scaledTileSize * 28}px`;
 
     mazeArray.forEach((row, rowIndex) => {
       row.forEach((block, columnIndex) => {

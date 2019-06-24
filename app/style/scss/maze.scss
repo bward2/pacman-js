@@ -1,27 +1,5 @@
 @import 'variables';
 
-.maze-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  left: 0;
-  position: fixed;
-  top: 0;
-  width: 100%;
-}
-
-@media (orientation: landscape) {
-  .maze-container {
-    height: 100%;
-  }
-}
-
-@media (orientation: portrait) {
-  .maze-container {
-    height: 66%;
-  }
-}
-
 .maze-cover {
   background: $black;
   height: 100%;
