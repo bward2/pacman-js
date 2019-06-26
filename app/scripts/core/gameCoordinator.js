@@ -5,6 +5,7 @@ class GameCoordinator {
     this.mazeImg = document.getElementById('maze-img');
     this.mazeCover = document.getElementById('maze-cover');
     this.pointsDisplay = document.getElementById('points-display');
+    this.highScoreDisplay = document.getElementById('high-score-display');
 
     this.animate = true;
     this.maxFps = 120;
@@ -581,6 +582,9 @@ class GameCoordinator {
   awardPoints(e) {
     this.points += e.detail.points;
     this.pointsDisplay.innerText = this.points;
+    if (this.points > (this.highScore || 0)) {
+      this.highScoreDisplay.innerText = this.points;
+    }
 
     if (e.detail.type === 'fruit') {
       const left = e.detail.points >= 1000
