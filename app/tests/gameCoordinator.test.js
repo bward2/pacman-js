@@ -454,10 +454,23 @@ describe('gameCoordinator', () => {
   describe('awardPoints', () => {
     it('adds to the total number of points', () => {
       comp.points = 0;
+
       comp.awardPoints(
         { detail: { points: 50 } },
       );
       assert.strictEqual(comp.points, 50);
+      assert.strictEqual(comp.highScoreDisplay.innerText, 50);
+    });
+
+    it('only updates the highScore when it is surpassed', () => {
+      comp.points = 0;
+      comp.highScore = 100;
+
+      comp.awardPoints(
+        { detail: { points: 50 } },
+      );
+      assert.strictEqual(comp.points, 50);
+      assert.strictEqual(comp.highScore, 100);
     });
 
     it('calls displayText when a fruit is eaten', () => {

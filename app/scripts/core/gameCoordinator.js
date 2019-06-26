@@ -583,6 +583,7 @@ class GameCoordinator {
     this.points += e.detail.points;
     this.pointsDisplay.innerText = this.points;
     if (this.points > (this.highScore || 0)) {
+      this.highScore = this.points;
       this.highScoreDisplay.innerText = this.points;
     }
 
