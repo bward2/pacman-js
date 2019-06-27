@@ -71,6 +71,13 @@ body {
   .game-ui .bottom {
     justify-content: space-between;
     margin-top: 10px; }
+    .game-ui .bottom .extra-lives {
+      align-items: flex-start;
+      display: flex; }
+      .game-ui .bottom .extra-lives img {
+        height: 48px; }
+      .game-ui .bottom .extra-lives :not(:first-child) {
+        margin-left: 5px; }
 
 @media (orientation: landscape) {
   .game-ui {

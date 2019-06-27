@@ -6,6 +6,7 @@ class GameCoordinator {
     this.mazeCover = document.getElementById('maze-cover');
     this.pointsDisplay = document.getElementById('points-display');
     this.highScoreDisplay = document.getElementById('high-score-display');
+    this.extraLivesDisplay = document.getElementById('extra-lives');
 
     this.animate = true;
     this.maxFps = 120;
@@ -15,6 +16,7 @@ class GameCoordinator {
     this.activeTimers = [];
     this.points = 0;
     this.level = 1;
+    this.lives = 2;
     this.remainingDots = 0;
 
     this.movementKeys = {
@@ -436,6 +438,7 @@ class GameCoordinator {
     const height = this.scaledTileSize * 2;
 
     this.displayText({ left, top }, 'ready', duration, width, height);
+    this.updateExtraLivesDisplay();
 
     new Timer(() => {
       this.allowPause = true;
@@ -459,6 +462,21 @@ class GameCoordinator {
       ];
       this.releaseGhost();
     }, duration);
+  }
+
+  /**
+   * Displays extra life images equal to the number of remaining lives
+   */
+  updateExtraLivesDisplay() {
+    while (this.extraLivesDisplay.firstChild) {
+      this.extraLivesDisplay.removeChild(this.extraLivesDisplay.firstChild);
+    }
+
+    for (let i = 0; i < this.lives; i += 1) {
+      const extraLifePic = document.createElement('img');
+      extraLifePic.setAttribute('src', 'app/style/graphics/extra_life.svg');
+      this.extraLivesDisplay.appendChild(extraLifePic);
+    }
   }
 
   /**
@@ -629,20 +647,27 @@ class GameCoordinator {
       });
       this.pacman.prepDeathAnimation();
       this.soundManager.play('death');
-      new Timer(() => {
-        this.mazeCover.style.visibility = 'visible';
-        new Timer(() => {
-          this.allowKeyPresses = true;
-          this.mazeCover.style.visibility = 'hidden';
-          this.pacman.reset();
-          this.ghosts.forEach((ghost) => {
-            ghost.reset();
-          });
-          this.fruit.hideFruit();
 
-          this.startGameplay();
-        }, 500);
-      }, 2250);
+      if (this.lives > 0) {
+        this.lives -= 1;
+
+        new Timer(() => {
+          this.mazeCover.style.visibility = 'visible';
+          new Timer(() => {
+            this.allowKeyPresses = true;
+            this.mazeCover.style.visibility = 'hidden';
+            this.pacman.reset();
+            this.ghosts.forEach((ghost) => {
+              ghost.reset();
+            });
+            this.fruit.hideFruit();
+
+            this.startGameplay();
+          }, 500);
+        }, 2250);
+      } else {
+        // TODO: Gameover logic
+      }
     }, 750);
   }
 

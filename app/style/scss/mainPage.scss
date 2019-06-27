@@ -89,6 +89,19 @@ body {
   .bottom {
     justify-content: space-between;
     margin-top: 10px;
+
+    .extra-lives {
+      align-items: flex-start;
+      display: flex;
+
+      img {
+        height: 48px;
+      }
+
+      :not(:first-child) {
+        margin-left: 5px;
+      }
+    }
   }
 }
 
