@@ -257,12 +257,16 @@ class GameCoordinator {
 
         // Maze
         `${imgBase}maze/maze_blue.svg`,
+
+        // Misc
+        'app/style/graphics/extra_life.png',
       ];
 
       const audioBase = 'app/style/audio/';
       const audioSources = [
         `${audioBase}game_start.mp3`,
         `${audioBase}pause.mp3`,
+        `${audioBase}pause_beat.mp3`,
         `${audioBase}siren_1.mp3`,
         `${audioBase}siren_2.mp3`,
         `${audioBase}siren_3.mp3`,
