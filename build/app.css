@@ -68,6 +68,9 @@ body {
     .game-ui .top .column :not(:first-child) {
       margin-right: calc(50% - 3em);
       text-align: right; }
+  .game-ui .bottom {
+    justify-content: space-between;
+    margin-top: 10px; }
 
 @media (orientation: landscape) {
   .game-ui {
