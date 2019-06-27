@@ -59,6 +59,7 @@ describe('gameCoordinator', () => {
           add: () => { },
         },
         appendChild: () => { },
+        setAttribute: () => { },
         style: {},
       }),
     };
@@ -193,6 +194,7 @@ describe('gameCoordinator', () => {
   describe('startGameplay', () => {
     it('calls displayText, then kicks off movement', () => {
       comp.displayText = sinon.fake();
+      comp.updateExtraLivesDisplay = sinon.fake();
       const ambientSpy = sinon.fake();
       comp.soundManager = {
         setAmbience: ambientSpy,
@@ -209,6 +211,7 @@ describe('gameCoordinator', () => {
         comp.scaledTileSize * 6,
         comp.scaledTileSize * 2,
       ));
+      assert(comp.updateExtraLivesDisplay.called);
 
       clock.tick(2000);
       assert(comp.allowPacmanMovement);
@@ -220,6 +223,7 @@ describe('gameCoordinator', () => {
 
     it('waits longer for the initialStart', () => {
       comp.displayText = sinon.fake();
+      comp.updateExtraLivesDisplay = sinon.fake();
       const playSpy = sinon.fake();
       const ambientSpy = sinon.fake();
       comp.soundManager = {
@@ -239,6 +243,7 @@ describe('gameCoordinator', () => {
         comp.scaledTileSize * 6,
         comp.scaledTileSize * 2,
       ));
+      assert(comp.updateExtraLivesDisplay.called);
 
       clock.tick(4500);
       assert(comp.allowPacmanMovement);
@@ -246,6 +251,24 @@ describe('gameCoordinator', () => {
       assert(comp.soundManager.setAmbience.calledWith(
         comp.determineSiren(comp.remainingDots),
       ));
+    });
+  });
+
+  describe('updateExtraLivesDisplay', () => {
+    it('displays extra life images for each remaining life', () => {
+      comp.extraLivesDisplay.firstChild = true;
+      comp.extraLivesDisplay.removeChild = sinon.stub(() => {
+        comp.extraLivesDisplay.firstChild = false;
+      });
+      const spy = sinon.fake();
+      global.document.createElement = () => ({
+        setAttribute: spy,
+      });
+      comp.lives = 3;
+
+      comp.updateExtraLivesDisplay();
+      assert(spy.calledWith('src', 'app/style/graphics/extra_life.svg'));
+      assert(spy.calledThrice);
     });
   });
 
@@ -515,11 +538,12 @@ describe('gameCoordinator', () => {
   });
 
   describe('deathSequence', () => {
-    it('kills Pacman, subtracts a life, and resets the characters', () => {
+    beforeEach(() => {
       comp.allowKeyPresses = true;
       comp.blinky.display = true;
       comp.pacman.moving = true;
       comp.blinky.moving = true;
+      comp.lives = 2;
       comp.mazeCover.style = {
         visibility: 'hidden',
       };
@@ -527,7 +551,10 @@ describe('gameCoordinator', () => {
       comp.pacman.reset = sinon.fake();
       comp.blinky.reset = sinon.fake();
       comp.fruit.hideFruit = sinon.fake();
+      comp.updateExtraLivesDisplay = sinon.fake();
+    });
 
+    it('kills Pacman, subtracts a life, and resets the characters', () => {
       comp.deathSequence();
       assert(!comp.allowKeyPresses);
       assert(!comp.pacman.moving);
@@ -536,6 +563,7 @@ describe('gameCoordinator', () => {
       clock.tick(750);
       assert(!comp.blinky.display);
       assert(comp.pacman.prepDeathAnimation.called);
+      assert.strictEqual(comp.lives, 1);
 
       clock.tick(2250);
       assert.strictEqual(comp.mazeCover.style.visibility,
@@ -556,6 +584,15 @@ describe('gameCoordinator', () => {
 
       comp.deathSequence();
       assert(comp.removeTimer.called);
+    });
+
+    it('handles Game Over if needed', () => {
+      comp.lives = 0;
+
+      comp.deathSequence();
+
+      clock.tick(750);
+      // TODO: Gameover logic
     });
   });
 
@@ -690,6 +727,7 @@ describe('gameCoordinator', () => {
       comp.mazeCover = { style: {} };
       comp.remainingDots = 0;
       comp.removeTimer = sinon.fake();
+      comp.updateExtraLivesDisplay = sinon.fake();
 
       comp.advanceLevel();
       assert(!comp.allowKeyPresses);
