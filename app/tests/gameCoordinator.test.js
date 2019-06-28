@@ -71,6 +71,9 @@ describe('gameCoordinator', () => {
 
     clock = sinon.useFakeTimers();
     comp = new GameCoordinator();
+    comp.mazeDiv.style = {};
+    comp.gameUi.style = {};
+    comp.reset();
     comp.soundManager = new SoundManager();
   });
 
@@ -138,16 +141,12 @@ describe('gameCoordinator', () => {
   describe('init', () => {
     it('calls necessary setup functions to start the game', () => {
       comp.registerEventListeners = sinon.fake();
-      comp.drawMaze = sinon.fake();
       comp.collisionDetectionLoop = sinon.fake();
-      comp.startGameplay = sinon.fake();
       global.SoundManager = class { };
 
       comp.init();
       assert(comp.registerEventListeners.called);
-      assert(comp.drawMaze.calledWith(comp.mazeArray, comp.entityList));
       assert(!comp.collisionDetectionLoop.called);
-      assert(comp.startGameplay.calledWith(true));
 
       clock.tick(500);
       assert(comp.collisionDetectionLoop.called);

@@ -1112,16 +1112,11 @@ class GameCoordinator {
     this.highScoreDisplay = document.getElementById('high-score-display');
     this.extraLivesDisplay = document.getElementById('extra-lives');
 
-    this.animate = true;
     this.maxFps = 120;
     this.tileSize = 8;
     this.scale = 3;
     this.scaledTileSize = this.tileSize * this.scale;
-    this.activeTimers = [];
-    this.points = 0;
-    this.level = 1;
-    this.lives = 2;
-    this.remainingDots = 0;
+    this.firstGame = true;
 
     this.movementKeys = {
       // WASD
@@ -1147,11 +1142,6 @@ class GameCoordinator {
       7: 3000,
       8: 5000,
     };
-
-    this.allowKeyPresses = true;
-    this.allowPacmanMovement = false;
-    this.allowPause = false;
-    this.cutscene = true;
 
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
@@ -1191,46 +1181,6 @@ class GameCoordinator {
       this.mazeArray[rowIndex] = row[0].split('');
     });
 
-    this.entityList = [
-      this.pacman = new Pacman(
-        this.scaledTileSize, this.mazeArray, new CharacterUtil(),
-      ),
-      this.blinky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
-        this.level, new CharacterUtil(),
-      ),
-      this.pinky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
-        this.level, new CharacterUtil(),
-      ),
-      this.inky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'inky',
-        this.level, new CharacterUtil(), this.blinky,
-      ),
-      this.clyde = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'clyde',
-        this.level, new CharacterUtil(),
-      ),
-      this.fruit = new Pickup(
-        'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
-        this.mazeDiv, 100,
-      ),
-    ];
-
-    this.ghosts = [
-      this.blinky,
-      this.pinky,
-      this.inky,
-      this.clyde,
-    ];
-
-    this.scaredGhosts = [];
-    this.eyeGhosts = 0;
-
-    this.pickups = [
-      this.fruit,
-    ];
-
     const gameStartButton = document.getElementById('game-start');
     gameStartButton.addEventListener('click', this.startButtonClick.bind(this));
 
@@ -1262,7 +1212,12 @@ class GameCoordinator {
       mainMenu.style.visibility = 'hidden';
     }, 1000);
 
-    this.init();
+    this.reset();
+    if (this.firstGame) {
+      this.firstGame = false;
+      this.init();
+    }
+    this.startGameplay(true);
   }
 
   /**
@@ -1459,22 +1414,88 @@ class GameCoordinator {
     });
   }
 
+  reset() {
+    this.activeTimers = [];
+    this.points = 0;
+    this.level = 1;
+    this.lives = 2;
+    this.remainingDots = 0;
+    this.allowKeyPresses = true;
+    this.allowPacmanMovement = false;
+    this.allowPause = false;
+    this.cutscene = true;
+
+    if (this.firstGame) {
+      setInterval(() => {
+        this.collisionDetectionLoop();
+      }, 500);
+
+      this.pacman = new Pacman(
+        this.scaledTileSize, this.mazeArray, new CharacterUtil(),
+      );
+      this.blinky = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
+        this.level, new CharacterUtil(),
+      );
+      this.pinky = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
+        this.level, new CharacterUtil(),
+      );
+      this.inky = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'inky',
+        this.level, new CharacterUtil(), this.blinky,
+      );
+      this.clyde = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'clyde',
+        this.level, new CharacterUtil(),
+      );
+      this.fruit = new Pickup(
+        'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
+        this.mazeDiv, 100,
+      );
+    }
+
+    this.entityList = [
+      this.pacman, this.blinky, this.pinky, this.inky, this.clyde, this.fruit,
+    ];
+
+    this.ghosts = [
+      this.blinky,
+      this.pinky,
+      this.inky,
+      this.clyde,
+    ];
+
+    this.scaredGhosts = [];
+    this.eyeGhosts = 0;
+
+    if (this.firstGame) {
+      this.drawMaze(this.mazeArray, this.entityList);
+    } else {
+      this.pacman.reset();
+      this.ghosts.forEach((ghost) => {
+        ghost.reset();
+      });
+      this.pickups.forEach((pickup) => {
+        if (pickup.type !== 'fruit') {
+          this.remainingDots += 1;
+          pickup.reset();
+          this.entityList.push(pickup);
+        }
+      });
+    }
+  }
+
   /**
    * Calls necessary setup functions to start the game
    */
   init() {
     this.registerEventListeners();
-    this.drawMaze(this.mazeArray, this.entityList);
-    setInterval(() => {
-      this.collisionDetectionLoop();
-    }, 500);
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
 
     this.soundManager = new SoundManager();
-
-    this.startGameplay(true);
   }
 
   /**
@@ -1483,9 +1504,14 @@ class GameCoordinator {
    * @param {Array} entityList - List of entities to be used throughout the game
    */
   drawMaze(mazeArray, entityList) {
+    this.pickups = [
+      this.fruit,
+    ];
+
     this.mazeDiv.style.height = `${this.scaledTileSize * 31}px`;
     this.mazeDiv.style.width = `${this.scaledTileSize * 28}px`;
     this.gameUi.style.width = `${this.scaledTileSize * 28}px`;
+    this.dotContainer = document.getElementById('dot-container');
 
     mazeArray.forEach((row, rowIndex) => {
       row.forEach((block, columnIndex) => {
@@ -1494,7 +1520,7 @@ class GameCoordinator {
           const points = (block === 'o') ? 10 : 50;
           const dot = new Pickup(
             type, this.scaledTileSize, columnIndex,
-            rowIndex, this.pacman, this.mazeDiv, points,
+            rowIndex, this.pacman, this.dotContainer, points,
           );
 
           entityList.push(dot);
@@ -1517,10 +1543,10 @@ class GameCoordinator {
         y: this.pacman.position.top + this.scaledTileSize,
       };
 
-      this.pickups.forEach((pickup) => {
-        // Set this flag to TRUE to see how two-phase collision detection works!
-        const debugging = false;
+      // Set this flag to TRUE to see how two-phase collision detection works!
+      const debugging = false;
 
+      this.pickups.forEach((pickup) => {
         pickup.checkPacmanProximity(maxDistance, pacmanCenter, debugging);
       });
     }
@@ -1786,10 +1812,27 @@ class GameCoordinator {
           left: this.scaledTileSize * 9,
           top: this.scaledTileSize * 16.5,
         },
-        'game_over', 5000,
+        'game_over', 3000,
         this.scaledTileSize * 10,
         this.scaledTileSize * 2,
       );
+      this.fruit.hideFruit();
+
+      new Timer(() => {
+        const mainMenu = document.getElementById('main-menu-container');
+        const gameStartButton = document.getElementById('game-start');
+        const leftCover = document.getElementById('left-cover');
+        const rightCover = document.getElementById('right-cover');
+
+        leftCover.style.left = '0';
+        rightCover.style.right = '0';
+
+        setTimeout(() => {
+          mainMenu.style.opacity = 1;
+          gameStartButton.disabled = false;
+          mainMenu.style.visibility = 'visible';
+        }, 1000);
+      }, 2500);
     }, 2250);
   }
 

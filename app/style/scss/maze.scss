@@ -23,3 +23,9 @@
 .maze-row {
   display: flex;
 }
+
+.dot-container {
+  height: 100%;
+  position: absolute;
+  width: 100%;
+}
