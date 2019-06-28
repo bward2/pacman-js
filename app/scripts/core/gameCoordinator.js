@@ -670,9 +670,23 @@ class GameCoordinator {
           }, 500);
         }, 2250);
       } else {
-        // TODO: Gameover logic
+        this.gameOver();
       }
     }, 750);
+  }
+
+  gameOver() {
+    new Timer(() => {
+      this.displayText(
+        {
+          left: this.scaledTileSize * 9,
+          top: this.scaledTileSize * 16.5,
+        },
+        'game_over', 5000,
+        this.scaledTileSize * 10,
+        this.scaledTileSize * 2,
+      );
+    }, 2250);
   }
 
   /**
@@ -921,8 +935,8 @@ class GameCoordinator {
    * @param {({ left: number, top: number })} position - CSS coordinates to display the points at
    * @param {Number} amount - Amount of points to display
    * @param {Number} duration - Milliseconds to display the points before disappearing
-   * @param {Number} width - Image width
-   * @param {Number} height - Image height
+   * @param {Number} width - Image width in pixels
+   * @param {Number} height - Image height in pixels
    */
   displayText(position, amount, duration, width, height) {
     const pointsDiv = document.createElement('div');
