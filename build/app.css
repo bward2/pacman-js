@@ -73,7 +73,8 @@ body {
     margin-top: 10px; }
     .game-ui .bottom .extra-lives {
       align-items: flex-start;
-      display: flex; }
+      display: flex;
+      height: 48px; }
       .game-ui .bottom .extra-lives img {
         height: 48px; }
       .game-ui .bottom .extra-lives :not(:first-child) {
