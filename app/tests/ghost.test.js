@@ -240,6 +240,15 @@ describe('ghost', () => {
       assert.strictEqual(comp.animationTarget.style.backgroundPosition,
         '0px 0px');
     });
+
+    it('resets extra params for full game resets', () => {
+      comp.defaultSpeed = 123;
+      comp.cruiseElroy = true;
+
+      comp.reset(true);
+      assert.notStrictEqual(comp.defaultSpeed, 123);
+      assert.strictEqual(comp.cruiseElroy, undefined);
+    });
   });
 
   describe('setDefaultMode', () => {

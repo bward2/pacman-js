@@ -375,7 +375,7 @@ class GameCoordinator {
     } else {
       this.pacman.reset();
       this.ghosts.forEach((ghost) => {
-        ghost.reset();
+        ghost.reset(true);
       });
       this.pickups.forEach((pickup) => {
         if (pickup.type !== 'fruit') {

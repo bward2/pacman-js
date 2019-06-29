@@ -16,8 +16,14 @@ class Ghost {
 
   /**
    * Rests the character to its default state
+   * @param {Boolean} fullGameReset
    */
-  reset() {
+  reset(fullGameReset) {
+    if (fullGameReset) {
+      delete this.defaultSpeed;
+      delete this.cruiseElroy;
+    }
+
     this.setDefaultMode();
     this.setMovementStats(this.pacman, this.name, this.level);
     this.setSpriteAnimationStats();
