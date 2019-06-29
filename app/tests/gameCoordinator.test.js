@@ -172,6 +172,7 @@ describe('gameCoordinator', () => {
       assert.strictEqual(comp.points, 0);
       assert.strictEqual(comp.level, 1);
       assert.strictEqual(comp.lives, 2);
+      assert.strictEqual(comp.extraLifeGiven, false);
       assert.strictEqual(comp.remainingDots, 0);
       assert.strictEqual(comp.allowKeyPresses, true);
       assert.strictEqual(comp.allowPacmanMovement, false);
@@ -603,6 +604,22 @@ describe('gameCoordinator', () => {
         comp.scaledTileSize * 3,
         comp.scaledTileSize * 2,
       ));
+    });
+
+    it('gives an extra life when reaching 10k points', () => {
+      comp.points = 0;
+      comp.lives = 0;
+      comp.extraLifeGiven = false;
+      comp.updateExtraLivesDisplay = sinon.fake();
+      comp.soundManager.play = sinon.fake();
+
+      comp.awardPoints(
+        { detail: { points: 10000, type: 'fruit' } },
+      );
+      assert.strictEqual(comp.extraLifeGiven, true);
+      assert(comp.soundManager.play.calledWith('extra_life'));
+      assert.strictEqual(comp.lives, 1);
+      assert(comp.updateExtraLivesDisplay.called);
     });
   });
 

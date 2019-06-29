@@ -225,6 +225,7 @@ class GameCoordinator {
         `${audioBase}siren_2.mp3`,
         `${audioBase}siren_3.mp3`,
         `${audioBase}power_up.mp3`,
+        `${audioBase}extra_life.mp3`,
         `${audioBase}eyes.mp3`,
         `${audioBase}eat_ghost.mp3`,
         `${audioBase}death.mp3`,
@@ -316,6 +317,7 @@ class GameCoordinator {
     this.points = 0;
     this.level = 1;
     this.lives = 2;
+    this.extraLifeGiven = false;
     this.remainingDots = 0;
     this.allowKeyPresses = true;
     this.allowPacmanMovement = false;
@@ -639,6 +641,13 @@ class GameCoordinator {
       this.highScore = this.points;
       this.highScoreDisplay.innerText = this.points;
       localStorage.setItem('highScore', this.highScore);
+    }
+
+    if (this.points >= 10000 && !this.extraLifeGiven) {
+      this.extraLifeGiven = true;
+      this.soundManager.play('extra_life');
+      this.lives += 1;
+      this.updateExtraLivesDisplay();
     }
 
     if (e.detail.type === 'fruit') {
