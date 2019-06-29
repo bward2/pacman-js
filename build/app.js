@@ -1115,6 +1115,7 @@ class GameCoordinator {
     this.gameStartButton = document.getElementById('game-start');
     this.leftCover = document.getElementById('left-cover');
     this.rightCover = document.getElementById('right-cover');
+    this.pausedText = document.getElementById('paused-text');
 
     this.maxFps = 120;
     this.tileSize = 8;
@@ -1722,12 +1723,16 @@ class GameCoordinator {
 
       if (this.gameEngine.started) {
         this.soundManager.resumeAmbience();
+        this.gameUi.style.filter = 'unset';
+        this.pausedText.style.visibility = 'hidden';
         this.activeTimers.forEach((timer) => {
           timer.resume();
         });
       } else {
         this.soundManager.stopAmbience();
         this.soundManager.setAmbience('pause_beat', true);
+        this.gameUi.style.filter = 'blur(5px)';
+        this.pausedText.style.visibility = 'visible';
         this.activeTimers.forEach((timer) => {
           timer.pause();
         });

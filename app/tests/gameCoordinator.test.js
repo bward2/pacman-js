@@ -492,22 +492,30 @@ describe('gameCoordinator', () => {
       comp.activeTimers = [{}];
       comp.allowPause = true;
       comp.cutscene = false;
+      comp.soundManager.play = sinon.fake();
+      comp.soundManager.resumeAmbience = sinon.fake();
+      comp.soundManager.stopAmbience = sinon.fake();
+      comp.soundManager.setAmbience = sinon.fake();
     });
 
     it('calls changePausedState', () => {
       comp.activeTimers = [];
       comp.handlePauseKey();
       assert(comp.gameEngine.changePausedState.called);
+      assert(comp.soundManager.play.calledWith('pause'));
     });
 
     it('resumes all timers after starting the engine', () => {
       comp.gameEngine.started = true;
       comp.activeTimers[0].resume = sinon.fake();
       comp.handlePauseKey();
+      assert(comp.soundManager.resumeAmbience.called);
+      assert.strictEqual(comp.gameUi.style.filter, 'unset');
+      assert.strictEqual(comp.pausedText.style.visibility, 'hidden');
       assert(comp.activeTimers[0].resume.called);
     });
 
-    it('resumes all timers after starting the engine', () => {
+    it('pauses all timers after starting the engine', () => {
       comp.gameEngine.pause = true;
       comp.activeTimers[0].pause = sinon.fake();
       comp.handlePauseKey();

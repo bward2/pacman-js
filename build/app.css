@@ -39,6 +39,15 @@ body {
   position: absolute;
   visibility: hidden; }
 
+.paused-text {
+  align-items: center;
+  display: flex;
+  font-size: 50px;
+  height: 100%;
+  position: absolute;
+  visibility: hidden;
+  z-index: 1; }
+
 .game-ui {
   display: flex;
   flex-direction: column;
