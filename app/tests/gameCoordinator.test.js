@@ -12,7 +12,9 @@ let clock;
 
 describe('gameCoordinator', () => {
   beforeEach(() => {
-    global.Pacman = class {};
+    global.Pacman = class {
+      reset() {}
+    };
     global.CharacterUtil = class {};
     global.Ghost = class {
       reset() {}
@@ -23,7 +25,13 @@ describe('gameCoordinator', () => {
 
       pause() {}
     };
-    global.Pickup = class {};
+    global.Pickup = class {
+      constructor(type) {
+        this.type = type;
+      }
+
+      reset() {}
+    };
     global.Timer = class {
       constructor(callback, delay) {
         setTimeout(callback, delay);
@@ -53,6 +61,7 @@ describe('gameCoordinator', () => {
         appendChild: () => { },
         removeChild: () => { },
         addEventListener: () => { },
+        style: { },
       }),
       createElement: () => ({
         classList: {
@@ -82,15 +91,25 @@ describe('gameCoordinator', () => {
   });
 
   describe('startButtonClick', () => {
-    it('calls init', () => {
-      global.document.getElementById = sinon.fake.returns({
-        style: {},
-      });
+    it('calls init on firstGame', () => {
       comp.init = sinon.fake();
+      comp.firstGame = false;
 
       comp.startButtonClick();
+      assert(!comp.init.called);
+      assert.strictEqual(comp.leftCover.style.left, '-50%');
+      assert.strictEqual(comp.rightCover.style.right, '-50%');
+      assert.strictEqual(comp.mainMenu.style.opacity, 0);
+      assert.strictEqual(comp.gameStartButton.disabled, true);
+
       clock.tick(1000);
+      assert.strictEqual(comp.mainMenu.style.visibility, 'hidden');
+
+      comp.firstGame = true;
+
+      comp.startButtonClick();
       assert(comp.init.called);
+      assert(!comp.firstGame);
     });
   });
 
@@ -135,6 +154,23 @@ describe('gameCoordinator', () => {
       comp.createElements(['src'], 'audio', 100, comp).then(() => {
         assert(spy.called);
       });
+    });
+  });
+
+  describe('reset', () => {
+    it('resets gameCoordinator values to their default states', () => {
+      comp.collisionDetectionLoop = sinon.fake();
+
+      comp.reset();
+
+      clock.tick(500);
+      assert(comp.collisionDetectionLoop.called);
+    });
+
+    it('does stuff', () => {
+      comp.firstGame = false;
+
+      comp.reset();
     });
   });
 
@@ -587,11 +623,34 @@ describe('gameCoordinator', () => {
 
     it('handles Game Over if needed', () => {
       comp.lives = 0;
+      comp.gameOver = sinon.fake();
 
       comp.deathSequence();
 
       clock.tick(750);
-      // TODO: Gameover logic
+      assert(comp.gameOver.called);
+    });
+  });
+
+  describe('gameOver', () => {
+    it('displays GAME OVER text and brings back the main menu', () => {
+      comp.displayText = sinon.fake();
+      comp.fruit.hideFruit = sinon.fake();
+
+      comp.gameOver();
+
+      clock.tick(2250);
+      assert(comp.displayText.called);
+      assert(comp.fruit.hideFruit.called);
+
+      clock.tick(2500);
+      assert.strictEqual(comp.leftCover.style.left, '0');
+      assert.strictEqual(comp.rightCover.style.right, '0');
+
+      clock.tick(1000);
+      assert.strictEqual(comp.mainMenu.style.opacity, 1);
+      assert.strictEqual(comp.gameStartButton.disabled, false);
+      assert.strictEqual(comp.mainMenu.style.visibility, 'visible');
     });
   });
 
@@ -821,10 +880,14 @@ describe('gameCoordinator', () => {
 
     it('calls setAmbience if remainingDots is greater than zero', () => {
       comp.soundManager.setAmbience = sinon.fake();
-      comp.remainingDots = 1;
+      comp.remainingDots = 0;
 
       comp.powerUp();
-      assert(comp.soundManager.setAmbience.called);
+      assert(!comp.soundManager.setAmbience.called);
+
+      comp.remainingDots = 1;
+      comp.powerUp();
+      assert(comp.soundManager.setAmbience.calledWith('power_up'));
     });
   });
 

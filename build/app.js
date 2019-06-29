@@ -1111,6 +1111,10 @@ class GameCoordinator {
     this.pointsDisplay = document.getElementById('points-display');
     this.highScoreDisplay = document.getElementById('high-score-display');
     this.extraLivesDisplay = document.getElementById('extra-lives');
+    this.mainMenu = document.getElementById('main-menu-container');
+    this.gameStartButton = document.getElementById('game-start');
+    this.leftCover = document.getElementById('left-cover');
+    this.rightCover = document.getElementById('right-cover');
 
     this.maxFps = 120;
     this.tileSize = 8;
@@ -1198,18 +1202,13 @@ class GameCoordinator {
    * Reveals the game underneath the loading covers and starts gameplay
    */
   startButtonClick() {
-    const mainMenu = document.getElementById('main-menu-container');
-    const gameStartButton = document.getElementById('game-start');
-    const leftCover = document.getElementById('left-cover');
-    const rightCover = document.getElementById('right-cover');
-
-    leftCover.style.left = '-50%';
-    rightCover.style.right = '-50%';
-    mainMenu.style.opacity = 0;
-    gameStartButton.disabled = true;
+    this.leftCover.style.left = '-50%';
+    this.rightCover.style.right = '-50%';
+    this.mainMenu.style.opacity = 0;
+    this.gameStartButton.disabled = true;
 
     setTimeout(() => {
-      mainMenu.style.visibility = 'hidden';
+      this.mainMenu.style.visibility = 'hidden';
     }, 1000);
 
     this.reset();
@@ -1357,9 +1356,8 @@ class GameCoordinator {
 
         setTimeout(() => {
           loadingContainer.remove();
-          const mainMenu = document.getElementById('main-menu-container');
-          mainMenu.style.opacity = 1;
-          mainMenu.style.visibility = 'visible';
+          this.mainMenu.style.opacity = 1;
+          this.mainMenu.style.visibility = 'visible';
         }, 1500);
       });
     });
@@ -1414,6 +1412,9 @@ class GameCoordinator {
     });
   }
 
+  /**
+   * Resets gameCoordinator values to their default states
+   */
   reset() {
     this.activeTimers = [];
     this.points = 0;
@@ -1805,6 +1806,9 @@ class GameCoordinator {
     }, 750);
   }
 
+  /**
+   * Displays GAME OVER text and displays the menu so players can play again
+   */
   gameOver() {
     new Timer(() => {
       this.displayText(
@@ -1812,25 +1816,20 @@ class GameCoordinator {
           left: this.scaledTileSize * 9,
           top: this.scaledTileSize * 16.5,
         },
-        'game_over', 3000,
+        'game_over', 4000,
         this.scaledTileSize * 10,
         this.scaledTileSize * 2,
       );
       this.fruit.hideFruit();
 
       new Timer(() => {
-        const mainMenu = document.getElementById('main-menu-container');
-        const gameStartButton = document.getElementById('game-start');
-        const leftCover = document.getElementById('left-cover');
-        const rightCover = document.getElementById('right-cover');
-
-        leftCover.style.left = '0';
-        rightCover.style.right = '0';
+        this.leftCover.style.left = '0';
+        this.rightCover.style.right = '0';
 
         setTimeout(() => {
-          mainMenu.style.opacity = 1;
-          gameStartButton.disabled = false;
-          mainMenu.style.visibility = 'visible';
+          this.mainMenu.style.opacity = 1;
+          this.gameStartButton.disabled = false;
+          this.mainMenu.style.visibility = 'visible';
         }, 1000);
       }, 2500);
     }, 2250);
