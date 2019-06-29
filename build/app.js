@@ -1425,6 +1425,7 @@ class GameCoordinator {
     this.allowPacmanMovement = false;
     this.allowPause = false;
     this.cutscene = true;
+    this.highScore = localStorage.getItem('highScore');
 
     if (this.firstGame) {
       setInterval(() => {
@@ -1485,6 +1486,9 @@ class GameCoordinator {
         }
       });
     }
+
+    this.pointsDisplay.innerHTML = '00';
+    this.highScoreDisplay.innerHTML = this.highScore || '00';
   }
 
   /**
@@ -1738,6 +1742,7 @@ class GameCoordinator {
     if (this.points > (this.highScore || 0)) {
       this.highScore = this.points;
       this.highScoreDisplay.innerText = this.points;
+      localStorage.setItem('highScore', this.highScore);
     }
 
     if (e.detail.type === 'fruit') {
@@ -1810,6 +1815,8 @@ class GameCoordinator {
    * Displays GAME OVER text and displays the menu so players can play again
    */
   gameOver() {
+    localStorage.setItem('highScore', this.highScore);
+
     new Timer(() => {
       this.displayText(
         {

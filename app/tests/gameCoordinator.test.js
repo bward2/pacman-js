@@ -73,6 +73,10 @@ describe('gameCoordinator', () => {
       }),
     };
 
+    global.localStorage = {
+      getItem: () => { },
+      setItem: () => { },
+    };
     global.Image = class {};
     global.Audio = class {
       addEventListener() { }
@@ -159,6 +163,7 @@ describe('gameCoordinator', () => {
 
   describe('reset', () => {
     it('resets gameCoordinator values to their default states', () => {
+      global.localStorage.getItem = sinon.fake();
       comp.collisionDetectionLoop = sinon.fake();
       comp.drawMaze = sinon.fake();
 
@@ -172,11 +177,18 @@ describe('gameCoordinator', () => {
       assert.strictEqual(comp.allowPacmanMovement, false);
       assert.strictEqual(comp.allowPause, false);
       assert.strictEqual(comp.cutscene, true);
+      assert(global.localStorage.getItem.calledWith('highScore'));
+      assert.strictEqual(
+        comp.highScore,
+        global.localStorage.getItem('highScore'),
+      );
       assert.strictEqual(comp.entityList.length, 6);
       assert.strictEqual(comp.ghosts.length, 4);
       assert.deepEqual(comp.scaredGhosts, []);
       assert.strictEqual(comp.eyeGhosts, 0);
       assert(comp.drawMaze.calledWith(comp.mazeArray, comp.entityList));
+      assert.strictEqual(comp.pointsDisplay.innerHTML, '00');
+      assert.strictEqual(comp.highScoreDisplay.innerHTML, '00');
 
       clock.tick(500);
       assert(comp.collisionDetectionLoop.called);
@@ -529,12 +541,17 @@ describe('gameCoordinator', () => {
   describe('awardPoints', () => {
     it('adds to the total number of points', () => {
       comp.points = 0;
+      global.localStorage.setItem = sinon.fake();
 
       comp.awardPoints(
         { detail: { points: 50 } },
       );
       assert.strictEqual(comp.points, 50);
+      assert.strictEqual(comp.highScore, 50);
       assert.strictEqual(comp.highScoreDisplay.innerText, 50);
+      assert(global.localStorage.setItem.calledWith(
+        'highScore', 50,
+      ));
     });
 
     it('only updates the highScore when it is surpassed', () => {
@@ -653,8 +670,12 @@ describe('gameCoordinator', () => {
     it('displays GAME OVER text and brings back the main menu', () => {
       comp.displayText = sinon.fake();
       comp.fruit.hideFruit = sinon.fake();
+      global.localStorage.setItem = sinon.fake();
 
       comp.gameOver();
+      assert(global.localStorage.setItem.calledWith(
+        'highScore', comp.highScore,
+      ));
 
       clock.tick(2250);
       assert(comp.displayText.called);
