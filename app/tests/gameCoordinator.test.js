@@ -12,7 +12,9 @@ let clock;
 
 describe('gameCoordinator', () => {
   beforeEach(() => {
-    global.Pacman = class {};
+    global.Pacman = class {
+      reset() {}
+    };
     global.CharacterUtil = class {};
     global.Ghost = class {
       reset() {}
@@ -23,7 +25,13 @@ describe('gameCoordinator', () => {
 
       pause() {}
     };
-    global.Pickup = class {};
+    global.Pickup = class {
+      constructor(type) {
+        this.type = type;
+      }
+
+      reset() {}
+    };
     global.Timer = class {
       constructor(callback, delay) {
         setTimeout(callback, delay);
@@ -53,16 +61,22 @@ describe('gameCoordinator', () => {
         appendChild: () => { },
         removeChild: () => { },
         addEventListener: () => { },
+        style: { },
       }),
       createElement: () => ({
         classList: {
           add: () => { },
         },
         appendChild: () => { },
+        setAttribute: () => { },
         style: {},
       }),
     };
 
+    global.localStorage = {
+      getItem: () => { },
+      setItem: () => { },
+    };
     global.Image = class {};
     global.Audio = class {
       addEventListener() { }
@@ -70,6 +84,9 @@ describe('gameCoordinator', () => {
 
     clock = sinon.useFakeTimers();
     comp = new GameCoordinator();
+    comp.mazeDiv.style = {};
+    comp.gameUi.style = {};
+    comp.reset();
     comp.soundManager = new SoundManager();
   });
 
@@ -78,15 +95,25 @@ describe('gameCoordinator', () => {
   });
 
   describe('startButtonClick', () => {
-    it('calls init', () => {
-      global.document.getElementById = sinon.fake.returns({
-        style: {},
-      });
+    it('calls init on firstGame', () => {
       comp.init = sinon.fake();
+      comp.firstGame = false;
 
       comp.startButtonClick();
+      assert(!comp.init.called);
+      assert.strictEqual(comp.leftCover.style.left, '-50%');
+      assert.strictEqual(comp.rightCover.style.right, '-50%');
+      assert.strictEqual(comp.mainMenu.style.opacity, 0);
+      assert.strictEqual(comp.gameStartButton.disabled, true);
+
       clock.tick(1000);
+      assert.strictEqual(comp.mainMenu.style.visibility, 'hidden');
+
+      comp.firstGame = true;
+
+      comp.startButtonClick();
       assert(comp.init.called);
+      assert(!comp.firstGame);
     });
   });
 
@@ -134,19 +161,58 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('reset', () => {
+    it('resets gameCoordinator values to their default states', () => {
+      global.localStorage.getItem = sinon.fake();
+      comp.collisionDetectionLoop = sinon.fake();
+      comp.drawMaze = sinon.fake();
+
+      comp.reset();
+      assert.deepEqual(comp.activeTimers, []);
+      assert.strictEqual(comp.points, 0);
+      assert.strictEqual(comp.level, 1);
+      assert.strictEqual(comp.lives, 2);
+      assert.strictEqual(comp.extraLifeGiven, false);
+      assert.strictEqual(comp.remainingDots, 0);
+      assert.strictEqual(comp.allowKeyPresses, true);
+      assert.strictEqual(comp.allowPacmanMovement, false);
+      assert.strictEqual(comp.allowPause, false);
+      assert.strictEqual(comp.cutscene, true);
+      assert(global.localStorage.getItem.calledWith('highScore'));
+      assert.strictEqual(
+        comp.highScore,
+        global.localStorage.getItem('highScore'),
+      );
+      assert.strictEqual(comp.entityList.length, 6);
+      assert.strictEqual(comp.ghosts.length, 4);
+      assert.deepEqual(comp.scaredGhosts, []);
+      assert.strictEqual(comp.eyeGhosts, 0);
+      assert(comp.drawMaze.calledWith(comp.mazeArray, comp.entityList));
+      assert.strictEqual(comp.pointsDisplay.innerHTML, '00');
+      assert.strictEqual(comp.highScoreDisplay.innerHTML, '00');
+
+      clock.tick(500);
+      assert(comp.collisionDetectionLoop.called);
+    });
+
+    it('does not call drawMaze if firstGame is FALSE', () => {
+      comp.firstGame = false;
+      comp.drawMaze = sinon.fake();
+
+      comp.reset();
+      assert(!comp.drawMaze.called);
+    });
+  });
+
   describe('init', () => {
     it('calls necessary setup functions to start the game', () => {
       comp.registerEventListeners = sinon.fake();
-      comp.drawMaze = sinon.fake();
       comp.collisionDetectionLoop = sinon.fake();
-      comp.startGameplay = sinon.fake();
       global.SoundManager = class { };
 
       comp.init();
       assert(comp.registerEventListeners.called);
-      assert(comp.drawMaze.calledWith(comp.mazeArray, comp.entityList));
       assert(!comp.collisionDetectionLoop.called);
-      assert(comp.startGameplay.calledWith(true));
 
       clock.tick(500);
       assert(comp.collisionDetectionLoop.called);
@@ -157,6 +223,7 @@ describe('gameCoordinator', () => {
     it('creates the maze and adds entities for a given maze array', () => {
       const entityList = [];
       comp.mazeDiv.style = {};
+      comp.gameUi.style = {};
 
       comp.drawMaze(mazeArray, entityList);
       assert.strictEqual(
@@ -164,6 +231,9 @@ describe('gameCoordinator', () => {
       );
       assert.strictEqual(
         comp.mazeDiv.style.width, `${comp.scaledTileSize * 28}px`,
+      );
+      assert.strictEqual(
+        comp.gameUi.style.width, `${comp.scaledTileSize * 28}px`,
       );
       assert.strictEqual(entityList.length, 2);
     });
@@ -189,6 +259,7 @@ describe('gameCoordinator', () => {
   describe('startGameplay', () => {
     it('calls displayText, then kicks off movement', () => {
       comp.displayText = sinon.fake();
+      comp.updateExtraLivesDisplay = sinon.fake();
       const ambientSpy = sinon.fake();
       comp.soundManager = {
         setAmbience: ambientSpy,
@@ -205,6 +276,7 @@ describe('gameCoordinator', () => {
         comp.scaledTileSize * 6,
         comp.scaledTileSize * 2,
       ));
+      assert(comp.updateExtraLivesDisplay.called);
 
       clock.tick(2000);
       assert(comp.allowPacmanMovement);
@@ -216,6 +288,7 @@ describe('gameCoordinator', () => {
 
     it('waits longer for the initialStart', () => {
       comp.displayText = sinon.fake();
+      comp.updateExtraLivesDisplay = sinon.fake();
       const playSpy = sinon.fake();
       const ambientSpy = sinon.fake();
       comp.soundManager = {
@@ -235,6 +308,7 @@ describe('gameCoordinator', () => {
         comp.scaledTileSize * 6,
         comp.scaledTileSize * 2,
       ));
+      assert(comp.updateExtraLivesDisplay.called);
 
       clock.tick(4500);
       assert(comp.allowPacmanMovement);
@@ -242,6 +316,24 @@ describe('gameCoordinator', () => {
       assert(comp.soundManager.setAmbience.calledWith(
         comp.determineSiren(comp.remainingDots),
       ));
+    });
+  });
+
+  describe('updateExtraLivesDisplay', () => {
+    it('displays extra life images for each remaining life', () => {
+      comp.extraLivesDisplay.firstChild = true;
+      comp.extraLivesDisplay.removeChild = sinon.stub(() => {
+        comp.extraLivesDisplay.firstChild = false;
+      });
+      const spy = sinon.fake();
+      global.document.createElement = () => ({
+        setAttribute: spy,
+      });
+      comp.lives = 3;
+
+      comp.updateExtraLivesDisplay();
+      assert(spy.calledWith('src', 'app/style/graphics/extra_life.svg'));
+      assert(spy.calledThrice);
     });
   });
 
@@ -400,22 +492,30 @@ describe('gameCoordinator', () => {
       comp.activeTimers = [{}];
       comp.allowPause = true;
       comp.cutscene = false;
+      comp.soundManager.play = sinon.fake();
+      comp.soundManager.resumeAmbience = sinon.fake();
+      comp.soundManager.stopAmbience = sinon.fake();
+      comp.soundManager.setAmbience = sinon.fake();
     });
 
     it('calls changePausedState', () => {
       comp.activeTimers = [];
       comp.handlePauseKey();
       assert(comp.gameEngine.changePausedState.called);
+      assert(comp.soundManager.play.calledWith('pause'));
     });
 
     it('resumes all timers after starting the engine', () => {
       comp.gameEngine.started = true;
       comp.activeTimers[0].resume = sinon.fake();
       comp.handlePauseKey();
+      assert(comp.soundManager.resumeAmbience.called);
+      assert.strictEqual(comp.gameUi.style.filter, 'unset');
+      assert.strictEqual(comp.pausedText.style.visibility, 'hidden');
       assert(comp.activeTimers[0].resume.called);
     });
 
-    it('resumes all timers after starting the engine', () => {
+    it('pauses all timers after starting the engine', () => {
       comp.gameEngine.pause = true;
       comp.activeTimers[0].pause = sinon.fake();
       comp.handlePauseKey();
@@ -450,10 +550,28 @@ describe('gameCoordinator', () => {
   describe('awardPoints', () => {
     it('adds to the total number of points', () => {
       comp.points = 0;
+      global.localStorage.setItem = sinon.fake();
+
       comp.awardPoints(
         { detail: { points: 50 } },
       );
       assert.strictEqual(comp.points, 50);
+      assert.strictEqual(comp.highScore, 50);
+      assert.strictEqual(comp.highScoreDisplay.innerText, 50);
+      assert(global.localStorage.setItem.calledWith(
+        'highScore', 50,
+      ));
+    });
+
+    it('only updates the highScore when it is surpassed', () => {
+      comp.points = 0;
+      comp.highScore = 100;
+
+      comp.awardPoints(
+        { detail: { points: 50 } },
+      );
+      assert.strictEqual(comp.points, 50);
+      assert.strictEqual(comp.highScore, 100);
     });
 
     it('calls displayText when a fruit is eaten', () => {
@@ -495,14 +613,31 @@ describe('gameCoordinator', () => {
         comp.scaledTileSize * 2,
       ));
     });
+
+    it('gives an extra life when reaching 10k points', () => {
+      comp.points = 0;
+      comp.lives = 0;
+      comp.extraLifeGiven = false;
+      comp.updateExtraLivesDisplay = sinon.fake();
+      comp.soundManager.play = sinon.fake();
+
+      comp.awardPoints(
+        { detail: { points: 10000, type: 'fruit' } },
+      );
+      assert.strictEqual(comp.extraLifeGiven, true);
+      assert(comp.soundManager.play.calledWith('extra_life'));
+      assert.strictEqual(comp.lives, 1);
+      assert(comp.updateExtraLivesDisplay.called);
+    });
   });
 
   describe('deathSequence', () => {
-    it('kills Pacman, subtracts a life, and resets the characters', () => {
+    beforeEach(() => {
       comp.allowKeyPresses = true;
       comp.blinky.display = true;
       comp.pacman.moving = true;
       comp.blinky.moving = true;
+      comp.lives = 2;
       comp.mazeCover.style = {
         visibility: 'hidden',
       };
@@ -510,7 +645,10 @@ describe('gameCoordinator', () => {
       comp.pacman.reset = sinon.fake();
       comp.blinky.reset = sinon.fake();
       comp.fruit.hideFruit = sinon.fake();
+      comp.updateExtraLivesDisplay = sinon.fake();
+    });
 
+    it('kills Pacman, subtracts a life, and resets the characters', () => {
       comp.deathSequence();
       assert(!comp.allowKeyPresses);
       assert(!comp.pacman.moving);
@@ -519,6 +657,7 @@ describe('gameCoordinator', () => {
       clock.tick(750);
       assert(!comp.blinky.display);
       assert(comp.pacman.prepDeathAnimation.called);
+      assert.strictEqual(comp.lives, 1);
 
       clock.tick(2250);
       assert.strictEqual(comp.mazeCover.style.visibility,
@@ -539,6 +678,42 @@ describe('gameCoordinator', () => {
 
       comp.deathSequence();
       assert(comp.removeTimer.called);
+    });
+
+    it('handles Game Over if needed', () => {
+      comp.lives = 0;
+      comp.gameOver = sinon.fake();
+
+      comp.deathSequence();
+
+      clock.tick(750);
+      assert(comp.gameOver.called);
+    });
+  });
+
+  describe('gameOver', () => {
+    it('displays GAME OVER text and brings back the main menu', () => {
+      comp.displayText = sinon.fake();
+      comp.fruit.hideFruit = sinon.fake();
+      global.localStorage.setItem = sinon.fake();
+
+      comp.gameOver();
+      assert(global.localStorage.setItem.calledWith(
+        'highScore', comp.highScore,
+      ));
+
+      clock.tick(2250);
+      assert(comp.displayText.called);
+      assert(comp.fruit.hideFruit.called);
+
+      clock.tick(2500);
+      assert.strictEqual(comp.leftCover.style.left, '0');
+      assert.strictEqual(comp.rightCover.style.right, '0');
+
+      clock.tick(1000);
+      assert.strictEqual(comp.mainMenu.style.opacity, 1);
+      assert.strictEqual(comp.gameStartButton.disabled, false);
+      assert.strictEqual(comp.mainMenu.style.visibility, 'visible');
     });
   });
 
@@ -673,6 +848,7 @@ describe('gameCoordinator', () => {
       comp.mazeCover = { style: {} };
       comp.remainingDots = 0;
       comp.removeTimer = sinon.fake();
+      comp.updateExtraLivesDisplay = sinon.fake();
 
       comp.advanceLevel();
       assert(!comp.allowKeyPresses);
@@ -767,10 +943,14 @@ describe('gameCoordinator', () => {
 
     it('calls setAmbience if remainingDots is greater than zero', () => {
       comp.soundManager.setAmbience = sinon.fake();
-      comp.remainingDots = 1;
+      comp.remainingDots = 0;
 
       comp.powerUp();
-      assert(comp.soundManager.setAmbience.called);
+      assert(!comp.soundManager.setAmbience.called);
+
+      comp.remainingDots = 1;
+      comp.powerUp();
+      assert(comp.soundManager.setAmbience.calledWith('power_up'));
     });
   });
 
@@ -803,12 +983,21 @@ describe('gameCoordinator', () => {
       };
       comp.scaredGhosts = [ghost];
       comp.determineComboPoints = sinon.fake();
+      global.window.dispatchEvent = sinon.fake();
+      global.CustomEvent = class { };
 
       comp.eatGhost(e);
       assert(!comp.allowPacmanMovement);
       assert(!e.detail.ghost.display);
       assert(!comp.pacman.moving);
       assert(!comp.blinky.moving);
+      assert(global.window.dispatchEvent.calledWith(
+        new CustomEvent('awardPoints', {
+          detail: {
+            points: 200,
+          },
+        }),
+      ));
       assert(comp.displayText.called);
       assert(comp.determineComboPoints.called);
 

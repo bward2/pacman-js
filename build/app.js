@@ -16,8 +16,14 @@ class Ghost {
 
   /**
    * Rests the character to its default state
+   * @param {Boolean} fullGameReset
    */
-  reset() {
+  reset(fullGameReset) {
+    if (fullGameReset) {
+      delete this.defaultSpeed;
+      delete this.cruiseElroy;
+    }
+
     this.setDefaultMode();
     this.setMovementStats(this.pacman, this.name, this.level);
     this.setSpriteAnimationStats();
@@ -1102,22 +1108,223 @@ class Pacman {
 }
 
 
+class Pickup {
+  constructor(type, scaledTileSize, column, row, pacman, mazeDiv, points) {
+    this.type = type;
+    this.pacman = pacman;
+    this.mazeDiv = mazeDiv;
+    this.points = points;
+    this.nearPacman = false;
+
+    this.fruitImages = {
+      100: 'cherry',
+      300: 'strawberry',
+      500: 'orange',
+      700: 'apple',
+      1000: 'melon',
+      2000: 'galaxian',
+      3000: 'bell',
+      5000: 'key',
+    };
+
+    this.setStyleMeasurements(type, scaledTileSize, column, row, points);
+  }
+
+  /**
+   * Resets the pickup's visibility
+   */
+  reset() {
+    this.animationTarget.style.visibility = (this.type === 'fruit')
+      ? 'hidden' : 'visible';
+  }
+
+  /**
+   * Sets various style measurements for the pickup depending on its type
+   * @param {('pacdot'|'powerPellet'|'fruit')} type - The classification of pickup
+   * @param {number} scaledTileSize
+   * @param {number} column
+   * @param {number} row
+   * @param {number} points
+   */
+  setStyleMeasurements(type, scaledTileSize, column, row, points) {
+    if (type === 'pacdot') {
+      this.size = scaledTileSize * 0.25;
+      this.x = (column * scaledTileSize) + ((scaledTileSize / 8) * 3);
+      this.y = (row * scaledTileSize) + ((scaledTileSize / 8) * 3);
+    } else if (type === 'powerPellet') {
+      this.size = scaledTileSize;
+      this.x = (column * scaledTileSize);
+      this.y = (row * scaledTileSize);
+    } else {
+      this.size = scaledTileSize * 2;
+      this.x = (column * scaledTileSize) - (scaledTileSize * 0.5);
+      this.y = (row * scaledTileSize) - (scaledTileSize * 0.5);
+    }
+
+    this.center = {
+      x: column * scaledTileSize,
+      y: row * scaledTileSize,
+    };
+
+    this.animationTarget = document.createElement('div');
+    this.animationTarget.style.position = 'absolute';
+    this.animationTarget.style.backgroundSize = `${this.size}px`;
+    this.animationTarget.style.backgroundImage = this.determineImage(
+      type, points,
+    );
+    this.animationTarget.style.height = `${this.size}px`;
+    this.animationTarget.style.width = `${this.size}px`;
+    this.animationTarget.style.top = `${this.y}px`;
+    this.animationTarget.style.left = `${this.x}px`;
+    this.mazeDiv.appendChild(this.animationTarget);
+
+    this.reset();
+  }
+
+  /**
+   * Determines the Pickup image based on type and point value
+   * @param {('pacdot'|'powerPellet'|'fruit')} type - The classification of pickup
+   * @param {Number} points
+   * @returns {String}
+   */
+  determineImage(type, points) {
+    let image = '';
+
+    if (type === 'fruit') {
+      image = this.fruitImages[points] || 'cherry';
+    } else {
+      image = type;
+    }
+
+    return `url(app/style/graphics/spriteSheets/pickups/${image}.svg`;
+  }
+
+  /**
+   * Shows a bonus fruit, resetting its point value and image
+   * @param {number} points
+   */
+  showFruit(points) {
+    this.points = points;
+    this.animationTarget.style.backgroundImage = this.determineImage(
+      this.type, points,
+    );
+    this.animationTarget.style.visibility = 'visible';
+  }
+
+  /**
+   * Makes the fruit invisible (happens if Pacman was too slow)
+   */
+  hideFruit() {
+    this.animationTarget.style.visibility = 'hidden';
+  }
+
+  /**
+   * Returns true if the Pickup is touching a bounding box at Pacman's center
+   * @param {({ x: number, y: number, size: number})} pickup
+   * @param {({ x: number, y: number, size: number})} originalPacman
+   */
+  checkForCollision(pickup, originalPacman) {
+    const pacman = Object.assign({}, originalPacman);
+
+    pacman.x += (pacman.size * 0.25);
+    pacman.y += (pacman.size * 0.25);
+    pacman.size /= 2;
+
+    return (pickup.x < pacman.x + pacman.size
+      && pickup.x + pickup.size > pacman.x
+      && pickup.y < pacman.y + pacman.size
+      && pickup.y + pickup.size > pacman.y);
+  }
+
+  /**
+   * Checks to see if the pickup is close enough to Pacman to be considered for collision detection
+   * @param {number} maxDistance - The maximum distance Pacman can travel per cycle
+   * @param {({ x:number, y:number })} pacmanCenter - The center of Pacman's hitbox
+   * @param {Boolean} debugging - Flag to change the appearance of pickups for testing
+   */
+  checkPacmanProximity(maxDistance, pacmanCenter, debugging) {
+    if (this.animationTarget.style.visibility !== 'hidden') {
+      const distance = Math.sqrt(
+        ((this.center.x - pacmanCenter.x) ** 2)
+        + ((this.center.y - pacmanCenter.y) ** 2),
+      );
+
+      this.nearPacman = (distance <= maxDistance);
+
+      if (debugging) {
+        this.animationTarget.style.background = this.nearPacman
+          ? 'lime' : 'red';
+      }
+    }
+  }
+
+  /**
+   * Checks if the pickup is visible and close to Pacman
+   * @returns {Boolean}
+   */
+  shouldCheckForCollision() {
+    return this.animationTarget.style.visibility !== 'hidden'
+      && this.nearPacman;
+  }
+
+  /**
+   * If the Pickup is still visible, it checks to see if it is colliding with Pacman.
+   * It will turn itself invisible and cease collision-detection after the first
+   * collision with Pacman.
+   */
+  update() {
+    if (this.shouldCheckForCollision()) {
+      if (this.checkForCollision(
+        {
+          x: this.x,
+          y: this.y,
+          size: this.size,
+        }, {
+          x: this.pacman.position.left,
+          y: this.pacman.position.top,
+          size: this.pacman.measurement,
+        },
+      )) {
+        this.animationTarget.style.visibility = 'hidden';
+        window.dispatchEvent(new CustomEvent('awardPoints', {
+          detail: {
+            points: this.points,
+            type: this.type,
+          },
+        }));
+
+        if (this.type === 'pacdot') {
+          window.dispatchEvent(new Event('dotEaten'));
+        } else if (this.type === 'powerPellet') {
+          window.dispatchEvent(new Event('dotEaten'));
+          window.dispatchEvent(new Event('powerUp'));
+        }
+      }
+    }
+  }
+}
+
+
 class GameCoordinator {
   constructor() {
+    this.gameUi = document.getElementById('game-ui');
     this.mazeDiv = document.getElementById('maze');
     this.mazeImg = document.getElementById('maze-img');
     this.mazeCover = document.getElementById('maze-cover');
-    this.mazeContainer = document.getElementById('maze-container');
+    this.pointsDisplay = document.getElementById('points-display');
+    this.highScoreDisplay = document.getElementById('high-score-display');
+    this.extraLivesDisplay = document.getElementById('extra-lives');
+    this.mainMenu = document.getElementById('main-menu-container');
+    this.gameStartButton = document.getElementById('game-start');
+    this.leftCover = document.getElementById('left-cover');
+    this.rightCover = document.getElementById('right-cover');
+    this.pausedText = document.getElementById('paused-text');
 
-    this.animate = true;
     this.maxFps = 120;
     this.tileSize = 8;
     this.scale = 3;
     this.scaledTileSize = this.tileSize * this.scale;
-    this.activeTimers = [];
-    this.points = 0;
-    this.level = 1;
-    this.remainingDots = 0;
+    this.firstGame = true;
 
     this.movementKeys = {
       // WASD
@@ -1143,11 +1350,6 @@ class GameCoordinator {
       7: 3000,
       8: 5000,
     };
-
-    this.allowKeyPresses = true;
-    this.allowPacmanMovement = false;
-    this.allowPause = false;
-    this.cutscene = true;
 
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
@@ -1187,46 +1389,6 @@ class GameCoordinator {
       this.mazeArray[rowIndex] = row[0].split('');
     });
 
-    this.entityList = [
-      this.pacman = new Pacman(
-        this.scaledTileSize, this.mazeArray, new CharacterUtil(),
-      ),
-      this.blinky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
-        this.level, new CharacterUtil(),
-      ),
-      this.pinky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
-        this.level, new CharacterUtil(),
-      ),
-      this.inky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'inky',
-        this.level, new CharacterUtil(), this.blinky,
-      ),
-      this.clyde = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'clyde',
-        this.level, new CharacterUtil(),
-      ),
-      this.fruit = new Pickup(
-        'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
-        this.mazeDiv, 100,
-      ),
-    ];
-
-    this.ghosts = [
-      this.blinky,
-      this.pinky,
-      this.inky,
-      this.clyde,
-    ];
-
-    this.scaredGhosts = [];
-    this.eyeGhosts = 0;
-
-    this.pickups = [
-      this.fruit,
-    ];
-
     const gameStartButton = document.getElementById('game-start');
     gameStartButton.addEventListener('click', this.startButtonClick.bind(this));
 
@@ -1244,21 +1406,21 @@ class GameCoordinator {
    * Reveals the game underneath the loading covers and starts gameplay
    */
   startButtonClick() {
-    const mainMenu = document.getElementById('main-menu-container');
-    const gameStartButton = document.getElementById('game-start');
-    const leftCover = document.getElementById('left-cover');
-    const rightCover = document.getElementById('right-cover');
-
-    leftCover.style.left = '-50%';
-    rightCover.style.right = '-50%';
-    mainMenu.style.opacity = 0;
-    gameStartButton.disabled = true;
+    this.leftCover.style.left = '-50%';
+    this.rightCover.style.right = '-50%';
+    this.mainMenu.style.opacity = 0;
+    this.gameStartButton.disabled = true;
 
     setTimeout(() => {
-      mainMenu.style.visibility = 'hidden';
+      this.mainMenu.style.visibility = 'hidden';
     }, 1000);
 
-    this.init();
+    this.reset();
+    if (this.firstGame) {
+      this.firstGame = false;
+      this.init();
+    }
+    this.startGameplay(true);
   }
 
   /**
@@ -1357,16 +1519,21 @@ class GameCoordinator {
 
         // Maze
         `${imgBase}maze/maze_blue.svg`,
+
+        // Misc
+        'app/style/graphics/extra_life.png',
       ];
 
       const audioBase = 'app/style/audio/';
       const audioSources = [
         `${audioBase}game_start.mp3`,
         `${audioBase}pause.mp3`,
+        `${audioBase}pause_beat.mp3`,
         `${audioBase}siren_1.mp3`,
         `${audioBase}siren_2.mp3`,
         `${audioBase}siren_3.mp3`,
         `${audioBase}power_up.mp3`,
+        `${audioBase}extra_life.mp3`,
         `${audioBase}eyes.mp3`,
         `${audioBase}eat_ghost.mp3`,
         `${audioBase}death.mp3`,
@@ -1394,9 +1561,8 @@ class GameCoordinator {
 
         setTimeout(() => {
           loadingContainer.remove();
-          const mainMenu = document.getElementById('main-menu-container');
-          mainMenu.style.opacity = 1;
-          mainMenu.style.visibility = 'visible';
+          this.mainMenu.style.opacity = 1;
+          this.mainMenu.style.visibility = 'visible';
         }, 1500);
       });
     });
@@ -1452,21 +1618,95 @@ class GameCoordinator {
   }
 
   /**
+   * Resets gameCoordinator values to their default states
+   */
+  reset() {
+    this.activeTimers = [];
+    this.points = 0;
+    this.level = 1;
+    this.lives = 2;
+    this.extraLifeGiven = false;
+    this.remainingDots = 0;
+    this.allowKeyPresses = true;
+    this.allowPacmanMovement = false;
+    this.allowPause = false;
+    this.cutscene = true;
+    this.highScore = localStorage.getItem('highScore');
+
+    if (this.firstGame) {
+      setInterval(() => {
+        this.collisionDetectionLoop();
+      }, 500);
+
+      this.pacman = new Pacman(
+        this.scaledTileSize, this.mazeArray, new CharacterUtil(),
+      );
+      this.blinky = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
+        this.level, new CharacterUtil(),
+      );
+      this.pinky = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
+        this.level, new CharacterUtil(),
+      );
+      this.inky = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'inky',
+        this.level, new CharacterUtil(), this.blinky,
+      );
+      this.clyde = new Ghost(
+        this.scaledTileSize, this.mazeArray, this.pacman, 'clyde',
+        this.level, new CharacterUtil(),
+      );
+      this.fruit = new Pickup(
+        'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
+        this.mazeDiv, 100,
+      );
+    }
+
+    this.entityList = [
+      this.pacman, this.blinky, this.pinky, this.inky, this.clyde, this.fruit,
+    ];
+
+    this.ghosts = [
+      this.blinky,
+      this.pinky,
+      this.inky,
+      this.clyde,
+    ];
+
+    this.scaredGhosts = [];
+    this.eyeGhosts = 0;
+
+    if (this.firstGame) {
+      this.drawMaze(this.mazeArray, this.entityList);
+    } else {
+      this.pacman.reset();
+      this.ghosts.forEach((ghost) => {
+        ghost.reset(true);
+      });
+      this.pickups.forEach((pickup) => {
+        if (pickup.type !== 'fruit') {
+          this.remainingDots += 1;
+          pickup.reset();
+          this.entityList.push(pickup);
+        }
+      });
+    }
+
+    this.pointsDisplay.innerHTML = '00';
+    this.highScoreDisplay.innerHTML = this.highScore || '00';
+  }
+
+  /**
    * Calls necessary setup functions to start the game
    */
   init() {
     this.registerEventListeners();
-    this.drawMaze(this.mazeArray, this.entityList);
-    setInterval(() => {
-      this.collisionDetectionLoop();
-    }, 500);
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
 
     this.soundManager = new SoundManager();
-
-    this.startGameplay(true);
   }
 
   /**
@@ -1475,8 +1715,14 @@ class GameCoordinator {
    * @param {Array} entityList - List of entities to be used throughout the game
    */
   drawMaze(mazeArray, entityList) {
+    this.pickups = [
+      this.fruit,
+    ];
+
     this.mazeDiv.style.height = `${this.scaledTileSize * 31}px`;
     this.mazeDiv.style.width = `${this.scaledTileSize * 28}px`;
+    this.gameUi.style.width = `${this.scaledTileSize * 28}px`;
+    this.dotContainer = document.getElementById('dot-container');
 
     mazeArray.forEach((row, rowIndex) => {
       row.forEach((block, columnIndex) => {
@@ -1485,7 +1731,7 @@ class GameCoordinator {
           const points = (block === 'o') ? 10 : 50;
           const dot = new Pickup(
             type, this.scaledTileSize, columnIndex,
-            rowIndex, this.pacman, this.mazeDiv, points,
+            rowIndex, this.pacman, this.dotContainer, points,
           );
 
           entityList.push(dot);
@@ -1508,10 +1754,10 @@ class GameCoordinator {
         y: this.pacman.position.top + this.scaledTileSize,
       };
 
-      this.pickups.forEach((pickup) => {
-        // Set this flag to TRUE to see how two-phase collision detection works!
-        const debugging = false;
+      // Set this flag to TRUE to see how two-phase collision detection works!
+      const debugging = false;
 
+      this.pickups.forEach((pickup) => {
         pickup.checkPacmanProximity(maxDistance, pacmanCenter, debugging);
       });
     }
@@ -1537,6 +1783,7 @@ class GameCoordinator {
     const height = this.scaledTileSize * 2;
 
     this.displayText({ left, top }, 'ready', duration, width, height);
+    this.updateExtraLivesDisplay();
 
     new Timer(() => {
       this.allowPause = true;
@@ -1560,6 +1807,21 @@ class GameCoordinator {
       ];
       this.releaseGhost();
     }, duration);
+  }
+
+  /**
+   * Displays extra life images equal to the number of remaining lives
+   */
+  updateExtraLivesDisplay() {
+    while (this.extraLivesDisplay.firstChild) {
+      this.extraLivesDisplay.removeChild(this.extraLivesDisplay.firstChild);
+    }
+
+    for (let i = 0; i < this.lives; i += 1) {
+      const extraLifePic = document.createElement('img');
+      extraLifePic.setAttribute('src', 'app/style/graphics/extra_life.svg');
+      this.extraLivesDisplay.appendChild(extraLifePic);
+    }
   }
 
   /**
@@ -1664,11 +1926,16 @@ class GameCoordinator {
 
       if (this.gameEngine.started) {
         this.soundManager.resumeAmbience();
+        this.gameUi.style.filter = 'unset';
+        this.pausedText.style.visibility = 'hidden';
         this.activeTimers.forEach((timer) => {
           timer.resume();
         });
       } else {
         this.soundManager.stopAmbience();
+        this.soundManager.setAmbience('pause_beat', true);
+        this.gameUi.style.filter = 'blur(5px)';
+        this.pausedText.style.visibility = 'visible';
         this.activeTimers.forEach((timer) => {
           timer.pause();
         });
@@ -1682,6 +1949,19 @@ class GameCoordinator {
    */
   awardPoints(e) {
     this.points += e.detail.points;
+    this.pointsDisplay.innerText = this.points;
+    if (this.points > (this.highScore || 0)) {
+      this.highScore = this.points;
+      this.highScoreDisplay.innerText = this.points;
+      localStorage.setItem('highScore', this.highScore);
+    }
+
+    if (this.points >= 10000 && !this.extraLifeGiven) {
+      this.extraLifeGiven = true;
+      this.soundManager.play('extra_life');
+      this.lives += 1;
+      this.updateExtraLivesDisplay();
+    }
 
     if (e.detail.type === 'fruit') {
       const left = e.detail.points >= 1000
@@ -1725,21 +2005,59 @@ class GameCoordinator {
       });
       this.pacman.prepDeathAnimation();
       this.soundManager.play('death');
-      new Timer(() => {
-        this.mazeCover.style.visibility = 'visible';
-        new Timer(() => {
-          this.allowKeyPresses = true;
-          this.mazeCover.style.visibility = 'hidden';
-          this.pacman.reset();
-          this.ghosts.forEach((ghost) => {
-            ghost.reset();
-          });
-          this.fruit.hideFruit();
 
-          this.startGameplay();
-        }, 500);
-      }, 2250);
+      if (this.lives > 0) {
+        this.lives -= 1;
+
+        new Timer(() => {
+          this.mazeCover.style.visibility = 'visible';
+          new Timer(() => {
+            this.allowKeyPresses = true;
+            this.mazeCover.style.visibility = 'hidden';
+            this.pacman.reset();
+            this.ghosts.forEach((ghost) => {
+              ghost.reset();
+            });
+            this.fruit.hideFruit();
+
+            this.startGameplay();
+          }, 500);
+        }, 2250);
+      } else {
+        this.gameOver();
+      }
     }, 750);
+  }
+
+  /**
+   * Displays GAME OVER text and displays the menu so players can play again
+   */
+  gameOver() {
+    localStorage.setItem('highScore', this.highScore);
+
+    new Timer(() => {
+      this.displayText(
+        {
+          left: this.scaledTileSize * 9,
+          top: this.scaledTileSize * 16.5,
+        },
+        'game_over', 4000,
+        this.scaledTileSize * 10,
+        this.scaledTileSize * 2,
+      );
+      this.fruit.hideFruit();
+
+      new Timer(() => {
+        this.leftCover.style.left = '0';
+        this.rightCover.style.right = '0';
+
+        setTimeout(() => {
+          this.mainMenu.style.opacity = 1;
+          this.gameStartButton.disabled = false;
+          this.mainMenu.style.visibility = 'visible';
+        }, 1000);
+      }, 2500);
+    }, 2250);
   }
 
   /**
@@ -1930,8 +2248,11 @@ class GameCoordinator {
 
     this.ghostCombo += 1;
     const comboPoints = this.determineComboPoints();
-
-    this.points += comboPoints;
+    window.dispatchEvent(new CustomEvent('awardPoints', {
+      detail: {
+        points: comboPoints,
+      },
+    }));
     this.displayText(
       position, comboPoints, pauseDuration, measurement,
     );
@@ -1985,8 +2306,8 @@ class GameCoordinator {
    * @param {({ left: number, top: number })} position - CSS coordinates to display the points at
    * @param {Number} amount - Amount of points to display
    * @param {Number} duration - Milliseconds to display the points before disappearing
-   * @param {Number} width - Image width
-   * @param {Number} height - Image height
+   * @param {Number} width - Image width in pixels
+   * @param {Number} height - Image height in pixels
    */
   displayText(position, amount, duration, width, height) {
     const pointsDiv = document.createElement('div');
@@ -2214,203 +2535,6 @@ class GameEngine {
    */
   mainLoop(timestamp) {
     this.engineCycle(timestamp);
-  }
-}
-
-
-class Pickup {
-  constructor(type, scaledTileSize, column, row, pacman, mazeDiv, points) {
-    this.type = type;
-    this.pacman = pacman;
-    this.mazeDiv = mazeDiv;
-    this.points = points;
-    this.nearPacman = false;
-
-    this.fruitImages = {
-      100: 'cherry',
-      300: 'strawberry',
-      500: 'orange',
-      700: 'apple',
-      1000: 'melon',
-      2000: 'galaxian',
-      3000: 'bell',
-      5000: 'key',
-    };
-
-    this.setStyleMeasurements(type, scaledTileSize, column, row, points);
-  }
-
-  /**
-   * Resets the pickup's visibility
-   */
-  reset() {
-    this.animationTarget.style.visibility = (this.type === 'fruit')
-      ? 'hidden' : 'visible';
-  }
-
-  /**
-   * Sets various style measurements for the pickup depending on its type
-   * @param {('pacdot'|'powerPellet'|'fruit')} type - The classification of pickup
-   * @param {number} scaledTileSize
-   * @param {number} column
-   * @param {number} row
-   * @param {number} points
-   */
-  setStyleMeasurements(type, scaledTileSize, column, row, points) {
-    if (type === 'pacdot') {
-      this.size = scaledTileSize * 0.25;
-      this.x = (column * scaledTileSize) + ((scaledTileSize / 8) * 3);
-      this.y = (row * scaledTileSize) + ((scaledTileSize / 8) * 3);
-    } else if (type === 'powerPellet') {
-      this.size = scaledTileSize;
-      this.x = (column * scaledTileSize);
-      this.y = (row * scaledTileSize);
-    } else {
-      this.size = scaledTileSize * 2;
-      this.x = (column * scaledTileSize) - (scaledTileSize * 0.5);
-      this.y = (row * scaledTileSize) - (scaledTileSize * 0.5);
-    }
-
-    this.center = {
-      x: column * scaledTileSize,
-      y: row * scaledTileSize,
-    };
-
-    this.animationTarget = document.createElement('div');
-    this.animationTarget.style.position = 'absolute';
-    this.animationTarget.style.backgroundSize = `${this.size}px`;
-    this.animationTarget.style.backgroundImage = this.determineImage(
-      type, points,
-    );
-    this.animationTarget.style.height = `${this.size}px`;
-    this.animationTarget.style.width = `${this.size}px`;
-    this.animationTarget.style.top = `${this.y}px`;
-    this.animationTarget.style.left = `${this.x}px`;
-    this.mazeDiv.appendChild(this.animationTarget);
-
-    this.reset();
-  }
-
-  /**
-   * Determines the Pickup image based on type and point value
-   * @param {('pacdot'|'powerPellet'|'fruit')} type - The classification of pickup
-   * @param {Number} points
-   * @returns {String}
-   */
-  determineImage(type, points) {
-    let image = '';
-
-    if (type === 'fruit') {
-      image = this.fruitImages[points] || 'cherry';
-    } else {
-      image = type;
-    }
-
-    return `url(app/style/graphics/spriteSheets/pickups/${image}.svg`;
-  }
-
-  /**
-   * Shows a bonus fruit, resetting its point value and image
-   * @param {number} points
-   */
-  showFruit(points) {
-    this.points = points;
-    this.animationTarget.style.backgroundImage = this.determineImage(
-      this.type, points,
-    );
-    this.animationTarget.style.visibility = 'visible';
-  }
-
-  /**
-   * Makes the fruit invisible (happens if Pacman was too slow)
-   */
-  hideFruit() {
-    this.animationTarget.style.visibility = 'hidden';
-  }
-
-  /**
-   * Returns true if the Pickup is touching a bounding box at Pacman's center
-   * @param {({ x: number, y: number, size: number})} pickup
-   * @param {({ x: number, y: number, size: number})} originalPacman
-   */
-  checkForCollision(pickup, originalPacman) {
-    const pacman = Object.assign({}, originalPacman);
-
-    pacman.x += (pacman.size * 0.25);
-    pacman.y += (pacman.size * 0.25);
-    pacman.size /= 2;
-
-    return (pickup.x < pacman.x + pacman.size
-      && pickup.x + pickup.size > pacman.x
-      && pickup.y < pacman.y + pacman.size
-      && pickup.y + pickup.size > pacman.y);
-  }
-
-  /**
-   * Checks to see if the pickup is close enough to Pacman to be considered for collision detection
-   * @param {number} maxDistance - The maximum distance Pacman can travel per cycle
-   * @param {({ x:number, y:number })} pacmanCenter - The center of Pacman's hitbox
-   * @param {Boolean} debugging - Flag to change the appearance of pickups for testing
-   */
-  checkPacmanProximity(maxDistance, pacmanCenter, debugging) {
-    if (this.animationTarget.style.visibility !== 'hidden') {
-      const distance = Math.sqrt(
-        ((this.center.x - pacmanCenter.x) ** 2)
-        + ((this.center.y - pacmanCenter.y) ** 2),
-      );
-
-      this.nearPacman = (distance <= maxDistance);
-
-      if (debugging) {
-        this.animationTarget.style.background = this.nearPacman
-          ? 'lime' : 'red';
-      }
-    }
-  }
-
-  /**
-   * Checks if the pickup is visible and close to Pacman
-   * @returns {Boolean}
-   */
-  shouldCheckForCollision() {
-    return this.animationTarget.style.visibility !== 'hidden'
-      && this.nearPacman;
-  }
-
-  /**
-   * If the Pickup is still visible, it checks to see if it is colliding with Pacman.
-   * It will turn itself invisible and cease collision-detection after the first
-   * collision with Pacman.
-   */
-  update() {
-    if (this.shouldCheckForCollision()) {
-      if (this.checkForCollision(
-        {
-          x: this.x,
-          y: this.y,
-          size: this.size,
-        }, {
-          x: this.pacman.position.left,
-          y: this.pacman.position.top,
-          size: this.pacman.measurement,
-        },
-      )) {
-        this.animationTarget.style.visibility = 'hidden';
-        window.dispatchEvent(new CustomEvent('awardPoints', {
-          detail: {
-            points: this.points,
-            type: this.type,
-          },
-        }));
-
-        if (this.type === 'pacdot') {
-          window.dispatchEvent(new Event('dotEaten'));
-        } else if (this.type === 'powerPellet') {
-          window.dispatchEvent(new Event('dotEaten'));
-          window.dispatchEvent(new Event('powerUp'));
-        }
-      }
-    }
   }
 }
 
@@ -2744,10 +2868,12 @@ class SoundManager {
    * Loops an ambient sound
    * @param {String} sound
    */
-  async setAmbience(sound) {
+  async setAmbience(sound, keepCurrentAmbience) {
     if (!this.fetchingAmbience) {
       this.fetchingAmbience = true;
-      this.currentAmbience = sound;
+      if (!keepCurrentAmbience) {
+        this.currentAmbience = sound;
+      }
 
       if (this.ambienceSource) {
         this.ambienceSource.stop();
