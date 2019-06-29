@@ -337,6 +337,31 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('updateFruitDisplay', () => {
+    it('adds a fruit pic to the fruitDisplay', () => {
+      const removeSpy = sinon.fake();
+      const appendSpy = sinon.fake();
+      comp.fruitDisplay = {
+        children: { length: 1 },
+        removeChild: removeSpy,
+        appendChild: appendSpy,
+      };
+      const attributeSpy = sinon.fake();
+      global.document.createElement = () => ({
+        setAttribute: attributeSpy,
+      });
+
+      comp.updateFruitDisplay('url(image.svg)');
+      assert(!removeSpy.called);
+      assert(attributeSpy.calledWith('src', 'image.svg'));
+      assert(appendSpy.called);
+
+      comp.fruitDisplay.children.length = 7;
+      comp.updateFruitDisplay('url(image.svg)');
+      assert(removeSpy.called);
+    });
+  });
+
   describe('ghostCycle', () => {
     it('changes ghosts to Chase mode after seven seconds', () => {
       comp.ghosts = [{ changeMode: sinon.fake() }];
@@ -548,6 +573,11 @@ describe('gameCoordinator', () => {
   });
 
   describe('awardPoints', () => {
+    beforeEach(() => {
+      comp.updateFruitDisplay = sinon.fake();
+      comp.fruit.determineImage = sinon.fake();
+    });
+
     it('adds to the total number of points', () => {
       comp.points = 0;
       global.localStorage.setItem = sinon.fake();
