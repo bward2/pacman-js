@@ -160,17 +160,34 @@ describe('gameCoordinator', () => {
   describe('reset', () => {
     it('resets gameCoordinator values to their default states', () => {
       comp.collisionDetectionLoop = sinon.fake();
+      comp.drawMaze = sinon.fake();
 
       comp.reset();
+      assert.deepEqual(comp.activeTimers, []);
+      assert.strictEqual(comp.points, 0);
+      assert.strictEqual(comp.level, 1);
+      assert.strictEqual(comp.lives, 2);
+      assert.strictEqual(comp.remainingDots, 0);
+      assert.strictEqual(comp.allowKeyPresses, true);
+      assert.strictEqual(comp.allowPacmanMovement, false);
+      assert.strictEqual(comp.allowPause, false);
+      assert.strictEqual(comp.cutscene, true);
+      assert.strictEqual(comp.entityList.length, 6);
+      assert.strictEqual(comp.ghosts.length, 4);
+      assert.deepEqual(comp.scaredGhosts, []);
+      assert.strictEqual(comp.eyeGhosts, 0);
+      assert(comp.drawMaze.calledWith(comp.mazeArray, comp.entityList));
 
       clock.tick(500);
       assert(comp.collisionDetectionLoop.called);
     });
 
-    it('does stuff', () => {
+    it('does not call drawMaze if firstGame is FALSE', () => {
       comp.firstGame = false;
+      comp.drawMaze = sinon.fake();
 
       comp.reset();
+      assert(!comp.drawMaze.called);
     });
   });
 
