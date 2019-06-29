@@ -623,6 +623,7 @@ class GameCoordinator {
         });
       } else {
         this.soundManager.stopAmbience();
+        this.soundManager.setAmbience('pause_beat', true);
         this.activeTimers.forEach((timer) => {
           timer.pause();
         });

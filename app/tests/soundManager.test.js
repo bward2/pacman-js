@@ -103,6 +103,13 @@ describe('soundManager', () => {
       comp.setAmbience('some_sound');
       assert(comp.ambienceSource.stop.called);
     });
+
+    it('keeps the current ambience if needed', () => {
+      comp.currentAmbience = 'blah';
+
+      comp.setAmbience('some_sound', true);
+      assert.strictEqual(comp.currentAmbience, 'blah');
+    });
   });
 
   describe('resumeAmbience', () => {

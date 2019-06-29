@@ -1727,6 +1727,7 @@ class GameCoordinator {
         });
       } else {
         this.soundManager.stopAmbience();
+        this.soundManager.setAmbience('pause_beat', true);
         this.activeTimers.forEach((timer) => {
           timer.pause();
         });
@@ -2856,10 +2857,12 @@ class SoundManager {
    * Loops an ambient sound
    * @param {String} sound
    */
-  async setAmbience(sound) {
+  async setAmbience(sound, keepCurrentAmbience) {
     if (!this.fetchingAmbience) {
       this.fetchingAmbience = true;
-      this.currentAmbience = sound;
+      if (!keepCurrentAmbience) {
+        this.currentAmbience = sound;
+      }
 
       if (this.ambienceSource) {
         this.ambienceSource.stop();
