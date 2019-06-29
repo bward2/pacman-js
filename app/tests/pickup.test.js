@@ -55,7 +55,7 @@ describe('pickup', () => {
       assert.strictEqual(pickup.y, 11);
       assert.deepEqual(pickup.animationTarget.style, {
         backgroundImage: 'url(app/style/graphics/spriteSheets/pickups/'
-          + 'pacdot.svg',
+          + 'pacdot.svg)',
         backgroundSize: '2px',
         height: '2px',
         left: '11px',
@@ -74,7 +74,7 @@ describe('pickup', () => {
       assert.strictEqual(pickup.y, 8);
       assert.deepEqual(pickup.animationTarget.style, {
         backgroundImage: 'url(app/style/graphics/spriteSheets/pickups/'
-         + 'powerPellet.svg',
+         + 'powerPellet.svg)',
         backgroundSize: '8px',
         height: '8px',
         left: '8px',
@@ -94,7 +94,7 @@ describe('pickup', () => {
       assert.strictEqual(pickup.y, 4);
       assert.deepEqual(pickup.animationTarget.style, {
         backgroundImage: 'url(app/style/graphics/spriteSheets/pickups/'
-         + 'cherry.svg',
+         + 'cherry.svg)',
         backgroundSize: '16px',
         height: '16px',
         left: '4px',
@@ -116,56 +116,56 @@ describe('pickup', () => {
     it('returns correct images for fruits', () => {
       assert.strictEqual(
         pickup.determineImage('fruit', 100),
-        `${baseUrl}cherry.svg`,
+        `${baseUrl}cherry.svg)`,
       );
 
       assert.strictEqual(
         pickup.determineImage('fruit', 300),
-        `${baseUrl}strawberry.svg`,
+        `${baseUrl}strawberry.svg)`,
       );
 
       assert.strictEqual(
         pickup.determineImage('fruit', 500),
-        `${baseUrl}orange.svg`,
+        `${baseUrl}orange.svg)`,
       );
 
       assert.strictEqual(
         pickup.determineImage('fruit', 700),
-        `${baseUrl}apple.svg`,
+        `${baseUrl}apple.svg)`,
       );
 
       assert.strictEqual(
         pickup.determineImage('fruit', 1000),
-        `${baseUrl}melon.svg`,
+        `${baseUrl}melon.svg)`,
       );
 
       assert.strictEqual(
         pickup.determineImage('fruit', 2000),
-        `${baseUrl}galaxian.svg`,
+        `${baseUrl}galaxian.svg)`,
       );
 
       assert.strictEqual(
         pickup.determineImage('fruit', 3000),
-        `${baseUrl}bell.svg`,
+        `${baseUrl}bell.svg)`,
       );
 
       assert.strictEqual(
         pickup.determineImage('fruit', 5000),
-        `${baseUrl}key.svg`,
+        `${baseUrl}key.svg)`,
       );
     });
 
     it('returns cherry by default for unrecognized fruit', () => {
       const unknown = pickup.determineImage('fruit', undefined);
-      assert.strictEqual(unknown, `${baseUrl}cherry.svg`);
+      assert.strictEqual(unknown, `${baseUrl}cherry.svg)`);
     });
 
     it('returns correct images for other pickups', () => {
       const pacdot = pickup.determineImage('pacdot', undefined);
-      assert.strictEqual(pacdot, `${baseUrl}pacdot.svg`);
+      assert.strictEqual(pacdot, `${baseUrl}pacdot.svg)`);
 
       const powerPellet = pickup.determineImage('powerPellet', undefined);
-      assert.strictEqual(powerPellet, `${baseUrl}powerPellet.svg`);
+      assert.strictEqual(powerPellet, `${baseUrl}powerPellet.svg)`);
     });
   });
 

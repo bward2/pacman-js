@@ -7,6 +7,7 @@ class GameCoordinator {
     this.pointsDisplay = document.getElementById('points-display');
     this.highScoreDisplay = document.getElementById('high-score-display');
     this.extraLivesDisplay = document.getElementById('extra-lives');
+    this.fruitDisplay = document.getElementById('fruit-display');
     this.mainMenu = document.getElementById('main-menu-container');
     this.gameStartButton = document.getElementById('game-start');
     this.leftCover = document.getElementById('left-cover');
@@ -388,6 +389,7 @@ class GameCoordinator {
 
     this.pointsDisplay.innerHTML = '00';
     this.highScoreDisplay.innerHTML = this.highScore || '00';
+    this.clearDisplay(this.fruitDisplay);
   }
 
   /**
@@ -503,18 +505,44 @@ class GameCoordinator {
   }
 
   /**
+   * Clears out all children nodes from a given display element
+   * @param {String} display
+   */
+  clearDisplay(display) {
+    while (display.firstChild) {
+      display.removeChild(display.firstChild);
+    }
+  }
+
+  /**
    * Displays extra life images equal to the number of remaining lives
    */
   updateExtraLivesDisplay() {
-    while (this.extraLivesDisplay.firstChild) {
-      this.extraLivesDisplay.removeChild(this.extraLivesDisplay.firstChild);
-    }
+    this.clearDisplay(this.extraLivesDisplay);
 
     for (let i = 0; i < this.lives; i += 1) {
       const extraLifePic = document.createElement('img');
       extraLifePic.setAttribute('src', 'app/style/graphics/extra_life.svg');
       this.extraLivesDisplay.appendChild(extraLifePic);
     }
+  }
+
+  /**
+   * Displays a rolling log of the seven most-recently eaten fruit
+   * @param {String} rawImageSource
+   */
+  updateFruitDisplay(rawImageSource) {
+    const parsedSource = rawImageSource.slice(
+      rawImageSource.indexOf('(') + 1, rawImageSource.indexOf(')'),
+    );
+
+    if (this.fruitDisplay.children.length === 7) {
+      this.fruitDisplay.removeChild(this.fruitDisplay.firstChild);
+    }
+
+    const fruitPic = document.createElement('img');
+    fruitPic.setAttribute('src', parsedSource);
+    this.fruitDisplay.appendChild(fruitPic);
   }
 
   /**
@@ -668,6 +696,9 @@ class GameCoordinator {
 
       this.displayText({ left, top }, e.detail.points, 2000, width, height);
       this.soundManager.play('fruit');
+      this.updateFruitDisplay(this.fruit.determineImage(
+        'fruit', e.detail.points,
+      ));
     }
   }
 

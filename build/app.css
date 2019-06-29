@@ -80,14 +80,19 @@ body {
   .game-ui .bottom {
     justify-content: space-between;
     margin-top: 10px; }
+    .game-ui .bottom img {
+      height: 48px; }
     .game-ui .bottom .extra-lives {
       align-items: flex-start;
       display: flex;
       height: 48px; }
-      .game-ui .bottom .extra-lives img {
-        height: 48px; }
       .game-ui .bottom .extra-lives :not(:first-child) {
         margin-left: 5px; }
+    .game-ui .bottom .fruit-display {
+      display: flex;
+      flex-direction: row-reverse; }
+      .game-ui .bottom .fruit-display :not(:first-child) {
+        margin-right: 5px; }
 
 @media (orientation: landscape) {
   .game-ui {

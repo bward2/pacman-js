@@ -100,17 +100,26 @@ body {
     justify-content: space-between;
     margin-top: 10px;
 
+    img {
+      height: 48px;
+    }
+
     .extra-lives {
       align-items: flex-start;
       display: flex;
       height: 48px;
 
-      img {
-        height: 48px;
-      }
-
       :not(:first-child) {
         margin-left: 5px;
+      }
+    }
+
+    .fruit-display {
+      display: flex;
+      flex-direction: row-reverse;
+
+      :not(:first-child) {
+        margin-right: 5px;
       }
     }
   }
