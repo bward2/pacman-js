@@ -14,6 +14,15 @@ describe('soundManager', () => {
     comp = new SoundManager();
   });
 
+  describe('setCutscene', () => {
+    it('sets new values for cutscene', () => {
+      comp.cutscene = false;
+
+      comp.setCutscene(true);
+      assert.strictEqual(comp.cutscene, true);
+    });
+  });
+
   describe('setMasterVolume', () => {
     it('sets the master volume for all sounds and toggles ambience', () => {
       comp.stopAmbience = sinon.fake();
@@ -92,6 +101,7 @@ describe('soundManager', () => {
         connect: connectSpy,
         start: startSpy,
       });
+      comp.cutscene = false;
     });
 
     it('does nothing if fetchingAmbience is TRUE', () => {

@@ -1610,6 +1610,7 @@ class GameCoordinator {
     new Timer(() => {
       this.allowPause = true;
       this.cutscene = false;
+      this.soundManager.setCutscene(this.cutscene);
       this.soundManager.setAmbience(this.determineSiren(this.remainingDots));
 
       this.allowPacmanMovement = true;
@@ -1838,6 +1839,7 @@ class GameCoordinator {
   deathSequence() {
     this.allowPause = false;
     this.cutscene = true;
+    this.soundManager.setCutscene(this.cutscene);
     this.soundManager.stopAmbience();
     this.removeTimer({ detail: { timer: this.fruitTimer } });
     this.removeTimer({ detail: { timer: this.ghostCycleTimer } });
@@ -1982,6 +1984,7 @@ class GameCoordinator {
   advanceLevel() {
     this.allowPause = false;
     this.cutscene = true;
+    this.soundManager.setCutscene(this.cutscene);
     this.allowKeyPresses = false;
     this.soundManager.stopAmbience();
 
@@ -2873,8 +2876,17 @@ class SoundManager {
     this.fileFormat = 'mp3';
     this.masterVolume = 1;
     this.paused = false;
+    this.cutscene = true;
 
     this.ambience = new AudioContext();
+  }
+
+  /**
+   * Sets the cutscene flag to determine if players should be able to resume ambience
+   * @param {Boolean} newValue
+   */
+  setCutscene(newValue) {
+    this.cutscene = newValue;
   }
 
   /**
@@ -2945,7 +2957,7 @@ class SoundManager {
    * @param {String} sound
    */
   async setAmbience(sound, keepCurrentAmbience) {
-    if (!this.fetchingAmbience) {
+    if (!this.fetchingAmbience && !this.cutscene) {
       if (!keepCurrentAmbience) {
         this.currentAmbience = sound;
         this.paused = false;

@@ -42,6 +42,8 @@ describe('gameCoordinator', () => {
     };
 
     global.SoundManager = class {
+      setCutscene() {}
+
       play() {}
 
       setAmbience() {}
@@ -279,6 +281,7 @@ describe('gameCoordinator', () => {
       const ambientSpy = sinon.fake();
       comp.soundManager = {
         setAmbience: ambientSpy,
+        setCutscene: sinon.fake(),
       };
 
       comp.startGameplay();
@@ -310,6 +313,7 @@ describe('gameCoordinator', () => {
       comp.soundManager = {
         play: playSpy,
         setAmbience: ambientSpy,
+        setCutscene: sinon.fake(),
       };
 
       comp.startGameplay(true);

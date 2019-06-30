@@ -500,6 +500,7 @@ class GameCoordinator {
     new Timer(() => {
       this.allowPause = true;
       this.cutscene = false;
+      this.soundManager.setCutscene(this.cutscene);
       this.soundManager.setAmbience(this.determineSiren(this.remainingDots));
 
       this.allowPacmanMovement = true;
@@ -728,6 +729,7 @@ class GameCoordinator {
   deathSequence() {
     this.allowPause = false;
     this.cutscene = true;
+    this.soundManager.setCutscene(this.cutscene);
     this.soundManager.stopAmbience();
     this.removeTimer({ detail: { timer: this.fruitTimer } });
     this.removeTimer({ detail: { timer: this.ghostCycleTimer } });
@@ -872,6 +874,7 @@ class GameCoordinator {
   advanceLevel() {
     this.allowPause = false;
     this.cutscene = true;
+    this.soundManager.setCutscene(this.cutscene);
     this.allowKeyPresses = false;
     this.soundManager.stopAmbience();
 

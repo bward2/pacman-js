@@ -4,8 +4,17 @@ class SoundManager {
     this.fileFormat = 'mp3';
     this.masterVolume = 1;
     this.paused = false;
+    this.cutscene = true;
 
     this.ambience = new AudioContext();
+  }
+
+  /**
+   * Sets the cutscene flag to determine if players should be able to resume ambience
+   * @param {Boolean} newValue
+   */
+  setCutscene(newValue) {
+    this.cutscene = newValue;
   }
 
   /**
@@ -76,7 +85,7 @@ class SoundManager {
    * @param {String} sound
    */
   async setAmbience(sound, keepCurrentAmbience) {
-    if (!this.fetchingAmbience) {
+    if (!this.fetchingAmbience && !this.cutscene) {
       if (!keepCurrentAmbience) {
         this.currentAmbience = sound;
         this.paused = false;
