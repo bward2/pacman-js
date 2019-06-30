@@ -2983,7 +2983,11 @@ class SoundManager {
     if (this.ambienceSource) {
       // Resetting the ambience since an AudioBufferSourceNode can only
       // have 'start()' called once
-      this.setAmbience(paused ? 'pause_beat' : this.currentAmbience);
+      if (paused) {
+        this.setAmbience('pause_beat', true);
+      } else {
+        this.setAmbience(this.currentAmbience);
+      }
     }
   }
 
