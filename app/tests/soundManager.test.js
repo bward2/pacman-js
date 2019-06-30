@@ -14,6 +14,23 @@ describe('soundManager', () => {
     comp = new SoundManager();
   });
 
+  describe('setMasterVolume', () => {
+    it('sets the master volume for all sounds and toggles ambience', () => {
+      comp.stopAmbience = sinon.fake();
+      comp.resumeAmbience = sinon.fake();
+
+      comp.setMasterVolume(1);
+      assert(comp.resumeAmbience.calledWith(comp.paused));
+
+      comp.soundEffect = {};
+      comp.dotPlayer = {};
+      comp.setMasterVolume(0);
+      assert.strictEqual(comp.soundEffect.volume, 0);
+      assert.strictEqual(comp.dotPlayer.volume, 0);
+      assert(comp.stopAmbience.called);
+    });
+  });
+
   describe('play', () => {
     it('plays a given sound effect', () => {
       const spy = sinon.spy(global, 'Audio');
@@ -84,6 +101,13 @@ describe('soundManager', () => {
       assert(!arraySpy.called);
     });
 
+    it('does not start new ambience if masterVolume is ZERO', () => {
+      comp.masterVolume = 0;
+
+      comp.setAmbience('some_sound');
+      assert(!arraySpy.called);
+    });
+
     it('loops an ambient sound', async () => {
       await comp.setAmbience('some_sound');
       assert(global.fetch.calledWith('app/style/audio/some_sound.mp3'));
@@ -122,6 +146,14 @@ describe('soundManager', () => {
       comp.ambienceSource = {};
       comp.resumeAmbience();
       assert(comp.setAmbience.calledWith(comp.currentAmbience));
+    });
+
+    it('sets ambience to pause_beat if the game is paused', () => {
+      comp.setAmbience = sinon.fake();
+      comp.ambienceSource = {};
+
+      comp.resumeAmbience(true);
+      assert(comp.setAmbience.calledWith('pause_beat'));
     });
   });
 

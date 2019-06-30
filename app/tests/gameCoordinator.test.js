@@ -118,8 +118,18 @@ describe('gameCoordinator', () => {
   });
 
   describe('soundButtonClick', () => {
-    it('does stuff', () => {
+    it('calls setMasterVolume and toggles the soundButton icon', () => {
+      comp.soundManager.setMasterVolume = sinon.fake();
+
+      comp.soundManager.masterVolume = 1;
       comp.soundButtonClick();
+      assert(comp.soundManager.setMasterVolume.calledWith(0));
+      assert.strictEqual(comp.soundButton.innerHTML, 'volume_off');
+
+      comp.soundManager.masterVolume = 0;
+      comp.soundButtonClick();
+      assert(comp.soundManager.setMasterVolume.calledWith(1));
+      assert.strictEqual(comp.soundButton.innerHTML, 'volume_up');
     });
   });
 

@@ -127,8 +127,11 @@ class GameCoordinator {
   }
 
   soundButtonClick() {
-    const blah = 'blah';
-    blah.slice();
+    const newVolume = this.soundManager.masterVolume === 1 ? 0 : 1;
+    this.soundManager.setMasterVolume(newVolume);
+    this.soundButton.innerHTML = newVolume === 1
+      ? 'volume_up'
+      : 'volume_off';
   }
 
   /**
