@@ -39,6 +39,20 @@ body {
   position: absolute;
   visibility: hidden; }
 
+.header-buttons {
+  margin: 16px;
+  position: absolute;
+  width: 100%; }
+  .header-buttons button {
+    color: #fff;
+    cursor: pointer;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0; }
+    .header-buttons button .material-icons {
+      font-size: 40px; }
+
 .paused-text {
   align-items: center;
   display: flex;
@@ -46,6 +60,7 @@ body {
   height: 100%;
   position: absolute;
   visibility: hidden;
+  user-select: none;
   z-index: 1; }
 
 .game-ui {
