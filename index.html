@@ -2,7 +2,7 @@
 <html>
   <head>
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-142539004-1"></script>
+    <script async src='https://www.googletagmanager.com/gtag/js?id=UA-142539004-1'></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -12,10 +12,10 @@
     </script>
 
     <script src='build/app.js'></script>
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
+    <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'>
+    <link href='https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/icon?family=Material+Icons'
+      rel='stylesheet'>
     <title>Pacman</title>
   </head>
 
@@ -30,6 +30,17 @@
         <img id='logo' class='logo' src='app/style/graphics/pacman_logo.png'>
         <button id='game-start' class='game-start'>
           PLAY
+        </button>
+      </div>
+
+      <div class='header-buttons'>
+        <button>
+          <i id='pause-button' class='material-icons'>
+            pause
+          </i>
+        </button>
+        <button>
+          <i id='sound-button' class='material-icons'></i>
         </button>
       </div>
 
@@ -70,20 +81,20 @@
       <div id='movement-buttons' class='movement-buttons'>
         <div class='row'>
           <button id='button-up' class='button-up'>
-            <i class="material-icons">keyboard_arrow_up</i>
+            <i class='material-icons'>keyboard_arrow_up</i>
           </button>
         </div>
         <div class='row'>
           <button id='button-left' class='button-left'>
-            <i class="material-icons">keyboard_arrow_left</i>
+            <i class='material-icons'>keyboard_arrow_left</i>
           </button>
           <button id='button-right' class='button-right'>
-            <i class="material-icons">keyboard_arrow_right</i>
+            <i class='material-icons'>keyboard_arrow_right</i>
           </button>
         </div>
         <div class='row'>
           <button id='button-down' class='button-down'>
-            <i class="material-icons">keyboard_arrow_down</i>
+            <i class='material-icons'>keyboard_arrow_down</i>
           </button>
         </div>
       </div>

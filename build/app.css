@@ -39,12 +39,27 @@ body {
   position: absolute;
   visibility: hidden; }
 
+.header-buttons {
+  margin: 16px;
+  position: absolute;
+  width: 100%; }
+  .header-buttons button {
+    background: none;
+    border: 0;
+    color: #fff;
+    cursor: pointer;
+    outline: none;
+    padding: 0; }
+    .header-buttons button .material-icons {
+      font-size: 40px; }
+
 .paused-text {
   align-items: center;
   display: flex;
   font-size: 50px;
   height: 100%;
   position: absolute;
+  user-select: none;
   visibility: hidden;
   z-index: 1; }
 

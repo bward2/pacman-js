@@ -10,6 +10,8 @@ class GameCoordinator {
     this.fruitDisplay = document.getElementById('fruit-display');
     this.mainMenu = document.getElementById('main-menu-container');
     this.gameStartButton = document.getElementById('game-start');
+    this.pauseButton = document.getElementById('pause-button');
+    this.soundButton = document.getElementById('sound-button');
     this.leftCover = document.getElementById('left-cover');
     this.rightCover = document.getElementById('right-cover');
     this.pausedText = document.getElementById('paused-text');
@@ -83,8 +85,15 @@ class GameCoordinator {
       this.mazeArray[rowIndex] = row[0].split('');
     });
 
-    const gameStartButton = document.getElementById('game-start');
-    gameStartButton.addEventListener('click', this.startButtonClick.bind(this));
+    this.gameStartButton.addEventListener(
+      'click', this.startButtonClick.bind(this),
+    );
+    this.pauseButton.addEventListener(
+      'click', this.handlePauseKey.bind(this),
+    );
+    this.soundButton.addEventListener(
+      'click', this.soundButtonClick.bind(this),
+    );
 
     const head = document.getElementsByTagName('head')[0];
     const link = document.createElement('link');
@@ -115,6 +124,25 @@ class GameCoordinator {
       this.init();
     }
     this.startGameplay(true);
+  }
+
+  /**
+   * Toggles the master volume for the soundManager, and saves the preference to storage
+   */
+  soundButtonClick() {
+    const newVolume = this.soundManager.masterVolume === 1 ? 0 : 1;
+    this.soundManager.setMasterVolume(newVolume);
+    localStorage.setItem('volumePreference', newVolume);
+    this.setSoundButtonIcon(newVolume);
+  }
+
+  /**
+   * Sets the icon for the sound button
+   */
+  setSoundButtonIcon(newVolume) {
+    this.soundButton.innerHTML = newVolume === 0
+      ? 'volume_off'
+      : 'volume_up';
   }
 
   /**
@@ -373,6 +401,7 @@ class GameCoordinator {
 
     if (this.firstGame) {
       this.drawMaze(this.mazeArray, this.entityList);
+      this.soundManager = new SoundManager();
     } else {
       this.pacman.reset();
       this.ghosts.forEach((ghost) => {
@@ -390,6 +419,12 @@ class GameCoordinator {
     this.pointsDisplay.innerHTML = '00';
     this.highScoreDisplay.innerHTML = this.highScore || '00';
     this.clearDisplay(this.fruitDisplay);
+
+    const volumePreference = parseInt(
+      localStorage.getItem('volumePreference') || 1, 10,
+    );
+    this.setSoundButtonIcon(volumePreference);
+    this.soundManager.setMasterVolume(volumePreference);
   }
 
   /**
@@ -400,8 +435,6 @@ class GameCoordinator {
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
-
-    this.soundManager = new SoundManager();
   }
 
   /**
@@ -483,6 +516,7 @@ class GameCoordinator {
     new Timer(() => {
       this.allowPause = true;
       this.cutscene = false;
+      this.soundManager.setCutscene(this.cutscene);
       this.soundManager.setAmbience(this.determineSiren(this.remainingDots));
 
       this.allowPacmanMovement = true;
@@ -621,9 +655,12 @@ class GameCoordinator {
    * @param {Event} e - The keydown event to evaluate
    */
   handleKeyDown(e) {
-    // ESC key
     if (e.keyCode === 27) {
+      // ESC key
       this.handlePauseKey();
+    } else if (e.keyCode === 81) {
+      // Q
+      this.soundButtonClick();
     } else if (this.movementKeys[e.keyCode]) {
       this.changeDirection(this.movementKeys[e.keyCode]);
     }
@@ -649,6 +686,7 @@ class GameCoordinator {
         this.soundManager.resumeAmbience();
         this.gameUi.style.filter = 'unset';
         this.pausedText.style.visibility = 'hidden';
+        this.pauseButton.innerHTML = 'pause';
         this.activeTimers.forEach((timer) => {
           timer.resume();
         });
@@ -657,6 +695,7 @@ class GameCoordinator {
         this.soundManager.setAmbience('pause_beat', true);
         this.gameUi.style.filter = 'blur(5px)';
         this.pausedText.style.visibility = 'visible';
+        this.pauseButton.innerHTML = 'play_arrow';
         this.activeTimers.forEach((timer) => {
           timer.pause();
         });
@@ -709,6 +748,7 @@ class GameCoordinator {
   deathSequence() {
     this.allowPause = false;
     this.cutscene = true;
+    this.soundManager.setCutscene(this.cutscene);
     this.soundManager.stopAmbience();
     this.removeTimer({ detail: { timer: this.fruitTimer } });
     this.removeTimer({ detail: { timer: this.ghostCycleTimer } });
@@ -853,6 +893,7 @@ class GameCoordinator {
   advanceLevel() {
     this.allowPause = false;
     this.cutscene = true;
+    this.soundManager.setCutscene(this.cutscene);
     this.allowKeyPresses = false;
     this.soundManager.stopAmbience();
 

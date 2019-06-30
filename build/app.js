@@ -1120,6 +1120,8 @@ class GameCoordinator {
     this.fruitDisplay = document.getElementById('fruit-display');
     this.mainMenu = document.getElementById('main-menu-container');
     this.gameStartButton = document.getElementById('game-start');
+    this.pauseButton = document.getElementById('pause-button');
+    this.soundButton = document.getElementById('sound-button');
     this.leftCover = document.getElementById('left-cover');
     this.rightCover = document.getElementById('right-cover');
     this.pausedText = document.getElementById('paused-text');
@@ -1193,8 +1195,15 @@ class GameCoordinator {
       this.mazeArray[rowIndex] = row[0].split('');
     });
 
-    const gameStartButton = document.getElementById('game-start');
-    gameStartButton.addEventListener('click', this.startButtonClick.bind(this));
+    this.gameStartButton.addEventListener(
+      'click', this.startButtonClick.bind(this),
+    );
+    this.pauseButton.addEventListener(
+      'click', this.handlePauseKey.bind(this),
+    );
+    this.soundButton.addEventListener(
+      'click', this.soundButtonClick.bind(this),
+    );
 
     const head = document.getElementsByTagName('head')[0];
     const link = document.createElement('link');
@@ -1225,6 +1234,25 @@ class GameCoordinator {
       this.init();
     }
     this.startGameplay(true);
+  }
+
+  /**
+   * Toggles the master volume for the soundManager, and saves the preference to storage
+   */
+  soundButtonClick() {
+    const newVolume = this.soundManager.masterVolume === 1 ? 0 : 1;
+    this.soundManager.setMasterVolume(newVolume);
+    localStorage.setItem('volumePreference', newVolume);
+    this.setSoundButtonIcon(newVolume);
+  }
+
+  /**
+   * Sets the icon for the sound button
+   */
+  setSoundButtonIcon(newVolume) {
+    this.soundButton.innerHTML = newVolume === 0
+      ? 'volume_off'
+      : 'volume_up';
   }
 
   /**
@@ -1483,6 +1511,7 @@ class GameCoordinator {
 
     if (this.firstGame) {
       this.drawMaze(this.mazeArray, this.entityList);
+      this.soundManager = new SoundManager();
     } else {
       this.pacman.reset();
       this.ghosts.forEach((ghost) => {
@@ -1500,6 +1529,12 @@ class GameCoordinator {
     this.pointsDisplay.innerHTML = '00';
     this.highScoreDisplay.innerHTML = this.highScore || '00';
     this.clearDisplay(this.fruitDisplay);
+
+    const volumePreference = parseInt(
+      localStorage.getItem('volumePreference') || 1, 10,
+    );
+    this.setSoundButtonIcon(volumePreference);
+    this.soundManager.setMasterVolume(volumePreference);
   }
 
   /**
@@ -1510,8 +1545,6 @@ class GameCoordinator {
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
-
-    this.soundManager = new SoundManager();
   }
 
   /**
@@ -1593,6 +1626,7 @@ class GameCoordinator {
     new Timer(() => {
       this.allowPause = true;
       this.cutscene = false;
+      this.soundManager.setCutscene(this.cutscene);
       this.soundManager.setAmbience(this.determineSiren(this.remainingDots));
 
       this.allowPacmanMovement = true;
@@ -1731,9 +1765,12 @@ class GameCoordinator {
    * @param {Event} e - The keydown event to evaluate
    */
   handleKeyDown(e) {
-    // ESC key
     if (e.keyCode === 27) {
+      // ESC key
       this.handlePauseKey();
+    } else if (e.keyCode === 81) {
+      // Q
+      this.soundButtonClick();
     } else if (this.movementKeys[e.keyCode]) {
       this.changeDirection(this.movementKeys[e.keyCode]);
     }
@@ -1759,6 +1796,7 @@ class GameCoordinator {
         this.soundManager.resumeAmbience();
         this.gameUi.style.filter = 'unset';
         this.pausedText.style.visibility = 'hidden';
+        this.pauseButton.innerHTML = 'pause';
         this.activeTimers.forEach((timer) => {
           timer.resume();
         });
@@ -1767,6 +1805,7 @@ class GameCoordinator {
         this.soundManager.setAmbience('pause_beat', true);
         this.gameUi.style.filter = 'blur(5px)';
         this.pausedText.style.visibility = 'visible';
+        this.pauseButton.innerHTML = 'play_arrow';
         this.activeTimers.forEach((timer) => {
           timer.pause();
         });
@@ -1819,6 +1858,7 @@ class GameCoordinator {
   deathSequence() {
     this.allowPause = false;
     this.cutscene = true;
+    this.soundManager.setCutscene(this.cutscene);
     this.soundManager.stopAmbience();
     this.removeTimer({ detail: { timer: this.fruitTimer } });
     this.removeTimer({ detail: { timer: this.ghostCycleTimer } });
@@ -1963,6 +2003,7 @@ class GameCoordinator {
   advanceLevel() {
     this.allowPause = false;
     this.cutscene = true;
+    this.soundManager.setCutscene(this.cutscene);
     this.allowKeyPresses = false;
     this.soundManager.stopAmbience();
 
@@ -2852,8 +2893,41 @@ class SoundManager {
   constructor() {
     this.baseUrl = 'app/style/audio/';
     this.fileFormat = 'mp3';
+    this.masterVolume = 1;
+    this.paused = false;
+    this.cutscene = true;
 
     this.ambience = new AudioContext();
+  }
+
+  /**
+   * Sets the cutscene flag to determine if players should be able to resume ambience
+   * @param {Boolean} newValue
+   */
+  setCutscene(newValue) {
+    this.cutscene = newValue;
+  }
+
+  /**
+   * Sets the master volume for all sounds and stops/resumes ambience
+   * @param {(0|1)} newVolume
+   */
+  setMasterVolume(newVolume) {
+    this.masterVolume = newVolume;
+
+    if (this.soundEffect) {
+      this.soundEffect.volume = this.masterVolume;
+    }
+
+    if (this.dotPlayer) {
+      this.dotPlayer.volume = this.masterVolume;
+    }
+
+    if (this.masterVolume === 0) {
+      this.stopAmbience();
+    } else {
+      this.resumeAmbience(this.paused);
+    }
   }
 
   /**
@@ -2861,8 +2935,9 @@ class SoundManager {
    * @param {String} sound
    */
   play(sound) {
-    const audio = new Audio(`${this.baseUrl}${sound}.${this.fileFormat}`);
-    audio.play();
+    this.soundEffect = new Audio(`${this.baseUrl}${sound}.${this.fileFormat}`);
+    this.soundEffect.volume = this.masterVolume;
+    this.soundEffect.play();
   }
 
   /**
@@ -2880,6 +2955,7 @@ class SoundManager {
         `${this.baseUrl}dot_${this.dotSound}.${this.fileFormat}`,
       );
       this.dotPlayer.onended = this.dotSoundEnded.bind(this);
+      this.dotPlayer.volume = this.masterVolume;
       this.dotPlayer.play();
     }
   }
@@ -2900,40 +2976,49 @@ class SoundManager {
    * @param {String} sound
    */
   async setAmbience(sound, keepCurrentAmbience) {
-    if (!this.fetchingAmbience) {
-      this.fetchingAmbience = true;
+    if (!this.fetchingAmbience && !this.cutscene) {
       if (!keepCurrentAmbience) {
         this.currentAmbience = sound;
+        this.paused = false;
+      } else {
+        this.paused = true;
       }
 
       if (this.ambienceSource) {
         this.ambienceSource.stop();
       }
 
-      const response = await fetch(
-        `${this.baseUrl}${sound}.${this.fileFormat}`,
-      );
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await this.ambience.decodeAudioData(arrayBuffer);
+      if (this.masterVolume !== 0) {
+        this.fetchingAmbience = true;
+        const response = await fetch(
+          `${this.baseUrl}${sound}.${this.fileFormat}`,
+        );
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await this.ambience.decodeAudioData(arrayBuffer);
 
-      this.ambienceSource = this.ambience.createBufferSource();
-      this.ambienceSource.buffer = audioBuffer;
-      this.ambienceSource.connect(this.ambience.destination);
-      this.ambienceSource.loop = true;
-      this.ambienceSource.start();
+        this.ambienceSource = this.ambience.createBufferSource();
+        this.ambienceSource.buffer = audioBuffer;
+        this.ambienceSource.connect(this.ambience.destination);
+        this.ambienceSource.loop = true;
+        this.ambienceSource.start();
 
-      this.fetchingAmbience = false;
+        this.fetchingAmbience = false;
+      }
     }
   }
 
   /**
    * Resumes the ambience
    */
-  resumeAmbience() {
+  resumeAmbience(paused) {
     if (this.ambienceSource) {
       // Resetting the ambience since an AudioBufferSourceNode can only
       // have 'start()' called once
-      this.setAmbience(this.currentAmbience);
+      if (paused) {
+        this.setAmbience('pause_beat', true);
+      } else {
+        this.setAmbience(this.currentAmbience);
+      }
     }
   }
 
