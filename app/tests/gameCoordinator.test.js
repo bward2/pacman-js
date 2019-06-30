@@ -461,6 +461,13 @@ describe('gameCoordinator', () => {
       assert(comp.handlePauseKey.called);
     });
 
+    it('calls soundButtonClick when Q is pressed', () => {
+      comp.soundButtonClick = sinon.fake();
+
+      comp.handleKeyDown({ keyCode: 81 });
+      assert(comp.soundButtonClick.called);
+    });
+
     it('calls Pacman\'s changeDirection when a move key is pressed', () => {
       comp.gameEngine.running = true;
       const changeSpy = sinon.fake();

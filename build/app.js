@@ -1765,9 +1765,12 @@ class GameCoordinator {
    * @param {Event} e - The keydown event to evaluate
    */
   handleKeyDown(e) {
-    // ESC key
     if (e.keyCode === 27) {
+      // ESC key
       this.handlePauseKey();
+    } else if (e.keyCode === 81) {
+      // Q
+      this.soundButtonClick();
     } else if (this.movementKeys[e.keyCode]) {
       this.changeDirection(this.movementKeys[e.keyCode]);
     }
