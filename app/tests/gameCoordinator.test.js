@@ -44,6 +44,8 @@ describe('gameCoordinator', () => {
     global.SoundManager = class {
       setCutscene() {}
 
+      setMasterVolume() {}
+
       play() {}
 
       setAmbience() {}
@@ -89,7 +91,6 @@ describe('gameCoordinator', () => {
     comp.mazeDiv.style = {};
     comp.gameUi.style = {};
     comp.reset();
-    comp.soundManager = new SoundManager();
   });
 
   afterEach(() => {

@@ -126,12 +126,23 @@ class GameCoordinator {
     this.startGameplay(true);
   }
 
+  /**
+   * Toggles the master volume for the soundManager, and saves the preference to storage
+   */
   soundButtonClick() {
     const newVolume = this.soundManager.masterVolume === 1 ? 0 : 1;
     this.soundManager.setMasterVolume(newVolume);
-    this.soundButton.innerHTML = newVolume === 1
-      ? 'volume_up'
-      : 'volume_off';
+    localStorage.setItem('volumePreference', newVolume);
+    this.setSoundButtonIcon(newVolume);
+  }
+
+  /**
+   * Sets the icon for the sound button
+   */
+  setSoundButtonIcon(newVolume) {
+    this.soundButton.innerHTML = newVolume === 0
+      ? 'volume_off'
+      : 'volume_up';
   }
 
   /**
@@ -390,6 +401,7 @@ class GameCoordinator {
 
     if (this.firstGame) {
       this.drawMaze(this.mazeArray, this.entityList);
+      this.soundManager = new SoundManager();
     } else {
       this.pacman.reset();
       this.ghosts.forEach((ghost) => {
@@ -407,6 +419,12 @@ class GameCoordinator {
     this.pointsDisplay.innerHTML = '00';
     this.highScoreDisplay.innerHTML = this.highScore || '00';
     this.clearDisplay(this.fruitDisplay);
+
+    const volumePreference = parseInt(
+      localStorage.getItem('volumePreference') || 1, 10,
+    );
+    this.setSoundButtonIcon(volumePreference);
+    this.soundManager.setMasterVolume(volumePreference);
   }
 
   /**
@@ -417,8 +435,6 @@ class GameCoordinator {
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
-
-    this.soundManager = new SoundManager();
   }
 
   /**
