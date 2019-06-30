@@ -10,6 +10,8 @@ class GameCoordinator {
     this.fruitDisplay = document.getElementById('fruit-display');
     this.mainMenu = document.getElementById('main-menu-container');
     this.gameStartButton = document.getElementById('game-start');
+    this.pauseButton = document.getElementById('pause-button');
+    this.soundButton = document.getElementById('sound-button');
     this.leftCover = document.getElementById('left-cover');
     this.rightCover = document.getElementById('right-cover');
     this.pausedText = document.getElementById('paused-text');
@@ -83,8 +85,15 @@ class GameCoordinator {
       this.mazeArray[rowIndex] = row[0].split('');
     });
 
-    const gameStartButton = document.getElementById('game-start');
-    gameStartButton.addEventListener('click', this.startButtonClick.bind(this));
+    this.gameStartButton.addEventListener(
+      'click', this.startButtonClick.bind(this),
+    );
+    this.pauseButton.addEventListener(
+      'click', this.handlePauseKey.bind(this),
+    );
+    this.soundButton.addEventListener(
+      'click', this.soundButtonClick.bind(this),
+    );
 
     const head = document.getElementsByTagName('head')[0];
     const link = document.createElement('link');
@@ -115,6 +124,11 @@ class GameCoordinator {
       this.init();
     }
     this.startGameplay(true);
+  }
+
+  soundButtonClick() {
+    const blah = 'blah';
+    blah.slice();
   }
 
   /**
@@ -649,6 +663,7 @@ class GameCoordinator {
         this.soundManager.resumeAmbience();
         this.gameUi.style.filter = 'unset';
         this.pausedText.style.visibility = 'hidden';
+        this.pauseButton.innerHTML = 'pause';
         this.activeTimers.forEach((timer) => {
           timer.resume();
         });
@@ -657,6 +672,7 @@ class GameCoordinator {
         this.soundManager.setAmbience('pause_beat', true);
         this.gameUi.style.filter = 'blur(5px)';
         this.pausedText.style.visibility = 'visible';
+        this.pauseButton.innerHTML = 'play_arrow';
         this.activeTimers.forEach((timer) => {
           timer.pause();
         });

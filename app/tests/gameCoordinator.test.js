@@ -117,6 +117,12 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('soundButtonClick', () => {
+    it('does stuff', () => {
+      comp.soundButtonClick();
+    });
+  });
+
   describe('preloadAssets', () => {
     it('calls createElements for images and audio', () => {
       const spy = sinon.fake();
