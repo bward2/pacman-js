@@ -44,10 +44,10 @@ body {
   position: absolute;
   width: 100%; }
   .header-buttons button {
+    background: none;
+    border: 0;
     color: #fff;
     cursor: pointer;
-    background: none;
-    border: none;
     outline: none;
     padding: 0; }
     .header-buttons button .material-icons {
@@ -59,8 +59,8 @@ body {
   font-size: 50px;
   height: 100%;
   position: absolute;
-  visibility: hidden;
   user-select: none;
+  visibility: hidden;
   z-index: 1; }
 
 .game-ui {

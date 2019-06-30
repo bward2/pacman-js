@@ -48,10 +48,10 @@ body {
   width: 100%;
 
   button {
+    background: none;
+    border: 0;
     color: $white;
     cursor: pointer;
-    background: none;
-    border: none;
     outline: none;
     padding: 0;
 
@@ -67,8 +67,8 @@ body {
   font-size: 50px;
   height: 100%;
   position: absolute;
-  visibility: hidden;
   user-select: none;
+  visibility: hidden;
   z-index: 1;
 }
 
