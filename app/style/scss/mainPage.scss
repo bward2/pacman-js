@@ -75,9 +75,7 @@ body {
 .game-ui {
   display: flex;
   flex-direction: column;
-  font-size: 25px;
   justify-content: center;
-  line-height: 1.5;
 
   .one-up {
     animation: blink .6s infinite;
@@ -94,8 +92,6 @@ body {
   }
 
   .top {
-    margin-bottom: 10px;
-
     ._25 {
       width: 25%;
     }
@@ -118,29 +114,15 @@ body {
 
   .bottom {
     justify-content: space-between;
-    margin-top: 10px;
-
-    img {
-      height: 48px;
-    }
 
     .extra-lives {
       align-items: flex-start;
       display: flex;
-      height: 48px;
-
-      :not(:first-child) {
-        margin-left: 5px;
-      }
     }
 
     .fruit-display {
       display: flex;
       flex-direction: row-reverse;
-
-      :not(:first-child) {
-        margin-right: 5px;
-      }
     }
   }
 }

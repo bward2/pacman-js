@@ -1,6 +1,7 @@
 class GameCoordinator {
   constructor() {
     this.gameUi = document.getElementById('game-ui');
+    this.rowTop = document.getElementById('row-top');
     this.mazeDiv = document.getElementById('maze');
     this.mazeImg = document.getElementById('maze-img');
     this.mazeCover = document.getElementById('maze-cover');
@@ -18,7 +19,7 @@ class GameCoordinator {
 
     this.maxFps = 120;
     this.tileSize = 8;
-    this.scale = 3;
+    this.scale = this.determineScale(1);
     this.scaledTileSize = this.tileSize * this.scale;
     this.firstGame = true;
 
@@ -103,6 +104,26 @@ class GameCoordinator {
     link.onload = this.preloadAssets.bind(this);
 
     head.appendChild(link);
+  }
+
+  /**
+   * Recursive method which determines the largest possible scale the game's graphics can use
+   * @param {Number} scale
+   */
+  determineScale(scale) {
+    const height = Math.max(
+      document.documentElement.clientHeight, window.innerHeight || 0,
+    );
+    const width = Math.max(
+      document.documentElement.clientWidth, window.innerWidth || 0,
+    );
+    const scaledTileSize = this.tileSize * scale;
+
+    if ((scaledTileSize * 36) < height && (scaledTileSize * 28) < width) {
+      return this.determineScale(scale + 1);
+    }
+
+    return scale - 1;
   }
 
   /**
@@ -419,6 +440,7 @@ class GameCoordinator {
     if (this.firstGame) {
       this.drawMaze(this.mazeArray, this.entityList);
       this.soundManager = new SoundManager();
+      this.setUiDimensions();
     } else {
       this.pacman.reset();
       this.ghosts.forEach((ghost) => {
@@ -485,6 +507,11 @@ class GameCoordinator {
         }
       });
     });
+  }
+
+  setUiDimensions() {
+    this.gameUi.style.fontSize = `${this.scaledTileSize}px`;
+    this.rowTop.style.marginBottom = `${this.scaledTileSize}px`;
   }
 
   /**
@@ -574,6 +601,7 @@ class GameCoordinator {
     for (let i = 0; i < this.lives; i += 1) {
       const extraLifePic = document.createElement('img');
       extraLifePic.setAttribute('src', 'app/style/graphics/extra_life.svg');
+      extraLifePic.style.height = `${this.scaledTileSize * 2}px`;
       this.extraLivesDisplay.appendChild(extraLifePic);
     }
   }
@@ -593,6 +621,7 @@ class GameCoordinator {
 
     const fruitPic = document.createElement('img');
     fruitPic.setAttribute('src', parsedSource);
+    fruitPic.style.height = `${this.scaledTileSize * 2}px`;
     this.fruitDisplay.appendChild(fruitPic);
   }
 

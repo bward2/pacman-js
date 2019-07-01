@@ -58,6 +58,10 @@ describe('gameCoordinator', () => {
     };
 
     global.document = {
+      documentElement: {
+        clientHeight: 1000,
+        clientWidth: 1000,
+      },
       getElementsByTagName: () => ([
         { appendChild: () => { } },
       ]),
@@ -95,6 +99,16 @@ describe('gameCoordinator', () => {
 
   afterEach(() => {
     clock.restore();
+  });
+
+  describe('determineScale', () => {
+    it('recursively calls itself to find the biggest possible scale', () => {
+      sinon.spy(comp, 'determineScale');
+
+      const result = comp.determineScale(1);
+      assert.strictEqual(result, 3);
+      assert.strictEqual(comp.determineScale.callCount, 4);
+    });
   });
 
   describe('startButtonClick', () => {
@@ -363,6 +377,7 @@ describe('gameCoordinator', () => {
       const spy = sinon.fake();
       global.document.createElement = () => ({
         setAttribute: spy,
+        style: {},
       });
       comp.lives = 3;
 
@@ -384,6 +399,7 @@ describe('gameCoordinator', () => {
       const attributeSpy = sinon.fake();
       global.document.createElement = () => ({
         setAttribute: attributeSpy,
+        style: {},
       });
 
       comp.updateFruitDisplay('url(image.svg)');
