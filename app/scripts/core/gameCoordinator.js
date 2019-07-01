@@ -111,10 +111,10 @@ class GameCoordinator {
    * @param {Number} scale
    */
   determineScale(scale) {
-    const height = Math.max(
+    const height = Math.min(
       document.documentElement.clientHeight, window.innerHeight || 0,
     );
-    const width = Math.max(
+    const width = Math.min(
       document.documentElement.clientWidth, window.innerWidth || 0,
     );
     const scaledTileSize = this.tileSize * scale;
