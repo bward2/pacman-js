@@ -59,8 +59,8 @@ describe('gameCoordinator', () => {
 
     global.document = {
       documentElement: {
-        clientHeight: 500,
-        clientWidth: 500,
+        clientHeight: 1000,
+        clientWidth: 1000,
       },
       getElementsByTagName: () => ([
         { appendChild: () => { } },
@@ -99,6 +99,16 @@ describe('gameCoordinator', () => {
 
   afterEach(() => {
     clock.restore();
+  });
+
+  describe('determineScale', () => {
+    it('recursively calls itself to find the biggest possible scale', () => {
+      sinon.spy(comp, 'determineScale');
+
+      const result = comp.determineScale(1);
+      assert.strictEqual(result, 3);
+      assert.strictEqual(comp.determineScale.callCount, 4);
+    });
   });
 
   describe('startButtonClick', () => {

@@ -1215,6 +1215,10 @@ class GameCoordinator {
     head.appendChild(link);
   }
 
+  /**
+   * Recursive method which determines the largest possible scale the game's graphics can use
+   * @param {Number} scale
+   */
   determineScale(scale) {
     const height = Math.max(
       document.documentElement.clientHeight, window.innerHeight || 0,
