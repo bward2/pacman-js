@@ -104,6 +104,8 @@ describe('gameCoordinator', () => {
   describe('determineScale', () => {
     it('recursively calls itself to find the biggest possible scale', () => {
       sinon.spy(comp, 'determineScale');
+      global.window.innerHeight = 1000;
+      global.window.innerWidth = 1000;
 
       const result = comp.determineScale(1);
       assert.strictEqual(result, 3);
