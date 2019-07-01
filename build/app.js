@@ -1128,7 +1128,7 @@ class GameCoordinator {
 
     this.maxFps = 120;
     this.tileSize = 8;
-    this.scale = 3;
+    this.scale = this.determineScale(1);
     this.scaledTileSize = this.tileSize * this.scale;
     this.firstGame = true;
 
@@ -1213,6 +1213,22 @@ class GameCoordinator {
     link.onload = this.preloadAssets.bind(this);
 
     head.appendChild(link);
+  }
+
+  determineScale(scale) {
+    const height = Math.max(
+      document.documentElement.clientHeight, window.innerHeight || 0,
+    );
+    const width = Math.max(
+      document.documentElement.clientWidth, window.innerWidth || 0,
+    );
+    const scaledTileSize = this.tileSize * scale;
+
+    if ((scaledTileSize * 36) < height && (scaledTileSize * 28) < width) {
+      return this.determineScale(scale + 1);
+    }
+
+    return scale - 1;
   }
 
   /**

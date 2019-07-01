@@ -58,6 +58,10 @@ describe('gameCoordinator', () => {
     };
 
     global.document = {
+      documentElement: {
+        clientHeight: 500,
+        clientWidth: 500,
+      },
       getElementsByTagName: () => ([
         { appendChild: () => { } },
       ]),
