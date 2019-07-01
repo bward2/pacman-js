@@ -1256,6 +1256,20 @@ class GameCoordinator {
   }
 
   /**
+   * Displays an error message in the event assets are unable to download
+   */
+  displayErrorMessage() {
+    const loadingContainer = document.getElementById('loading-container');
+    const errorMessage = document.getElementById('error-message');
+    loadingContainer.style.opacity = 0;
+    setTimeout(() => {
+      loadingContainer.remove();
+      errorMessage.style.opacity = 1;
+      errorMessage.style.visibility = 'visible';
+    }, 1500);
+  }
+
+  /**
    * Load all assets into a hidden Div to pre-load them into memory.
    * There is probably a better way to read all of these file names.
    */
@@ -1273,6 +1287,7 @@ class GameCoordinator {
         `${imgBase}characters/pacman/arrow_right.svg`,
         `${imgBase}characters/pacman/arrow_up.svg`,
         `${imgBase}characters/pacman/pacman_death.svg`,
+        `${imgBase}characters/pacman/pacman_error.svg`,
         `${imgBase}characters/pacman/pacman_down.svg`,
         `${imgBase}characters/pacman/pacman_left.svg`,
         `${imgBase}characters/pacman/pacman_right.svg`,
@@ -1396,7 +1411,7 @@ class GameCoordinator {
           this.mainMenu.style.opacity = 1;
           this.mainMenu.style.visibility = 'visible';
         }, 1500);
-      });
+      }).catch(this.displayErrorMessage);
     });
   }
 
@@ -1418,7 +1433,7 @@ class GameCoordinator {
 
     const gameCoordRef = gameCoord;
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       let loadedSources = 0;
 
       sources.forEach((source) => {
@@ -1440,8 +1455,10 @@ class GameCoordinator {
 
         if (type === 'img') {
           element.onload = elementReady;
+          element.onerror = reject;
         } else {
           element.addEventListener('canplaythrough', elementReady);
+          element.onerror = reject;
         }
 
         element.src = source;

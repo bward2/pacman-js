@@ -26,8 +26,8 @@ body {
   visibility: hidden; }
 
 .fps-display {
-  left: 10px;
   position: absolute;
+  right: 10px;
   top: 10px;
   visibility: hidden; }
 
@@ -317,6 +317,35 @@ body {
 @media (orientation: landscape) {
   .movement-buttons {
     visibility: hidden; } }
+
+.error-message {
+  color: #231f20;
+  opacity: 0;
+  position: absolute;
+  top: 30vh;
+  transition: opacity 0.5s;
+  visibility: hidden;
+  width: 50vw;
+  z-index: 4; }
+  .error-message .error-pacman {
+    animation: error-animation 1.5s steps(12) infinite;
+    background-image: url("../app/style/graphics/spriteSheets/characters/pacman/pacman_error.svg");
+    background-size: 576px;
+    height: 48px;
+    margin-left: 10px;
+    width: 48px;
+    z-index: 6; }
+
+@keyframes error-animation {
+  100% {
+    background-position: -576px; } }
+  .error-message .header {
+    display: flex;
+    font-size: 50px;
+    margin-bottom: 30px; }
+  .error-message .body {
+    font-size: 20px;
+    line-height: 1.25; }
 
 .maze-cover {
   background: #000;
