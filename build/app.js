@@ -1111,6 +1111,7 @@ class Pacman {
 class GameCoordinator {
   constructor() {
     this.gameUi = document.getElementById('game-ui');
+    this.rowTop = document.getElementById('row-top');
     this.mazeDiv = document.getElementById('maze');
     this.mazeImg = document.getElementById('maze-img');
     this.mazeCover = document.getElementById('maze-cover');
@@ -1549,6 +1550,7 @@ class GameCoordinator {
     if (this.firstGame) {
       this.drawMaze(this.mazeArray, this.entityList);
       this.soundManager = new SoundManager();
+      this.setUiDimensions();
     } else {
       this.pacman.reset();
       this.ghosts.forEach((ghost) => {
@@ -1615,6 +1617,11 @@ class GameCoordinator {
         }
       });
     });
+  }
+
+  setUiDimensions() {
+    this.gameUi.style.fontSize = `${this.scaledTileSize}px`;
+    this.rowTop.style.marginBottom = `${this.scaledTileSize}px`;
   }
 
   /**
@@ -1704,6 +1711,7 @@ class GameCoordinator {
     for (let i = 0; i < this.lives; i += 1) {
       const extraLifePic = document.createElement('img');
       extraLifePic.setAttribute('src', 'app/style/graphics/extra_life.svg');
+      extraLifePic.style.height = `${this.scaledTileSize * 2}px`;
       this.extraLivesDisplay.appendChild(extraLifePic);
     }
   }
@@ -1723,6 +1731,7 @@ class GameCoordinator {
 
     const fruitPic = document.createElement('img');
     fruitPic.setAttribute('src', parsedSource);
+    fruitPic.style.height = `${this.scaledTileSize * 2}px`;
     this.fruitDisplay.appendChild(fruitPic);
   }
 

@@ -377,6 +377,7 @@ describe('gameCoordinator', () => {
       const spy = sinon.fake();
       global.document.createElement = () => ({
         setAttribute: spy,
+        style: {},
       });
       comp.lives = 3;
 
@@ -398,6 +399,7 @@ describe('gameCoordinator', () => {
       const attributeSpy = sinon.fake();
       global.document.createElement = () => ({
         setAttribute: attributeSpy,
+        style: {},
       });
 
       comp.updateFruitDisplay('url(image.svg)');

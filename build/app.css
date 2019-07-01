@@ -66,9 +66,7 @@ body {
 .game-ui {
   display: flex;
   flex-direction: column;
-  font-size: 25px;
-  justify-content: center;
-  line-height: 1.5; }
+  justify-content: center; }
   .game-ui .one-up {
     animation: blink .6s infinite; }
 
@@ -81,33 +79,23 @@ body {
     opacity: 1; } }
   .game-ui .row {
     display: flex; }
-  .game-ui .top {
-    margin-bottom: 10px; }
-    .game-ui .top ._25 {
-      width: 25%; }
-    .game-ui .top ._50 {
-      width: 50%; }
-    .game-ui .top .column :first-child {
-      text-align: center; }
-    .game-ui .top .column :not(:first-child) {
-      margin-right: calc(50% - 3em);
-      text-align: right; }
+  .game-ui .top ._25 {
+    width: 25%; }
+  .game-ui .top ._50 {
+    width: 50%; }
+  .game-ui .top .column :first-child {
+    text-align: center; }
+  .game-ui .top .column :not(:first-child) {
+    margin-right: calc(50% - 3em);
+    text-align: right; }
   .game-ui .bottom {
-    justify-content: space-between;
-    margin-top: 10px; }
-    .game-ui .bottom img {
-      height: 48px; }
+    justify-content: space-between; }
     .game-ui .bottom .extra-lives {
       align-items: flex-start;
-      display: flex;
-      height: 48px; }
-      .game-ui .bottom .extra-lives :not(:first-child) {
-        margin-left: 5px; }
+      display: flex; }
     .game-ui .bottom .fruit-display {
       display: flex;
       flex-direction: row-reverse; }
-      .game-ui .bottom .fruit-display :not(:first-child) {
-        margin-right: 5px; }
 
 @media (orientation: landscape) {
   .game-ui {
