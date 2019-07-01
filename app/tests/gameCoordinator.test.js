@@ -136,6 +136,20 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('displayErrorMessage', () => {
+    it('removes the loading container and reveals the error message', () => {
+      const spy = sinon.fake();
+      global.document.getElementById = sinon.fake.returns({
+        style: {},
+        remove: spy,
+      });
+
+      comp.displayErrorMessage();
+      clock.tick(1500);
+      assert(spy.called);
+    });
+  });
+
   describe('preloadAssets', () => {
     it('calls createElements for images and audio', () => {
       const spy = sinon.fake();

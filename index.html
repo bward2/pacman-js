@@ -125,6 +125,19 @@
         <div class='loading-dot _95'></div>
       </div>
 
+      <div id='error-message' class='error-message'>
+        <div class='header'>
+          <div>OOPS!</div>
+          <div class='error-pacman'></div>
+        </div>
+        <div class='body'>
+          We were unable to load the images/sounds needed to play the game.</br></br>
+
+          This could be due to a poor connection, a strict network policy, or
+          by playing on an unsupported browser.
+        </div>
+      </div>
+
       <script>
         window.onload = () => {
           let gameCoordinator = new GameCoordinator();
