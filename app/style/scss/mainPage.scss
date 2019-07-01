@@ -27,8 +27,8 @@ body {
 }
 
 .fps-display {
-  right: 10px;
   position: absolute;
+  right: 10px;
   top: 10px;
   visibility: hidden;
 }
@@ -360,8 +360,8 @@ body {
 
 .error-message {
   color: $logo-black;
-  position: absolute;
   opacity: 0;
+  position: absolute;
   top: 30vh;
   transition: opacity $generic-duration;
   visibility: hidden;
