@@ -1051,9 +1051,10 @@ class GameCoordinator {
       ghost.becomeScared();
     });
 
+    const powerDuration = Math.max((7 - this.level) * 1000, 0);
     this.ghostFlashTimer = new Timer(() => {
       this.flashGhosts(0, 9);
-    }, 6000);
+    }, powerDuration);
   }
 
   /**
