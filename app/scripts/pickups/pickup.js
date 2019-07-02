@@ -68,6 +68,10 @@ class Pickup {
     this.animationTarget.style.left = `${this.x}px`;
     this.mazeDiv.appendChild(this.animationTarget);
 
+    if (type === 'powerPellet') {
+      this.animationTarget.classList.add('power-pellet');
+    }
+
     this.reset();
   }
 

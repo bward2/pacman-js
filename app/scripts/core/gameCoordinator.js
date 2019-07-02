@@ -953,31 +953,53 @@ class GameCoordinator {
     this.removeTimer({ detail: { timer: this.endIdleTimer } });
     this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
 
+    const imgBase = 'app/style//graphics/spriteSheets/maze/';
+
     new Timer(() => {
-      this.mazeCover.style.visibility = 'visible';
+      this.ghosts.forEach((ghost) => {
+        const ghostRef = ghost;
+        ghostRef.display = false;
+      });
 
+      this.mazeImg.src = `${imgBase}maze_white.svg`;
       new Timer(() => {
-        this.mazeCover.style.visibility = 'hidden';
-        this.level += 1;
-        this.allowKeyPresses = true;
-
-        this.entityList.forEach((entity) => {
-          const entityRef = entity;
-
-          if (entityRef.level) {
-            entityRef.level = this.level;
-          }
-          entityRef.reset();
-          if (entityRef instanceof Ghost) {
-            entityRef.resetDefaultSpeed();
-          }
-          if (entityRef instanceof Pickup && entityRef.type !== 'fruit') {
-            this.remainingDots += 1;
-          }
-        });
-
-        this.startGameplay();
-      }, 500);
+        this.mazeImg.src = `${imgBase}maze_blue.svg`;
+        new Timer(() => {
+          this.mazeImg.src = `${imgBase}maze_white.svg`;
+          new Timer(() => {
+            this.mazeImg.src = `${imgBase}maze_blue.svg`;
+            new Timer(() => {
+              this.mazeImg.src = `${imgBase}maze_white.svg`;
+              new Timer(() => {
+                this.mazeImg.src = `${imgBase}maze_blue.svg`;
+                new Timer(() => {
+                  this.mazeCover.style.visibility = 'visible';
+                  new Timer(() => {
+                    this.mazeCover.style.visibility = 'hidden';
+                    this.level += 1;
+                    this.allowKeyPresses = true;
+                    this.entityList.forEach((entity) => {
+                      const entityRef = entity;
+                      if (entityRef.level) {
+                        entityRef.level = this.level;
+                      }
+                      entityRef.reset();
+                      if (entityRef instanceof Ghost) {
+                        entityRef.resetDefaultSpeed();
+                      }
+                      if (entityRef instanceof Pickup
+                        && entityRef.type !== 'fruit') {
+                        this.remainingDots += 1;
+                      }
+                    });
+                    this.startGameplay();
+                  }, 500);
+                }, 250);
+              }, 250);
+            }, 250);
+          }, 250);
+        }, 250);
+      }, 250);
     }, 2000);
   }
 
