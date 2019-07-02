@@ -1757,7 +1757,7 @@ class GameCoordinator {
    */
   releaseGhost() {
     if (this.idleGhosts.length > 0) {
-      const delay = Math.max((8 - this.level) * 1000, 0);
+      const delay = Math.max((8 - ((this.level - 1) * 4)) * 1000, 0);
 
       this.endIdleTimer = new Timer(() => {
         this.idleGhosts[0].endIdleMode();
