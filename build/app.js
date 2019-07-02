@@ -1757,7 +1757,7 @@ class GameCoordinator {
    */
   releaseGhost() {
     if (this.idleGhosts.length > 0) {
-      const delay = Math.max((8 - this.level) * 1000, 0);
+      const delay = Math.max((8 - ((this.level - 1) * 4)) * 1000, 0);
 
       this.endIdleTimer = new Timer(() => {
         this.idleGhosts[0].endIdleMode();
@@ -2161,9 +2161,10 @@ class GameCoordinator {
       ghost.becomeScared();
     });
 
+    const powerDuration = Math.max((7 - this.level) * 1000, 0);
     this.ghostFlashTimer = new Timer(() => {
       this.flashGhosts(0, 9);
-    }, 6000);
+    }, powerDuration);
   }
 
   /**
@@ -2182,6 +2183,8 @@ class GameCoordinator {
     const { position, measurement } = e.detail.ghost;
 
     this.pauseTimer({ detail: { timer: this.ghostFlashTimer } });
+    this.pauseTimer({ detail: { timer: this.ghostCycleTimer } });
+    this.pauseTimer({ detail: { timer: this.fruitTimer } });
     this.soundManager.play('eat_ghost');
 
     this.scaredGhosts = this.scaredGhosts.filter(
@@ -2217,6 +2220,8 @@ class GameCoordinator {
       this.soundManager.setAmbience('eyes');
 
       this.resumeTimer({ detail: { timer: this.ghostFlashTimer } });
+      this.resumeTimer({ detail: { timer: this.ghostCycleTimer } });
+      this.resumeTimer({ detail: { timer: this.fruitTimer } });
       this.allowPacmanMovement = true;
       this.pacman.display = true;
       this.pacman.moving = true;

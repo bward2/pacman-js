@@ -432,7 +432,7 @@ describe('gameCoordinator', () => {
       comp.level = 1;
 
       comp.releaseGhost();
-      clock.tick(7000);
+      clock.tick(8000);
     });
 
     it('does nothing unless there is an idle ghost to release', () => {
