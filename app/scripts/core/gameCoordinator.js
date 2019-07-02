@@ -1072,6 +1072,8 @@ class GameCoordinator {
     const { position, measurement } = e.detail.ghost;
 
     this.pauseTimer({ detail: { timer: this.ghostFlashTimer } });
+    this.pauseTimer({ detail: { timer: this.ghostCycleTimer } });
+    this.pauseTimer({ detail: { timer: this.fruitTimer } });
     this.soundManager.play('eat_ghost');
 
     this.scaredGhosts = this.scaredGhosts.filter(
@@ -1107,6 +1109,8 @@ class GameCoordinator {
       this.soundManager.setAmbience('eyes');
 
       this.resumeTimer({ detail: { timer: this.ghostFlashTimer } });
+      this.resumeTimer({ detail: { timer: this.ghostCycleTimer } });
+      this.resumeTimer({ detail: { timer: this.fruitTimer } });
       this.allowPacmanMovement = true;
       this.pacman.display = true;
       this.pacman.moving = true;
