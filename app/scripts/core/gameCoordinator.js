@@ -373,6 +373,10 @@ class GameCoordinator {
         }
 
         element.src = source;
+
+        if (type === 'audio') {
+          element.load();
+        }
       });
     });
   }
