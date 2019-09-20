@@ -17,6 +17,7 @@ class GameCoordinator {
     this.rightCover = document.getElementById('right-cover');
     this.pausedText = document.getElementById('paused-text');
     this.bottomRow = document.getElementById('bottom-row');
+    this.movementButtons = document.getElementById('movement-buttons');
 
     this.maxFps = 120;
     this.tileSize = 8;
@@ -737,6 +738,7 @@ class GameCoordinator {
       if (this.gameEngine.started) {
         this.soundManager.resumeAmbience();
         this.gameUi.style.filter = 'unset';
+        this.movementButtons.style.filter = 'unset';
         this.pausedText.style.visibility = 'hidden';
         this.pauseButton.innerHTML = 'pause';
         this.activeTimers.forEach((timer) => {
@@ -746,6 +748,7 @@ class GameCoordinator {
         this.soundManager.stopAmbience();
         this.soundManager.setAmbience('pause_beat', true);
         this.gameUi.style.filter = 'blur(5px)';
+        this.movementButtons.style.filter = 'blur(5px)';
         this.pausedText.style.visibility = 'visible';
         this.pauseButton.innerHTML = 'play_arrow';
         this.activeTimers.forEach((timer) => {
