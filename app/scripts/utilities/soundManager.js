@@ -6,6 +6,7 @@ class SoundManager {
     this.paused = false;
     this.cutscene = true;
 
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
     this.ambience = new AudioContext();
   }
 

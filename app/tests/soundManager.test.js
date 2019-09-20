@@ -9,9 +9,22 @@ describe('soundManager', () => {
     global.Audio = class {
       play() { }
     };
-    global.AudioContext = class { };
+    const AudioContext = class { };
+    global.window = {
+      AudioContext,
+    };
 
     comp = new SoundManager();
+  });
+
+  describe('constructor', () => {
+    it('uses webkitAudioContext if needed', () => {
+      global.window.AudioContext = undefined;
+      global.window.webkitAudioContext = class { };
+
+      const testComp = new SoundManager();
+      assert.notEqual(testComp.ambience, undefined);
+    });
   });
 
   describe('setCutscene', () => {
