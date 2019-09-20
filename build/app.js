@@ -1126,6 +1126,7 @@ class GameCoordinator {
     this.leftCover = document.getElementById('left-cover');
     this.rightCover = document.getElementById('right-cover');
     this.pausedText = document.getElementById('paused-text');
+    this.bottomRow = document.getElementById('bottom-row');
 
     this.maxFps = 120;
     this.tileSize = 8;
@@ -1603,6 +1604,7 @@ class GameCoordinator {
     this.mazeDiv.style.height = `${this.scaledTileSize * 31}px`;
     this.mazeDiv.style.width = `${this.scaledTileSize * 28}px`;
     this.gameUi.style.width = `${this.scaledTileSize * 28}px`;
+    this.bottomRow.style.minHeight = `${this.scaledTileSize * 2}px`;
     this.dotContainer = document.getElementById('dot-container');
 
     mazeArray.forEach((row, rowIndex) => {
