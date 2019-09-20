@@ -46,6 +46,7 @@ body {
   margin: 16px;
   position: absolute;
   width: 100%;
+  z-index: 2;
 
   button {
     background: none;
@@ -66,9 +67,11 @@ body {
   display: flex;
   font-size: 50px;
   height: 100%;
+  justify-content: center;
   position: absolute;
   user-select: none;
   visibility: hidden;
+  width: 100%;
   z-index: 1;
 }
 
@@ -163,6 +166,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  left: 0;
   opacity: 0;
   position: absolute;
   transition: opacity .25s;
@@ -277,6 +281,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 34%;
+  left: 0;
   position: fixed;
   width: 100%;
 
