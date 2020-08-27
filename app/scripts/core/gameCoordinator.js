@@ -348,7 +348,7 @@ class GameCoordinator {
     const preloadDiv = document.getElementById('preload-div');
     const loadingPacman = document.getElementById('loading-pacman');
     const containerWidth = loadingContainer.scrollWidth
-        - loadingPacman.scrollWidth;
+      - loadingPacman.scrollWidth;
     const loadingDotMask = document.getElementById('loading-dot-mask');
 
     const gameCoordRef = gameCoord;
