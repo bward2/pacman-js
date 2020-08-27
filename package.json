@@ -23,7 +23,7 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.2",
-    "gulp": "^4.0.1",
+    "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
     "gulp-remove-code": "^3.0.4",
     "gulp-sass": "^4.0.2",
