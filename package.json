@@ -17,6 +17,10 @@
       "pre-push": "npm test"
     }
   },
+  "engines": {
+    "node": ">=12.18.3",
+    "npm": ">=6.14.6"
+  },
   "devDependencies": {
     "coveralls": "^3.0.3",
     "eslint": "^5.16.0",
