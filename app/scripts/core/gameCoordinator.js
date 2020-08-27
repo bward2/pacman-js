@@ -19,37 +19,6 @@ class GameCoordinator {
     this.bottomRow = document.getElementById('bottom-row');
     this.movementButtons = document.getElementById('movement-buttons');
 
-    this.maxFps = 120;
-    this.tileSize = 8;
-    this.scale = this.determineScale(1);
-    this.scaledTileSize = this.tileSize * this.scale;
-    this.firstGame = true;
-
-    this.movementKeys = {
-      // WASD
-      87: 'up',
-      83: 'down',
-      65: 'left',
-      68: 'right',
-
-      // Arrow Keys
-      38: 'up',
-      40: 'down',
-      37: 'left',
-      39: 'right',
-    };
-
-    this.fruitPoints = {
-      1: 100,
-      2: 300,
-      3: 500,
-      4: 700,
-      5: 1000,
-      6: 2000,
-      7: 3000,
-      8: 5000,
-    };
-
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
       ['XooooooooooooXXooooooooooooX'],
@@ -84,18 +53,49 @@ class GameCoordinator {
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
     ];
 
+    this.maxFps = 120;
+    this.tileSize = 8;
+    this.scale = this.determineScale(1);
+    this.scaledTileSize = this.tileSize * this.scale;
+    this.firstGame = true;
+
+    this.movementKeys = {
+      // WASD
+      87: 'up',
+      83: 'down',
+      65: 'left',
+      68: 'right',
+
+      // Arrow Keys
+      38: 'up',
+      40: 'down',
+      37: 'left',
+      39: 'right',
+    };
+
+    this.fruitPoints = {
+      1: 100,
+      2: 300,
+      3: 500,
+      4: 700,
+      5: 1000,
+      6: 2000,
+      7: 3000,
+      8: 5000,
+    };
+
     this.mazeArray.forEach((row, rowIndex) => {
       this.mazeArray[rowIndex] = row[0].split('');
     });
 
     this.gameStartButton.addEventListener(
-      'click', this.startButtonClick.bind(this),
+      'click',
+      this.startButtonClick.bind(this),
     );
-    this.pauseButton.addEventListener(
-      'click', this.handlePauseKey.bind(this),
-    );
+    this.pauseButton.addEventListener('click', this.handlePauseKey.bind(this));
     this.soundButton.addEventListener(
-      'click', this.soundButtonClick.bind(this),
+      'click',
+      this.soundButtonClick.bind(this),
     );
 
     const head = document.getElementsByTagName('head')[0];
@@ -113,15 +113,26 @@ class GameCoordinator {
    * @param {Number} scale
    */
   determineScale(scale) {
-    const height = Math.min(
-      document.documentElement.clientHeight, window.innerHeight || 0,
+    const availableScreenHeight = Math.min(
+      document.documentElement.clientHeight,
+      window.innerHeight || 0,
     );
-    const width = Math.min(
-      document.documentElement.clientWidth, window.innerWidth || 0,
+    const availableScreenWidth = Math.min(
+      document.documentElement.clientWidth,
+      window.innerWidth || 0,
     );
     const scaledTileSize = this.tileSize * scale;
 
-    if ((scaledTileSize * 36) < height && (scaledTileSize * 28) < width) {
+    // The original Pac-Man game leaves 5 tiles of height (3 above, 2 below) surrounding the
+    // maze for the UI. See app\style\graphics\spriteSheets\references\mazeGridSystemReference.png
+    // for reference.
+    const mazeTileHeight = this.mazeArray.length + 5;
+    const mazeTileWidth = this.mazeArray[0][0].split('').length;
+
+    if (
+      scaledTileSize * mazeTileHeight < availableScreenHeight
+      && scaledTileSize * mazeTileWidth < availableScreenWidth
+    ) {
       return this.determineScale(scale + 1);
     }
 
@@ -163,9 +174,7 @@ class GameCoordinator {
    * Sets the icon for the sound button
    */
   setSoundButtonIcon(newVolume) {
-    this.soundButton.innerHTML = newVolume === 0
-      ? 'volume_off'
-      : 'volume_up';
+    this.soundButton.innerHTML = newVolume === 0 ? 'volume_off' : 'volume_up';
   }
 
   /**
@@ -309,22 +318,20 @@ class GameCoordinator {
       loadingDotMask.style.width = '0';
 
       Promise.all([
-        this.createElements(
-          imgSources, 'img', totalSources, this,
-        ),
-        this.createElements(
-          audioSources, 'audio', totalSources, this,
-        ),
-      ]).then(() => {
-        loadingContainer.style.opacity = 0;
-        resolve();
+        this.createElements(imgSources, 'img', totalSources, this),
+        this.createElements(audioSources, 'audio', totalSources, this),
+      ])
+        .then(() => {
+          loadingContainer.style.opacity = 0;
+          resolve();
 
-        setTimeout(() => {
-          loadingContainer.remove();
-          this.mainMenu.style.opacity = 1;
-          this.mainMenu.style.visibility = 'visible';
-        }, 1500);
-      }).catch(this.displayErrorMessage);
+          setTimeout(() => {
+            loadingContainer.remove();
+            this.mainMenu.style.opacity = 1;
+            this.mainMenu.style.visibility = 'visible';
+          }, 1500);
+        })
+        .catch(this.displayErrorMessage);
     });
   }
 
@@ -350,14 +357,13 @@ class GameCoordinator {
       let loadedSources = 0;
 
       sources.forEach((source) => {
-        const element = (type === 'img')
-          ? new Image() : new Audio();
+        const element = type === 'img' ? new Image() : new Audio();
         preloadDiv.appendChild(element);
 
         const elementReady = () => {
           gameCoordRef.remainingSources -= 1;
           loadedSources += 1;
-          const percent = 1 - (gameCoordRef.remainingSources / totalSources);
+          const percent = 1 - gameCoordRef.remainingSources / totalSources;
           loadingPacman.style.left = `${percent * containerWidth}px`;
           loadingDotMask.style.width = loadingPacman.style.left;
 
@@ -405,40 +411,64 @@ class GameCoordinator {
       }, 500);
 
       this.pacman = new Pacman(
-        this.scaledTileSize, this.mazeArray, new CharacterUtil(),
+        this.scaledTileSize,
+        this.mazeArray,
+        new CharacterUtil(),
       );
       this.blinky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'blinky',
-        this.level, new CharacterUtil(),
+        this.scaledTileSize,
+        this.mazeArray,
+        this.pacman,
+        'blinky',
+        this.level,
+        new CharacterUtil(),
       );
       this.pinky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'pinky',
-        this.level, new CharacterUtil(),
+        this.scaledTileSize,
+        this.mazeArray,
+        this.pacman,
+        'pinky',
+        this.level,
+        new CharacterUtil(),
       );
       this.inky = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'inky',
-        this.level, new CharacterUtil(), this.blinky,
+        this.scaledTileSize,
+        this.mazeArray,
+        this.pacman,
+        'inky',
+        this.level,
+        new CharacterUtil(),
+        this.blinky,
       );
       this.clyde = new Ghost(
-        this.scaledTileSize, this.mazeArray, this.pacman, 'clyde',
-        this.level, new CharacterUtil(),
+        this.scaledTileSize,
+        this.mazeArray,
+        this.pacman,
+        'clyde',
+        this.level,
+        new CharacterUtil(),
       );
       this.fruit = new Pickup(
-        'fruit', this.scaledTileSize, 13.5, 17, this.pacman,
-        this.mazeDiv, 100,
+        'fruit',
+        this.scaledTileSize,
+        13.5,
+        17,
+        this.pacman,
+        this.mazeDiv,
+        100,
       );
     }
 
     this.entityList = [
-      this.pacman, this.blinky, this.pinky, this.inky, this.clyde, this.fruit,
-    ];
-
-    this.ghosts = [
+      this.pacman,
       this.blinky,
       this.pinky,
       this.inky,
       this.clyde,
+      this.fruit,
     ];
+
+    this.ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
 
     this.scaredGhosts = [];
     this.eyeGhosts = 0;
@@ -466,7 +496,8 @@ class GameCoordinator {
     this.clearDisplay(this.fruitDisplay);
 
     const volumePreference = parseInt(
-      localStorage.getItem('volumePreference') || 1, 10,
+      localStorage.getItem('volumePreference') || 1,
+      10,
     );
     this.setSoundButtonIcon(volumePreference);
     this.soundManager.setMasterVolume(volumePreference);
@@ -488,9 +519,7 @@ class GameCoordinator {
    * @param {Array} entityList - List of entities to be used throughout the game
    */
   drawMaze(mazeArray, entityList) {
-    this.pickups = [
-      this.fruit,
-    ];
+    this.pickups = [this.fruit];
 
     this.mazeDiv.style.height = `${this.scaledTileSize * 31}px`;
     this.mazeDiv.style.width = `${this.scaledTileSize * 28}px`;
@@ -501,11 +530,16 @@ class GameCoordinator {
     mazeArray.forEach((row, rowIndex) => {
       row.forEach((block, columnIndex) => {
         if (block === 'o' || block === 'O') {
-          const type = (block === 'o') ? 'pacdot' : 'powerPellet';
-          const points = (block === 'o') ? 10 : 50;
+          const type = block === 'o' ? 'pacdot' : 'powerPellet';
+          const points = block === 'o' ? 10 : 50;
           const dot = new Pickup(
-            type, this.scaledTileSize, columnIndex,
-            rowIndex, this.pacman, this.dotContainer, points,
+            type,
+            this.scaledTileSize,
+            columnIndex,
+            rowIndex,
+            this.pacman,
+            this.dotContainer,
+            points,
           );
 
           entityList.push(dot);
@@ -527,7 +561,7 @@ class GameCoordinator {
    */
   collisionDetectionLoop() {
     if (this.pacman.position) {
-      const maxDistance = (this.pacman.velocityPerMs * 750);
+      const maxDistance = this.pacman.velocityPerMs * 750;
       const pacmanCenter = {
         x: this.pacman.position.left + this.scaledTileSize,
         y: this.pacman.position.top + this.scaledTileSize,
@@ -580,11 +614,7 @@ class GameCoordinator {
 
       this.ghostCycle('scatter');
 
-      this.idleGhosts = [
-        this.pinky,
-        this.inky,
-        this.clyde,
-      ];
+      this.idleGhosts = [this.pinky, this.inky, this.clyde];
       this.releaseGhost();
     }, duration);
   }
@@ -619,7 +649,8 @@ class GameCoordinator {
    */
   updateFruitDisplay(rawImageSource) {
     const parsedSource = rawImageSource.slice(
-      rawImageSource.indexOf('(') + 1, rawImageSource.indexOf(')'),
+      rawImageSource.indexOf('(') + 1,
+      rawImageSource.indexOf(')'),
     );
 
     if (this.fruitDisplay.children.length === 7) {
@@ -637,8 +668,8 @@ class GameCoordinator {
    * @param {('chase'|'scatter')} mode
    */
   ghostCycle(mode) {
-    const delay = (mode === 'scatter') ? 7000 : 20000;
-    const nextMode = (mode === 'scatter') ? 'chase' : 'scatter';
+    const delay = mode === 'scatter' ? 7000 : 20000;
+    const nextMode = mode === 'scatter' ? 'chase' : 'scatter';
 
     this.ghostCycleTimer = new Timer(() => {
       this.ghosts.forEach((ghost) => {
@@ -654,7 +685,7 @@ class GameCoordinator {
    */
   releaseGhost() {
     if (this.idleGhosts.length > 0) {
-      const delay = Math.max((8 - ((this.level - 1) * 4)) * 1000, 0);
+      const delay = Math.max((8 - (this.level - 1) * 4) * 1000, 0);
 
       this.endIdleTimer = new Timer(() => {
         this.idleGhosts[0].endIdleMode();
@@ -678,16 +709,14 @@ class GameCoordinator {
     window.addEventListener('removeTimer', this.removeTimer.bind(this));
     window.addEventListener('releaseGhost', this.releaseGhost.bind(this));
 
-    const directions = [
-      'up', 'down', 'left', 'right',
-    ];
+    const directions = ['up', 'down', 'left', 'right'];
 
     directions.forEach((direction) => {
-      document.getElementById(`button-${direction}`).addEventListener(
-        'touchstart', () => {
+      document
+        .getElementById(`button-${direction}`)
+        .addEventListener('touchstart', () => {
           this.changeDirection(direction);
-        },
-      );
+        });
     });
   }
 
@@ -697,9 +726,7 @@ class GameCoordinator {
    */
   changeDirection(direction) {
     if (this.allowKeyPresses && this.gameEngine.running) {
-      this.pacman.changeDirection(
-        direction, this.allowPacmanMovement,
-      );
+      this.pacman.changeDirection(direction, this.allowPacmanMovement);
     }
   }
 
@@ -790,9 +817,9 @@ class GameCoordinator {
 
       this.displayText({ left, top }, e.detail.points, 2000, width, height);
       this.soundManager.play('fruit');
-      this.updateFruitDisplay(this.fruit.determineImage(
-        'fruit', e.detail.points,
-      ));
+      this.updateFruitDisplay(
+        this.fruit.determineImage('fruit', e.detail.points),
+      );
     }
   }
 
@@ -860,7 +887,8 @@ class GameCoordinator {
           left: this.scaledTileSize * 9,
           top: this.scaledTileSize * 16.5,
         },
-        'game_over', 4000,
+        'game_over',
+        4000,
         this.scaledTileSize * 10,
         this.scaledTileSize * 2,
       );
@@ -921,7 +949,6 @@ class GameCoordinator {
       this.soundManager.setAmbience(this.determineSiren(this.remainingDots));
     }
   }
-
 
   /**
    * Determines the correct siren ambience
@@ -996,8 +1023,10 @@ class GameCoordinator {
                       if (entityRef instanceof Ghost) {
                         entityRef.resetDefaultSpeed();
                       }
-                      if (entityRef instanceof Pickup
-                        && entityRef.type !== 'fruit') {
+                      if (
+                        entityRef instanceof Pickup
+                        && entityRef.type !== 'fruit'
+                      ) {
                         this.remainingDots += 1;
                       }
                     });
@@ -1070,7 +1099,7 @@ class GameCoordinator {
    * Determines the quantity of points to give based on the current combo
    */
   determineComboPoints() {
-    return (100 * (2 ** this.ghostCombo));
+    return 100 * (2 ** this.ghostCombo);
   }
 
   /**
@@ -1093,14 +1122,14 @@ class GameCoordinator {
 
     this.ghostCombo += 1;
     const comboPoints = this.determineComboPoints();
-    window.dispatchEvent(new CustomEvent('awardPoints', {
-      detail: {
-        points: comboPoints,
-      },
-    }));
-    this.displayText(
-      position, comboPoints, pauseDuration, measurement,
+    window.dispatchEvent(
+      new CustomEvent('awardPoints', {
+        detail: {
+          points: comboPoints,
+        },
+      }),
     );
+    this.displayText(position, comboPoints, pauseDuration, measurement);
 
     this.allowPacmanMovement = false;
     this.pacman.display = false;
@@ -1143,7 +1172,8 @@ class GameCoordinator {
 
     if (this.eyeGhosts === 0) {
       const sound = this.scaredGhosts.length > 0
-        ? 'power_up' : this.determineSiren(this.remainingDots);
+        ? 'power_up'
+        : this.determineSiren(this.remainingDots);
       this.soundManager.setAmbience(sound);
     }
   }
@@ -1162,7 +1192,7 @@ class GameCoordinator {
     pointsDiv.style.position = 'absolute';
     pointsDiv.style.backgroundSize = `${width}px`;
     pointsDiv.style.backgroundImage = 'url(app/style/graphics/'
-      + `spriteSheets/text/${amount}.svg`;
+        + `spriteSheets/text/${amount}.svg`;
     pointsDiv.style.width = `${width}px`;
     pointsDiv.style.height = `${height || width}px`;
     pointsDiv.style.top = `${position.top}px`;
