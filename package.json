@@ -9,12 +9,11 @@
     "test": "nyc --check-coverage --lines 100 --functions 100 --branches 100 mocha app/tests",
     "coverage": "nyc report --reporter=text-lcov | node ./node_modules/coveralls/bin/coveralls.js",
     "lint": ".\\node_modules\\.bin\\eslint .",
-    "sass-lint": ".\\node_modules\\.bin\\sass-lint \"app/**/*.scss\" -v -q",
     "serve": "node .\\node_modules\\http-server\\bin\\http-server"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint && npm run sass-lint",
+      "pre-commit": "npm run lint",
       "pre-push": "npm test"
     }
   },
@@ -32,7 +31,6 @@
     "mocha": "^8.1.2",
     "nyc": "^14.1.0",
     "sass": "^1.26.10",
-    "sass-lint": "^1.13.1",
     "sinon": "^7.3.2"
   }
 }
