@@ -3,7 +3,9 @@
 [![Coverage Status](https://coveralls.io/repos/github/bward2/pacman-js/badge.svg?branch=master)](https://coveralls.io/github/bward2/pacman-js?branch=master)
 [![Code Style](https://img.shields.io/badge/code%20style-airbnb-brightgreen.svg)](https://github.com/airbnb/javascript)
 
-Pacman clone made with Javascript and HTML - *__[Play it!](https://bward2.github.io/pacman-js/)__*
+Pacman clone made with Javascript, HTML, and CSS.
+
+### *__[Play it!](https://bward2.github.io/pacman-js/)__*
 
 🍒🍓🍊🍎🍈👾🔔🔑
 
