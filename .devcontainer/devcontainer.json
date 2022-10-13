@@ -1,0 +1,16 @@
+{
+    "portsAttributes": {
+        "8080": {
+            "label": "Application",
+            "onAutoForward": "openPreview"
+        }
+    },
+    "customizations": {
+        "codespaces": {
+            "openFiles": [
+                "src/app.js"
+            ]
+        }
+    },
+    "postAttachCommand": "npm install && npm run serve"
+}
