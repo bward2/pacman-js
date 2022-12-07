@@ -1123,6 +1123,7 @@ class GameCoordinator {
     this.gameStartButton = document.getElementById('game-start');
     this.pauseButton = document.getElementById('pause-button');
     this.soundButton = document.getElementById('sound-button');
+    this.turnOffWallsButton = document.getElementById('turnOffWalls-button');
     this.leftCover = document.getElementById('left-cover');
     this.rightCover = document.getElementById('right-cover');
     this.pausedText = document.getElementById('paused-text');
@@ -1207,6 +1208,10 @@ class GameCoordinator {
       'click',
       this.soundButtonClick.bind(this),
     );
+
+    this.turnOffWallsButton.addEventListener('click', () => {
+      this.mazeImg.src = "";
+    });
 
     const head = document.getElementsByTagName('head')[0];
     const link = document.createElement('link');
