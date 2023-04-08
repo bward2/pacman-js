@@ -1,13 +1,15 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M10 4H7V5H5V6H4V8H3V11H4V13H5V14H7V15H10V14H12V13H13V11H14V8H13V6H12V5H10V4Z" fill="#00FF01"/>
-<path d="M5 2V1H6V2H11V3H9V6H8V7H7V8H6V9H5V10H6V11H9V10H7V9H9V7H11V6H12V7H11V8H12V9H13V10H11V8H10V9H9V10H10V11H11V12H12V13H11V14H10V15H9V14H10V13H11V12H8V13H7V14H6V13H7V12H6V11H4V8H6V7H5V6H8V3H6V2H5Z" fill="#47B8AE"/>
-<path d="M8 5V4H9V5H8Z" fill="#E0DDFF"/>
-<path d="M11 10V9H12V10H11Z" fill="#E0DDFF"/>
-<path d="M9 8V7H10V8H9Z" fill="#E0DDFF"/>
-<path d="M9 12V11H10V12H9Z" fill="#E0DDFF"/>
-<path d="M7 10V9H8V10H7Z" fill="#E0DDFF"/>
-<path d="M7 12V11H8V12H7Z" fill="#E0DDFF"/>
-<path d="M4 11V10H5V11H4Z" fill="#E0DDFF"/>
-<path d="M4 9V8H5V9H4Z" fill="#E0DDFF"/>
-<path d="M6 7V6H7V7H6Z" fill="#E0DDFF"/>
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="16.000000pt" height="16.000000pt" viewBox="0 0 16.000000 16.000000"
+ preserveAspectRatio="xMidYMid meet">
+
+<g transform="translate(0.000000,16.000000) scale(0.100000,-0.100000)"
+fill="#000000" stroke="none">
+<path d="M31 94 c-12 -15 -21 -41 -21 -60 l0 -34 70 0 70 0 0 34 c0 34 -32 86
+-53 86 -7 0 -3 -7 7 -15 18 -14 17 -15 -24 -15 -41 0 -42 1 -24 15 10 8 14 15
+7 15 -6 0 -21 -12 -32 -26z m87 -40 c-2 -15 -11 -32 -21 -38 -24 -15 -51 3
+-55 38 -3 24 -1 26 38 26 39 0 41 -2 38 -26z"/>
+</g>
 </svg>

@@ -1,6 +1,15 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M6 12V10H5V9H4V8H3V4H2V9H3V10H4V11H5V12H6Z" fill="#2121FF"/>
-<path d="M9 12V10H10V9H11V8H12V4H13V9H12V10H11V11H10V12H9Z" fill="#2121FF"/>
-<path d="M3 6V8H4V9H5V10H6V9H7V14H8V9H9V10H10V9H11V8H12V6H11V7H9V6H8V8H7V6H6V7H4V6H3Z" fill="#FFFF00"/>
-<path d="M4 6V7H6V6H7V8H8V6H9V7H11V6H10V5H9V4H8V3H7V4H6V5H5V6H4Z" fill="#FF0000"/>
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="16.000000pt" height="16.000000pt" viewBox="0 0 16.000000 16.000000"
+ preserveAspectRatio="xMidYMid meet">
+
+<g transform="translate(0.000000,16.000000) scale(0.100000,-0.100000)"
+fill="#000000" stroke="none">
+<path d="M31 94 c-12 -15 -21 -41 -21 -60 l0 -34 70 0 70 0 0 34 c0 34 -32 86
+-53 86 -7 0 -3 -7 7 -15 18 -14 17 -15 -24 -15 -41 0 -42 1 -24 15 10 8 14 15
+7 15 -6 0 -21 -12 -32 -26z m87 -40 c-2 -15 -11 -32 -21 -38 -24 -15 -51 3
+-55 38 -3 24 -1 26 38 26 39 0 41 -2 38 -26z"/>
+</g>
 </svg>
