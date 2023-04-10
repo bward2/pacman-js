@@ -182,7 +182,7 @@ class Ghost {
         + `spriteSheets/characters/ghosts/eyes_${direction}.svg)`;
     } else {
       this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
-        + `spriteSheets/characters/ghosts/${name}/${name}_${direction}`
+        + `spriteSheets/characters/ghosts/blinky/blinky_${direction}`
         + `${emotion}.svg)`;
     }
   }
@@ -1103,6 +1103,683 @@ class Pacman {
 
     if (this.moving || this.specialAnimation) {
       this.msSinceLastSprite += elapsedMs;
+    }
+  }
+}
+
+
+class Pickup {
+  constructor(type, scaledTileSize, column, row, pacman, mazeDiv, points) {
+    this.type = type;
+    this.pacman = pacman;
+    this.mazeDiv = mazeDiv;
+    this.points = points;
+    this.nearPacman = false;
+
+    this.fruitImages = {
+      100: 'cherry',
+      300: 'strawberry',
+      500: 'orange',
+      700: 'apple',
+      1000: 'melon',
+      2000: 'galaxian',
+      3000: 'bell',
+      5000: 'key',
+    };
+
+    this.setStyleMeasurements(type, scaledTileSize, column, row, points);
+  }
+
+  /**
+   * Resets the pickup's visibility
+   */
+  reset() {
+    this.animationTarget.style.visibility = (this.type === 'fruit')
+      ? 'hidden' : 'visible';
+  }
+
+  /**
+   * Sets various style measurements for the pickup depending on its type
+   * @param {('pacdot'|'powerPellet'|'fruit')} type - The classification of pickup
+   * @param {number} scaledTileSize
+   * @param {number} column
+   * @param {number} row
+   * @param {number} points
+   */
+  setStyleMeasurements(type, scaledTileSize, column, row, points) {
+    if (type === 'pacdot') {
+      this.size = scaledTileSize * 0.25;
+      this.x = (column * scaledTileSize) + ((scaledTileSize / 8) * 3);
+      this.y = (row * scaledTileSize) + ((scaledTileSize / 8) * 3);
+    } else if (type === 'powerPellet') {
+      this.size = scaledTileSize;
+      this.x = (column * scaledTileSize);
+      this.y = (row * scaledTileSize);
+    } else {
+      this.size = scaledTileSize * 2;
+      this.x = (column * scaledTileSize) - (scaledTileSize * 0.5);
+      this.y = (row * scaledTileSize) - (scaledTileSize * 0.5);
+    }
+
+    this.center = {
+      x: column * scaledTileSize,
+      y: row * scaledTileSize,
+    };
+
+    this.animationTarget = document.createElement('div');
+    this.animationTarget.style.position = 'absolute';
+    this.animationTarget.style.backgroundSize = `${this.size}px`;
+    this.animationTarget.style.backgroundImage = this.determineImage(
+      type, points,
+    );
+    this.animationTarget.style.height = `${this.size}px`;
+    this.animationTarget.style.width = `${this.size}px`;
+    this.animationTarget.style.top = `${this.y}px`;
+    this.animationTarget.style.left = `${this.x}px`;
+    this.mazeDiv.appendChild(this.animationTarget);
+
+    if (type === 'powerPellet') {
+      this.animationTarget.classList.add('power-pellet');
+    }
+
+    this.reset();
+  }
+
+  /**
+   * Determines the Pickup image based on type and point value
+   * @param {('pacdot'|'powerPellet'|'fruit')} type - The classification of pickup
+   * @param {Number} points
+   * @returns {String}
+   */
+  determineImage(type, points) {
+    let image = '';
+
+    if (type === 'fruit') {
+      image = this.fruitImages[points] || 'cherry';
+    } else {
+      image = type;
+    }
+
+    return `url(app/style/graphics/spriteSheets/pickups/${image}.svg)`;
+  }
+
+  /**
+   * Shows a bonus fruit, resetting its point value and image
+   * @param {number} points
+   */
+  showFruit(points) {
+    this.points = points;
+    this.animationTarget.style.backgroundImage = this.determineImage(
+      this.type, points,
+    );
+    this.animationTarget.style.visibility = 'visible';
+  }
+
+  /**
+   * Makes the fruit invisible (happens if Pacman was too slow)
+   */
+  hideFruit() {
+    this.animationTarget.style.visibility = 'hidden';
+  }
+
+  /**
+   * Returns true if the Pickup is touching a bounding box at Pacman's center
+   * @param {({ x: number, y: number, size: number})} pickup
+   * @param {({ x: number, y: number, size: number})} originalPacman
+   */
+  checkForCollision(pickup, originalPacman) {
+    const pacman = Object.assign({}, originalPacman);
+
+    pacman.x += (pacman.size * 0.25);
+    pacman.y += (pacman.size * 0.25);
+    pacman.size /= 2;
+
+    return (pickup.x < pacman.x + pacman.size
+      && pickup.x + pickup.size > pacman.x
+      && pickup.y < pacman.y + pacman.size
+      && pickup.y + pickup.size > pacman.y);
+  }
+
+  /**
+   * Checks to see if the pickup is close enough to Pacman to be considered for collision detection
+   * @param {number} maxDistance - The maximum distance Pacman can travel per cycle
+   * @param {({ x:number, y:number })} pacmanCenter - The center of Pacman's hitbox
+   * @param {Boolean} debugging - Flag to change the appearance of pickups for testing
+   */
+  checkPacmanProximity(maxDistance, pacmanCenter, debugging) {
+    if (this.animationTarget.style.visibility !== 'hidden') {
+      const distance = Math.sqrt(
+        ((this.center.x - pacmanCenter.x) ** 2)
+        + ((this.center.y - pacmanCenter.y) ** 2),
+      );
+
+      this.nearPacman = (distance <= maxDistance);
+
+      if (debugging) {
+        this.animationTarget.style.background = this.nearPacman
+          ? 'lime' : 'red';
+      }
+    }
+  }
+
+  /**
+   * Checks if the pickup is visible and close to Pacman
+   * @returns {Boolean}
+   */
+  shouldCheckForCollision() {
+    return this.animationTarget.style.visibility !== 'hidden'
+      && this.nearPacman;
+  }
+
+  /**
+   * If the Pickup is still visible, it checks to see if it is colliding with Pacman.
+   * It will turn itself invisible and cease collision-detection after the first
+   * collision with Pacman.
+   */
+  update() {
+    if (this.shouldCheckForCollision()) {
+      if (this.checkForCollision(
+        {
+          x: this.x,
+          y: this.y,
+          size: this.size,
+        }, {
+          x: this.pacman.position.left,
+          y: this.pacman.position.top,
+          size: this.pacman.measurement,
+        },
+      )) {
+        this.animationTarget.style.visibility = 'hidden';
+        window.dispatchEvent(new CustomEvent('awardPoints', {
+          detail: {
+            points: this.points,
+            type: this.type,
+          },
+        }));
+
+        if (this.type === 'pacdot') {
+          window.dispatchEvent(new Event('dotEaten'));
+        } else if (this.type === 'powerPellet') {
+          window.dispatchEvent(new Event('dotEaten'));
+          window.dispatchEvent(new Event('powerUp'));
+        }
+      }
+    }
+  }
+}
+
+
+class CharacterUtil {
+  constructor() {
+    this.directions = {
+      up: 'up',
+      down: 'down',
+      left: 'left',
+      right: 'right',
+    };
+  }
+
+  /**
+   * Check if a given character has moved more than five in-game tiles during a frame.
+   * If so, we want to temporarily hide the object to avoid 'animation stutter'.
+   * @param {({top: number, left: number})} position - Position during the current frame
+   * @param {({top: number, left: number})} oldPosition - Position during the previous frame
+   * @returns {('hidden'|'visible')} - The new 'visibility' css property value for the character.
+   */
+  checkForStutter(position, oldPosition) {
+    let stutter = false;
+    const threshold = 5;
+
+    if (position && oldPosition) {
+      if (Math.abs(position.top - oldPosition.top) > threshold
+        || Math.abs(position.left - oldPosition.left) > threshold) {
+        stutter = true;
+      }
+    }
+
+    return stutter ? 'hidden' : 'visible';
+  }
+
+  /**
+   * Check which CSS property needs to be changed given the character's current direction
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @returns {('top'|'left')}
+   */
+  getPropertyToChange(direction) {
+    switch (direction) {
+      case this.directions.up:
+      case this.directions.down:
+        return 'top';
+      default:
+        return 'left';
+    }
+  }
+
+  /**
+   * Calculate the velocity for the character's next frame.
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @param {number} velocityPerMs - The distance to travel in a single millisecond
+   * @returns {number} - Moving down or right is positive, while up or left is negative.
+   */
+  getVelocity(direction, velocityPerMs) {
+    switch (direction) {
+      case this.directions.up:
+      case this.directions.left:
+        return velocityPerMs * -1;
+      default:
+        return velocityPerMs;
+    }
+  }
+
+  /**
+   * Determine the next value which will be used to draw the character's position on screen
+   * @param {number} interp - The percentage of the desired timestamp between frames
+   * @param {('top'|'left')} prop - The css property to be changed
+   * @param {({top: number, left: number})} oldPosition - Position during the previous frame
+   * @param {({top: number, left: number})} position - Position during the current frame
+   * @returns {number} - New value for css positioning
+   */
+  calculateNewDrawValue(interp, prop, oldPosition, position) {
+    return oldPosition[prop] + (position[prop] - oldPosition[prop]) * interp;
+  }
+
+  /**
+   * Convert the character's css position to a row-column on the maze array
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @param {number} scaledTileSize - The dimensions of a single tile
+   * @returns {({x: number, y: number})}
+   */
+  determineGridPosition(position, scaledTileSize) {
+    return {
+      x: (position.left / scaledTileSize) + 0.5,
+      y: (position.top / scaledTileSize) + 0.5,
+    };
+  }
+
+  /**
+   * Check to see if a character's disired direction results in turning around
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @param {('up'|'down'|'left'|'right')} desiredDirection - Character's desired orientation
+   * @returns {boolean}
+   */
+  turningAround(direction, desiredDirection) {
+    return desiredDirection === this.getOppositeDirection(direction);
+  }
+
+  /**
+   * Calculate the opposite of a given direction
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @returns {('up'|'down'|'left'|'right')}
+   */
+  getOppositeDirection(direction) {
+    switch (direction) {
+      case this.directions.up:
+        return this.directions.down;
+      case this.directions.down:
+        return this.directions.up;
+      case this.directions.left:
+        return this.directions.right;
+      default:
+        return this.directions.left;
+    }
+  }
+
+  /**
+   * Calculate the proper rounding function to assist with collision detection
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @returns {Function}
+   */
+  determineRoundingFunction(direction) {
+    switch (direction) {
+      case this.directions.up:
+      case this.directions.left:
+        return Math.floor;
+      default:
+        return Math.ceil;
+    }
+  }
+
+  /**
+   * Check to see if the character's next frame results in moving to a new tile on the maze array
+   * @param {({x: number, y: number})} oldPosition - Position during the previous frame
+   * @param {({x: number, y: number})} position - Position during the current frame
+   * @returns {boolean}
+   */
+  changingGridPosition(oldPosition, position) {
+    return (
+      Math.floor(oldPosition.x) !== Math.floor(position.x)
+            || Math.floor(oldPosition.y) !== Math.floor(position.y)
+    );
+  }
+
+  /**
+   * Check to see if the character is attempting to run into a wall of the maze
+   * @param {({x: number, y: number})} desiredNewGridPosition - Character's target tile
+   * @param {Array} mazeArray - The 2D array representing the game's maze
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @returns {boolean}
+   */
+  checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
+    const roundingFunction = this.determineRoundingFunction(
+      direction, this.directions,
+    );
+
+    const desiredX = roundingFunction(desiredNewGridPosition.x);
+    const desiredY = roundingFunction(desiredNewGridPosition.y);
+    let newGridValue;
+
+    if (Array.isArray(mazeArray[desiredY])) {
+      newGridValue = mazeArray[desiredY][desiredX];
+    }
+
+    return (newGridValue === 'X');
+  }
+
+  /**
+   * Returns an object containing the new position and grid position based upon a direction
+   * @param {({top: number, left: number})} position - css position during the current frame
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @param {number} velocityPerMs - The distance to travel in a single millisecond
+   * @param {number} elapsedMs - The amount of MS that have passed since the last update
+   * @param {number} scaledTileSize - The dimensions of a single tile
+   * @returns {object}
+   */
+  determineNewPositions(
+    position, direction, velocityPerMs, elapsedMs, scaledTileSize,
+  ) {
+    const newPosition = Object.assign({}, position);
+    newPosition[this.getPropertyToChange(direction)]
+      += this.getVelocity(direction, velocityPerMs) * elapsedMs;
+    const newGridPosition = this.determineGridPosition(
+      newPosition, scaledTileSize,
+    );
+
+    return {
+      newPosition,
+      newGridPosition,
+    };
+  }
+
+  /**
+   * Calculates the css position when snapping the character to the x-y grid
+   * @param {({x: number, y: number})} position - The character's position during the current frame
+   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
+   * @param {number} scaledTileSize - The dimensions of a single tile
+   * @returns {({top: number, left: number})}
+   */
+  snapToGrid(position, direction, scaledTileSize) {
+    const newPosition = Object.assign({}, position);
+    const roundingFunction = this.determineRoundingFunction(
+      direction, this.directions,
+    );
+
+    switch (direction) {
+      case this.directions.up:
+      case this.directions.down:
+        newPosition.y = roundingFunction(newPosition.y);
+        break;
+      default:
+        newPosition.x = roundingFunction(newPosition.x);
+        break;
+    }
+
+    return {
+      top: (newPosition.y - 0.5) * scaledTileSize,
+      left: (newPosition.x - 0.5) * scaledTileSize,
+    };
+  }
+
+  /**
+   * Returns a modified position if the character needs to warp
+   * @param {({top: number, left: number})} position - css position during the current frame
+   * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
+   * @param {number} scaledTileSize - The dimensions of a single tile
+   * @returns {({top: number, left: number})}
+   */
+  handleWarp(position, scaledTileSize, mazeArray) {
+    const newPosition = Object.assign({}, position);
+    const gridPosition = this.determineGridPosition(position, scaledTileSize);
+
+    if (gridPosition.x < -0.75) {
+      newPosition.left = (scaledTileSize * (mazeArray[0].length - 0.75));
+    } else if (gridPosition.x > (mazeArray[0].length - 0.25)) {
+      newPosition.left = (scaledTileSize * -1.25);
+    }
+
+    return newPosition;
+  }
+
+  /**
+   * Advances spritesheet by one frame if needed
+   * @param {Object} character - The character which needs to be animated
+   */
+  advanceSpriteSheet(character) {
+    const {
+      msSinceLastSprite,
+      animationTarget,
+      backgroundOffsetPixels,
+    } = character;
+    const updatedProperties = {
+      msSinceLastSprite,
+      animationTarget,
+      backgroundOffsetPixels,
+    };
+
+    const ready = (character.msSinceLastSprite > character.msBetweenSprites)
+      && character.animate;
+    if (ready) {
+      updatedProperties.msSinceLastSprite = 0;
+
+      if (character.backgroundOffsetPixels
+        < (character.measurement * (character.spriteFrames - 1))
+      ) {
+        updatedProperties.backgroundOffsetPixels += character.measurement;
+      } else if (character.loopAnimation) {
+        updatedProperties.backgroundOffsetPixels = 0;
+      }
+
+      const style = `-${updatedProperties.backgroundOffsetPixels}px 0px`;
+      updatedProperties.animationTarget.style.backgroundPosition = style;
+    }
+
+    return updatedProperties;
+  }
+}
+
+
+class SoundManager {
+  constructor() {
+    this.baseUrl = 'app/style/audio/';
+    this.fileFormat = 'mp3';
+    this.masterVolume = 1;
+    this.paused = false;
+    this.cutscene = true;
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    this.ambience = new AudioContext();
+  }
+
+  /**
+   * Sets the cutscene flag to determine if players should be able to resume ambience
+   * @param {Boolean} newValue
+   */
+  setCutscene(newValue) {
+    this.cutscene = newValue;
+  }
+
+  /**
+   * Sets the master volume for all sounds and stops/resumes ambience
+   * @param {(0|1)} newVolume
+   */
+  setMasterVolume(newVolume) {
+    this.masterVolume = newVolume;
+
+    if (this.soundEffect) {
+      this.soundEffect.volume = this.masterVolume;
+    }
+
+    if (this.dotPlayer) {
+      this.dotPlayer.volume = this.masterVolume;
+    }
+
+    if (this.masterVolume === 0) {
+      this.stopAmbience();
+    } else {
+      this.resumeAmbience(this.paused);
+    }
+  }
+
+  /**
+   * Plays a single sound effect
+   * @param {String} sound
+   */
+  play(sound) {
+    this.soundEffect = new Audio(`${this.baseUrl}${sound}.${this.fileFormat}`);
+    this.soundEffect.volume = this.masterVolume;
+    this.soundEffect.play();
+  }
+
+  /**
+   * Special method for eating dots. The dots should alternate between two
+   * sound effects, but not too quickly.
+   */
+  playDotSound() {
+    this.queuedDotSound = true;
+
+    if (!this.dotPlayer) {
+      this.queuedDotSound = false;
+      this.dotSound = (this.dotSound === 1) ? 2 : 1;
+
+      this.dotPlayer = new Audio(
+        `${this.baseUrl}dot_${this.dotSound}.${this.fileFormat}`,
+      );
+      this.dotPlayer.onended = this.dotSoundEnded.bind(this);
+      this.dotPlayer.volume = this.masterVolume;
+      this.dotPlayer.play();
+    }
+  }
+
+  /**
+   * Deletes the dotSound player and plays another dot sound if needed
+   */
+  dotSoundEnded() {
+    this.dotPlayer = undefined;
+
+    if (this.queuedDotSound) {
+      this.playDotSound();
+    }
+  }
+
+  /**
+   * Loops an ambient sound
+   * @param {String} sound
+   */
+  async setAmbience(sound, keepCurrentAmbience) {
+    if (!this.fetchingAmbience && !this.cutscene) {
+      if (!keepCurrentAmbience) {
+        this.currentAmbience = sound;
+        this.paused = false;
+      } else {
+        this.paused = true;
+      }
+
+      if (this.ambienceSource) {
+        this.ambienceSource.stop();
+      }
+
+      if (this.masterVolume !== 0) {
+        this.fetchingAmbience = true;
+        const response = await fetch(
+          `${this.baseUrl}${sound}.${this.fileFormat}`,
+        );
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await this.ambience.decodeAudioData(arrayBuffer);
+
+        this.ambienceSource = this.ambience.createBufferSource();
+        this.ambienceSource.buffer = audioBuffer;
+        this.ambienceSource.connect(this.ambience.destination);
+        this.ambienceSource.loop = true;
+        this.ambienceSource.start();
+
+        this.fetchingAmbience = false;
+      }
+    }
+  }
+
+  /**
+   * Resumes the ambience
+   */
+  resumeAmbience(paused) {
+    if (this.ambienceSource) {
+      // Resetting the ambience since an AudioBufferSourceNode can only
+      // have 'start()' called once
+      if (paused) {
+        this.setAmbience('pause_beat', true);
+      } else {
+        this.setAmbience(this.currentAmbience);
+      }
+    }
+  }
+
+  /**
+   * Stops the ambience
+   */
+  stopAmbience() {
+    if (this.ambienceSource) {
+      this.ambienceSource.stop();
+    }
+  }
+}
+
+
+class Timer {
+  constructor(callback, delay) {
+    this.callback = callback;
+    this.remaining = delay;
+    this.resume();
+  }
+
+  /**
+   * Pauses the timer marks whether the pause came from the player
+   * or the system
+   * @param {Boolean} systemPause
+   */
+  pause(systemPause) {
+    window.clearTimeout(this.timerId);
+    this.remaining -= new Date() - this.start;
+    this.oldTimerId = this.timerId;
+
+    if (systemPause) {
+      this.pausedBySystem = true;
+    }
+  }
+
+  /**
+   * Creates a new setTimeout based upon the remaining time, giving the
+   * illusion of 'resuming' the old setTimeout
+   * @param {Boolean} systemResume
+   */
+  resume(systemResume) {
+    if (systemResume || !this.pausedBySystem) {
+      this.pausedBySystem = false;
+
+      this.start = new Date();
+      this.timerId = window.setTimeout(() => {
+        this.callback();
+        window.dispatchEvent(new CustomEvent('removeTimer', {
+          detail: {
+            timer: this,
+          },
+        }));
+      }, this.remaining);
+
+      if (!this.oldTimerId) {
+        window.dispatchEvent(new CustomEvent('addTimer', {
+          detail: {
+            timer: this,
+          },
+        }));
+      }
     }
   }
 }
@@ -2522,683 +3199,6 @@ class GameEngine {
    */
   mainLoop(timestamp) {
     this.engineCycle(timestamp);
-  }
-}
-
-
-class Pickup {
-  constructor(type, scaledTileSize, column, row, pacman, mazeDiv, points) {
-    this.type = type;
-    this.pacman = pacman;
-    this.mazeDiv = mazeDiv;
-    this.points = points;
-    this.nearPacman = false;
-
-    this.fruitImages = {
-      100: 'cherry',
-      300: 'strawberry',
-      500: 'orange',
-      700: 'apple',
-      1000: 'melon',
-      2000: 'galaxian',
-      3000: 'bell',
-      5000: 'key',
-    };
-
-    this.setStyleMeasurements(type, scaledTileSize, column, row, points);
-  }
-
-  /**
-   * Resets the pickup's visibility
-   */
-  reset() {
-    this.animationTarget.style.visibility = (this.type === 'fruit')
-      ? 'hidden' : 'visible';
-  }
-
-  /**
-   * Sets various style measurements for the pickup depending on its type
-   * @param {('pacdot'|'powerPellet'|'fruit')} type - The classification of pickup
-   * @param {number} scaledTileSize
-   * @param {number} column
-   * @param {number} row
-   * @param {number} points
-   */
-  setStyleMeasurements(type, scaledTileSize, column, row, points) {
-    if (type === 'pacdot') {
-      this.size = scaledTileSize * 0.25;
-      this.x = (column * scaledTileSize) + ((scaledTileSize / 8) * 3);
-      this.y = (row * scaledTileSize) + ((scaledTileSize / 8) * 3);
-    } else if (type === 'powerPellet') {
-      this.size = scaledTileSize;
-      this.x = (column * scaledTileSize);
-      this.y = (row * scaledTileSize);
-    } else {
-      this.size = scaledTileSize * 2;
-      this.x = (column * scaledTileSize) - (scaledTileSize * 0.5);
-      this.y = (row * scaledTileSize) - (scaledTileSize * 0.5);
-    }
-
-    this.center = {
-      x: column * scaledTileSize,
-      y: row * scaledTileSize,
-    };
-
-    this.animationTarget = document.createElement('div');
-    this.animationTarget.style.position = 'absolute';
-    this.animationTarget.style.backgroundSize = `${this.size}px`;
-    this.animationTarget.style.backgroundImage = this.determineImage(
-      type, points,
-    );
-    this.animationTarget.style.height = `${this.size}px`;
-    this.animationTarget.style.width = `${this.size}px`;
-    this.animationTarget.style.top = `${this.y}px`;
-    this.animationTarget.style.left = `${this.x}px`;
-    this.mazeDiv.appendChild(this.animationTarget);
-
-    if (type === 'powerPellet') {
-      this.animationTarget.classList.add('power-pellet');
-    }
-
-    this.reset();
-  }
-
-  /**
-   * Determines the Pickup image based on type and point value
-   * @param {('pacdot'|'powerPellet'|'fruit')} type - The classification of pickup
-   * @param {Number} points
-   * @returns {String}
-   */
-  determineImage(type, points) {
-    let image = '';
-
-    if (type === 'fruit') {
-      image = this.fruitImages[points] || 'cherry';
-    } else {
-      image = type;
-    }
-
-    return `url(app/style/graphics/spriteSheets/pickups/${image}.svg)`;
-  }
-
-  /**
-   * Shows a bonus fruit, resetting its point value and image
-   * @param {number} points
-   */
-  showFruit(points) {
-    this.points = points;
-    this.animationTarget.style.backgroundImage = this.determineImage(
-      this.type, points,
-    );
-    this.animationTarget.style.visibility = 'visible';
-  }
-
-  /**
-   * Makes the fruit invisible (happens if Pacman was too slow)
-   */
-  hideFruit() {
-    this.animationTarget.style.visibility = 'hidden';
-  }
-
-  /**
-   * Returns true if the Pickup is touching a bounding box at Pacman's center
-   * @param {({ x: number, y: number, size: number})} pickup
-   * @param {({ x: number, y: number, size: number})} originalPacman
-   */
-  checkForCollision(pickup, originalPacman) {
-    const pacman = Object.assign({}, originalPacman);
-
-    pacman.x += (pacman.size * 0.25);
-    pacman.y += (pacman.size * 0.25);
-    pacman.size /= 2;
-
-    return (pickup.x < pacman.x + pacman.size
-      && pickup.x + pickup.size > pacman.x
-      && pickup.y < pacman.y + pacman.size
-      && pickup.y + pickup.size > pacman.y);
-  }
-
-  /**
-   * Checks to see if the pickup is close enough to Pacman to be considered for collision detection
-   * @param {number} maxDistance - The maximum distance Pacman can travel per cycle
-   * @param {({ x:number, y:number })} pacmanCenter - The center of Pacman's hitbox
-   * @param {Boolean} debugging - Flag to change the appearance of pickups for testing
-   */
-  checkPacmanProximity(maxDistance, pacmanCenter, debugging) {
-    if (this.animationTarget.style.visibility !== 'hidden') {
-      const distance = Math.sqrt(
-        ((this.center.x - pacmanCenter.x) ** 2)
-        + ((this.center.y - pacmanCenter.y) ** 2),
-      );
-
-      this.nearPacman = (distance <= maxDistance);
-
-      if (debugging) {
-        this.animationTarget.style.background = this.nearPacman
-          ? 'lime' : 'red';
-      }
-    }
-  }
-
-  /**
-   * Checks if the pickup is visible and close to Pacman
-   * @returns {Boolean}
-   */
-  shouldCheckForCollision() {
-    return this.animationTarget.style.visibility !== 'hidden'
-      && this.nearPacman;
-  }
-
-  /**
-   * If the Pickup is still visible, it checks to see if it is colliding with Pacman.
-   * It will turn itself invisible and cease collision-detection after the first
-   * collision with Pacman.
-   */
-  update() {
-    if (this.shouldCheckForCollision()) {
-      if (this.checkForCollision(
-        {
-          x: this.x,
-          y: this.y,
-          size: this.size,
-        }, {
-          x: this.pacman.position.left,
-          y: this.pacman.position.top,
-          size: this.pacman.measurement,
-        },
-      )) {
-        this.animationTarget.style.visibility = 'hidden';
-        window.dispatchEvent(new CustomEvent('awardPoints', {
-          detail: {
-            points: this.points,
-            type: this.type,
-          },
-        }));
-
-        if (this.type === 'pacdot') {
-          window.dispatchEvent(new Event('dotEaten'));
-        } else if (this.type === 'powerPellet') {
-          window.dispatchEvent(new Event('dotEaten'));
-          window.dispatchEvent(new Event('powerUp'));
-        }
-      }
-    }
-  }
-}
-
-
-class CharacterUtil {
-  constructor() {
-    this.directions = {
-      up: 'up',
-      down: 'down',
-      left: 'left',
-      right: 'right',
-    };
-  }
-
-  /**
-   * Check if a given character has moved more than five in-game tiles during a frame.
-   * If so, we want to temporarily hide the object to avoid 'animation stutter'.
-   * @param {({top: number, left: number})} position - Position during the current frame
-   * @param {({top: number, left: number})} oldPosition - Position during the previous frame
-   * @returns {('hidden'|'visible')} - The new 'visibility' css property value for the character.
-   */
-  checkForStutter(position, oldPosition) {
-    let stutter = false;
-    const threshold = 5;
-
-    if (position && oldPosition) {
-      if (Math.abs(position.top - oldPosition.top) > threshold
-        || Math.abs(position.left - oldPosition.left) > threshold) {
-        stutter = true;
-      }
-    }
-
-    return stutter ? 'hidden' : 'visible';
-  }
-
-  /**
-   * Check which CSS property needs to be changed given the character's current direction
-   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
-   * @returns {('top'|'left')}
-   */
-  getPropertyToChange(direction) {
-    switch (direction) {
-      case this.directions.up:
-      case this.directions.down:
-        return 'top';
-      default:
-        return 'left';
-    }
-  }
-
-  /**
-   * Calculate the velocity for the character's next frame.
-   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
-   * @param {number} velocityPerMs - The distance to travel in a single millisecond
-   * @returns {number} - Moving down or right is positive, while up or left is negative.
-   */
-  getVelocity(direction, velocityPerMs) {
-    switch (direction) {
-      case this.directions.up:
-      case this.directions.left:
-        return velocityPerMs * -1;
-      default:
-        return velocityPerMs;
-    }
-  }
-
-  /**
-   * Determine the next value which will be used to draw the character's position on screen
-   * @param {number} interp - The percentage of the desired timestamp between frames
-   * @param {('top'|'left')} prop - The css property to be changed
-   * @param {({top: number, left: number})} oldPosition - Position during the previous frame
-   * @param {({top: number, left: number})} position - Position during the current frame
-   * @returns {number} - New value for css positioning
-   */
-  calculateNewDrawValue(interp, prop, oldPosition, position) {
-    return oldPosition[prop] + (position[prop] - oldPosition[prop]) * interp;
-  }
-
-  /**
-   * Convert the character's css position to a row-column on the maze array
-   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
-   * @param {number} scaledTileSize - The dimensions of a single tile
-   * @returns {({x: number, y: number})}
-   */
-  determineGridPosition(position, scaledTileSize) {
-    return {
-      x: (position.left / scaledTileSize) + 0.5,
-      y: (position.top / scaledTileSize) + 0.5,
-    };
-  }
-
-  /**
-   * Check to see if a character's disired direction results in turning around
-   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
-   * @param {('up'|'down'|'left'|'right')} desiredDirection - Character's desired orientation
-   * @returns {boolean}
-   */
-  turningAround(direction, desiredDirection) {
-    return desiredDirection === this.getOppositeDirection(direction);
-  }
-
-  /**
-   * Calculate the opposite of a given direction
-   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
-   * @returns {('up'|'down'|'left'|'right')}
-   */
-  getOppositeDirection(direction) {
-    switch (direction) {
-      case this.directions.up:
-        return this.directions.down;
-      case this.directions.down:
-        return this.directions.up;
-      case this.directions.left:
-        return this.directions.right;
-      default:
-        return this.directions.left;
-    }
-  }
-
-  /**
-   * Calculate the proper rounding function to assist with collision detection
-   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
-   * @returns {Function}
-   */
-  determineRoundingFunction(direction) {
-    switch (direction) {
-      case this.directions.up:
-      case this.directions.left:
-        return Math.floor;
-      default:
-        return Math.ceil;
-    }
-  }
-
-  /**
-   * Check to see if the character's next frame results in moving to a new tile on the maze array
-   * @param {({x: number, y: number})} oldPosition - Position during the previous frame
-   * @param {({x: number, y: number})} position - Position during the current frame
-   * @returns {boolean}
-   */
-  changingGridPosition(oldPosition, position) {
-    return (
-      Math.floor(oldPosition.x) !== Math.floor(position.x)
-            || Math.floor(oldPosition.y) !== Math.floor(position.y)
-    );
-  }
-
-  /**
-   * Check to see if the character is attempting to run into a wall of the maze
-   * @param {({x: number, y: number})} desiredNewGridPosition - Character's target tile
-   * @param {Array} mazeArray - The 2D array representing the game's maze
-   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
-   * @returns {boolean}
-   */
-  checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
-    const roundingFunction = this.determineRoundingFunction(
-      direction, this.directions,
-    );
-
-    const desiredX = roundingFunction(desiredNewGridPosition.x);
-    const desiredY = roundingFunction(desiredNewGridPosition.y);
-    let newGridValue;
-
-    if (Array.isArray(mazeArray[desiredY])) {
-      newGridValue = mazeArray[desiredY][desiredX];
-    }
-
-    return (newGridValue === 'X');
-  }
-
-  /**
-   * Returns an object containing the new position and grid position based upon a direction
-   * @param {({top: number, left: number})} position - css position during the current frame
-   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
-   * @param {number} velocityPerMs - The distance to travel in a single millisecond
-   * @param {number} elapsedMs - The amount of MS that have passed since the last update
-   * @param {number} scaledTileSize - The dimensions of a single tile
-   * @returns {object}
-   */
-  determineNewPositions(
-    position, direction, velocityPerMs, elapsedMs, scaledTileSize,
-  ) {
-    const newPosition = Object.assign({}, position);
-    newPosition[this.getPropertyToChange(direction)]
-      += this.getVelocity(direction, velocityPerMs) * elapsedMs;
-    const newGridPosition = this.determineGridPosition(
-      newPosition, scaledTileSize,
-    );
-
-    return {
-      newPosition,
-      newGridPosition,
-    };
-  }
-
-  /**
-   * Calculates the css position when snapping the character to the x-y grid
-   * @param {({x: number, y: number})} position - The character's position during the current frame
-   * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
-   * @param {number} scaledTileSize - The dimensions of a single tile
-   * @returns {({top: number, left: number})}
-   */
-  snapToGrid(position, direction, scaledTileSize) {
-    const newPosition = Object.assign({}, position);
-    const roundingFunction = this.determineRoundingFunction(
-      direction, this.directions,
-    );
-
-    switch (direction) {
-      case this.directions.up:
-      case this.directions.down:
-        newPosition.y = roundingFunction(newPosition.y);
-        break;
-      default:
-        newPosition.x = roundingFunction(newPosition.x);
-        break;
-    }
-
-    return {
-      top: (newPosition.y - 0.5) * scaledTileSize,
-      left: (newPosition.x - 0.5) * scaledTileSize,
-    };
-  }
-
-  /**
-   * Returns a modified position if the character needs to warp
-   * @param {({top: number, left: number})} position - css position during the current frame
-   * @param {({x: number, y: number})} gridPosition - x-y position during the current frame
-   * @param {number} scaledTileSize - The dimensions of a single tile
-   * @returns {({top: number, left: number})}
-   */
-  handleWarp(position, scaledTileSize, mazeArray) {
-    const newPosition = Object.assign({}, position);
-    const gridPosition = this.determineGridPosition(position, scaledTileSize);
-
-    if (gridPosition.x < -0.75) {
-      newPosition.left = (scaledTileSize * (mazeArray[0].length - 0.75));
-    } else if (gridPosition.x > (mazeArray[0].length - 0.25)) {
-      newPosition.left = (scaledTileSize * -1.25);
-    }
-
-    return newPosition;
-  }
-
-  /**
-   * Advances spritesheet by one frame if needed
-   * @param {Object} character - The character which needs to be animated
-   */
-  advanceSpriteSheet(character) {
-    const {
-      msSinceLastSprite,
-      animationTarget,
-      backgroundOffsetPixels,
-    } = character;
-    const updatedProperties = {
-      msSinceLastSprite,
-      animationTarget,
-      backgroundOffsetPixels,
-    };
-
-    const ready = (character.msSinceLastSprite > character.msBetweenSprites)
-      && character.animate;
-    if (ready) {
-      updatedProperties.msSinceLastSprite = 0;
-
-      if (character.backgroundOffsetPixels
-        < (character.measurement * (character.spriteFrames - 1))
-      ) {
-        updatedProperties.backgroundOffsetPixels += character.measurement;
-      } else if (character.loopAnimation) {
-        updatedProperties.backgroundOffsetPixels = 0;
-      }
-
-      const style = `-${updatedProperties.backgroundOffsetPixels}px 0px`;
-      updatedProperties.animationTarget.style.backgroundPosition = style;
-    }
-
-    return updatedProperties;
-  }
-}
-
-
-class SoundManager {
-  constructor() {
-    this.baseUrl = 'app/style/audio/';
-    this.fileFormat = 'mp3';
-    this.masterVolume = 1;
-    this.paused = false;
-    this.cutscene = true;
-
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    this.ambience = new AudioContext();
-  }
-
-  /**
-   * Sets the cutscene flag to determine if players should be able to resume ambience
-   * @param {Boolean} newValue
-   */
-  setCutscene(newValue) {
-    this.cutscene = newValue;
-  }
-
-  /**
-   * Sets the master volume for all sounds and stops/resumes ambience
-   * @param {(0|1)} newVolume
-   */
-  setMasterVolume(newVolume) {
-    this.masterVolume = newVolume;
-
-    if (this.soundEffect) {
-      this.soundEffect.volume = this.masterVolume;
-    }
-
-    if (this.dotPlayer) {
-      this.dotPlayer.volume = this.masterVolume;
-    }
-
-    if (this.masterVolume === 0) {
-      this.stopAmbience();
-    } else {
-      this.resumeAmbience(this.paused);
-    }
-  }
-
-  /**
-   * Plays a single sound effect
-   * @param {String} sound
-   */
-  play(sound) {
-    this.soundEffect = new Audio(`${this.baseUrl}${sound}.${this.fileFormat}`);
-    this.soundEffect.volume = this.masterVolume;
-    this.soundEffect.play();
-  }
-
-  /**
-   * Special method for eating dots. The dots should alternate between two
-   * sound effects, but not too quickly.
-   */
-  playDotSound() {
-    this.queuedDotSound = true;
-
-    if (!this.dotPlayer) {
-      this.queuedDotSound = false;
-      this.dotSound = (this.dotSound === 1) ? 2 : 1;
-
-      this.dotPlayer = new Audio(
-        `${this.baseUrl}dot_${this.dotSound}.${this.fileFormat}`,
-      );
-      this.dotPlayer.onended = this.dotSoundEnded.bind(this);
-      this.dotPlayer.volume = this.masterVolume;
-      this.dotPlayer.play();
-    }
-  }
-
-  /**
-   * Deletes the dotSound player and plays another dot sound if needed
-   */
-  dotSoundEnded() {
-    this.dotPlayer = undefined;
-
-    if (this.queuedDotSound) {
-      this.playDotSound();
-    }
-  }
-
-  /**
-   * Loops an ambient sound
-   * @param {String} sound
-   */
-  async setAmbience(sound, keepCurrentAmbience) {
-    if (!this.fetchingAmbience && !this.cutscene) {
-      if (!keepCurrentAmbience) {
-        this.currentAmbience = sound;
-        this.paused = false;
-      } else {
-        this.paused = true;
-      }
-
-      if (this.ambienceSource) {
-        this.ambienceSource.stop();
-      }
-
-      if (this.masterVolume !== 0) {
-        this.fetchingAmbience = true;
-        const response = await fetch(
-          `${this.baseUrl}${sound}.${this.fileFormat}`,
-        );
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await this.ambience.decodeAudioData(arrayBuffer);
-
-        this.ambienceSource = this.ambience.createBufferSource();
-        this.ambienceSource.buffer = audioBuffer;
-        this.ambienceSource.connect(this.ambience.destination);
-        this.ambienceSource.loop = true;
-        this.ambienceSource.start();
-
-        this.fetchingAmbience = false;
-      }
-    }
-  }
-
-  /**
-   * Resumes the ambience
-   */
-  resumeAmbience(paused) {
-    if (this.ambienceSource) {
-      // Resetting the ambience since an AudioBufferSourceNode can only
-      // have 'start()' called once
-      if (paused) {
-        this.setAmbience('pause_beat', true);
-      } else {
-        this.setAmbience(this.currentAmbience);
-      }
-    }
-  }
-
-  /**
-   * Stops the ambience
-   */
-  stopAmbience() {
-    if (this.ambienceSource) {
-      this.ambienceSource.stop();
-    }
-  }
-}
-
-
-class Timer {
-  constructor(callback, delay) {
-    this.callback = callback;
-    this.remaining = delay;
-    this.resume();
-  }
-
-  /**
-   * Pauses the timer marks whether the pause came from the player
-   * or the system
-   * @param {Boolean} systemPause
-   */
-  pause(systemPause) {
-    window.clearTimeout(this.timerId);
-    this.remaining -= new Date() - this.start;
-    this.oldTimerId = this.timerId;
-
-    if (systemPause) {
-      this.pausedBySystem = true;
-    }
-  }
-
-  /**
-   * Creates a new setTimeout based upon the remaining time, giving the
-   * illusion of 'resuming' the old setTimeout
-   * @param {Boolean} systemResume
-   */
-  resume(systemResume) {
-    if (systemResume || !this.pausedBySystem) {
-      this.pausedBySystem = false;
-
-      this.start = new Date();
-      this.timerId = window.setTimeout(() => {
-        this.callback();
-        window.dispatchEvent(new CustomEvent('removeTimer', {
-          detail: {
-            timer: this,
-          },
-        }));
-      }, this.remaining);
-
-      if (!this.oldTimerId) {
-        window.dispatchEvent(new CustomEvent('addTimer', {
-          detail: {
-            timer: this,
-          },
-        }));
-      }
-    }
   }
 }
 

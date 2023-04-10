@@ -182,7 +182,7 @@ class Ghost {
         + `spriteSheets/characters/ghosts/eyes_${direction}.svg)`;
     } else {
       this.animationTarget.style.backgroundImage = 'url(app/style/graphics/'
-        + `spriteSheets/characters/ghosts/${name}/${name}_${direction}`
+        + `spriteSheets/characters/ghosts/blinky/blinky_${direction}`
         + `${emotion}.svg)`;
     }
   }
