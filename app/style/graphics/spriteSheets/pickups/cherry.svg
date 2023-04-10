@@ -1,15 +1,44 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
- "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
-<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
- width="16.000000pt" height="16.000000pt" viewBox="0 0 16.000000 16.000000"
- preserveAspectRatio="xMidYMid meet">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
 
-<g transform="translate(0.000000,16.000000) scale(0.100000,-0.100000)"
-fill="#000000" stroke="none">
-<path d="M31 94 c-12 -15 -21 -41 -21 -60 l0 -34 70 0 70 0 0 34 c0 34 -32 86
--53 86 -7 0 -3 -7 7 -15 18 -14 17 -15 -24 -15 -41 0 -42 1 -24 15 10 8 14 15
-7 15 -6 0 -21 -12 -32 -26z m87 -40 c-2 -15 -11 -32 -21 -38 -24 -15 -51 3
--55 38 -3 24 -1 26 38 26 39 0 41 -2 38 -26z"/>
-</g>
+<svg
+   version="1.1"
+   id="svg147"
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   sodipodi:docname="cherry.png"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs151" />
+  <sodipodi:namedview
+     id="namedview149"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g153">
+    <image
+       width="16"
+       height="16"
+       preserveAspectRatio="none"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAALFJREFUOE9j
+ZMAD/v9n+A+SZmRkYMSlDKcESDPLqi9gfX/CeHAaQjsDQDaT7YUHDr/Bfpffzwr2wkPH32Ba4QAr
+hosxBNA1wwIPlyEoBoA0w2zFFeogg5BdAjcAZjO+aEWWgxmCYYBgMgteM97P/YMSHmADkG2HGcAf
+y8jwcTE4LMEAxocZAAtUnAbgcgZ9DQA5GwSQvULQBSANuAISWTPOMID5Hd0QdM0EDSAmPYDSAgDi
+SmkR06ywvQAAAABJRU5ErkJggg==
+"
+       id="image155" />
+  </g>
 </svg>
