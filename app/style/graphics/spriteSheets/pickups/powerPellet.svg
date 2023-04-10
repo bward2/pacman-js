@@ -1,27 +1,19 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   version="1.1"
-   id="svg2"
-   width="8"
-   height="8"
-   viewBox="0 0 8 8"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs6" />
-  <g
-     id="g8">
-    <image
-       width="8"
-       height="8"
-       preserveAspectRatio="none"
-       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAAFZJREFUKFNj
-ZMAB/h9k/w+SYsQmD5Kcf3c6Q6JyJqYCFEn7n4woJsCMBRtt/xMsByJAdjFik0R2A9hB/w+yw3XC
-3AYzAZmP4m7GqwwM/7UhQnDrkFUAAI4gIJXRjwC4AAAAAElFTkSuQmCC
-"
-       id="image10" />
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -0.5 8 8" shape-rendering="crispEdges">
+<metadata>Made with Pixels to Svg https://codepen.io/shshaw/pen/XbxvNj</metadata>
+<path stroke="#fec006" d="M6 0h1M2 4h1" />
+<path stroke="#ffc007" d="M7 0h1M5 1h1M4 2h1" />
+<path stroke="#9f9f9e" d="M6 1h1" />
+<path stroke="#ffc107" d="M7 1h1M3 4h1" />
+<path stroke="#9f9e9f" d="M5 2h1" />
+<path stroke="#fec007" d="M6 2h1M5 3h1" />
+<path stroke="#fec107" d="M3 3h1" />
+<path stroke="#ffc006" d="M4 3h1" />
+<path stroke="#010101" d="M0 4h1M1 5h1M0 6h1" />
+<path stroke="#ffc106" d="M4 4h1" />
+<path stroke="#000000" d="M2 5h1M3 7h1" />
+<path stroke="#fec106" d="M3 5h1" />
+<path stroke="#010000" d="M1 6h1" />
+<path stroke="#000101" d="M2 6h1" />
+<path stroke="#d40100" d="M0 7h1" />
+<path stroke="#010100" d="M1 7h1" />
 </svg>
