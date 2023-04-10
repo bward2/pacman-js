@@ -12,6 +12,8 @@ body {
 
 .overflow-mask {
   background-image: url("../app/style/graphics/backdrop.png");
+  background-size: cover;
+  background-repeat: no-repeat;
   color: #fff;
   display: flex;
   height: 100vh;
