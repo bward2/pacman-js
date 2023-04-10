@@ -11,7 +11,7 @@ body {
   overflow: hidden; }
 
 .overflow-mask {
-  background-color: #000;
+  background-image: url("../app/style/graphics/backdrop.png");
   color: #fff;
   display: flex;
   height: 100vh;
@@ -110,7 +110,9 @@ body {
     height: 66%; } }
 
 .loading-cover {
-  background: #ffdf00;
+  background-image: url("/app/style/graphics/backdrop.png");
+  background-size: cover;
+  background-repeat: no-repeat;
   height: 100vh;
   position: absolute;
   top: 0;
@@ -118,10 +120,16 @@ body {
   z-index: 4; }
 
 .left {
+  background-image: url("/app/style/graphics/backdrop-left.png");
+  background-size: cover;
+  background-repeat: no-repeat;
   left: 0;
   transition: left 0.5s 0.5s; }
 
 .right {
+  background-image: url("/app/style/graphics/backdrop-right.png");
+  background-size: cover;
+  background-repeat: no-repeat;
   right: 0;
   transition: right 0.5s 0.5s; }
 

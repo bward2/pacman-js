@@ -10,7 +10,7 @@ body {
 }
 
 .overflow-mask {
-  background-color: $black;
+  background-image: url("../app/style/graphics/backdrop.png");
   color: $white;
   display: flex;
   height: 100vh;
@@ -144,7 +144,9 @@ body {
 }
 
 .loading-cover {
-  background: $yellow;
+  background-image: url("/app/style/graphics/backdrop.png");
+  background-size: cover;
+  background-repeat: no-repeat;
   height: 100vh;
   position: absolute;
   top: 0;
@@ -153,11 +155,17 @@ body {
 }
 
 .left {
+  background-image: url("/app/style/graphics/backdrop-left.png");
+  background-size: cover;
+  background-repeat: no-repeat;
   left: 0;
   transition: left $generic-duration ($generic-duration);
 }
 
 .right {
+  background-image: url("/app/style/graphics/backdrop-right.png");
+  background-size: cover;
+  background-repeat: no-repeat;
   right: 0;
   transition: right $generic-duration ($generic-duration);
 }
