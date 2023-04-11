@@ -1,3 +1,8 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2 3V5H4V6H7V7H10V8H7V9H4V10H2V12H3V13H5V14H10V13H12V12H13V10H14V5H13V3H12V2H10V1H5V2H3V3H2Z" fill="#FFFF00"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -0.5 16 16" shape-rendering="crispEdges">
+<metadata>Made with Pixels to Svg https://codepen.io/shshaw/pen/XbxvNj</metadata>
+<path stroke="#000000" d="M4 0h2M10 0h2M3 1h1M6 1h1M9 1h1M12 1h1M3 2h1M6 2h4M12 2h1M3 3h1M12 3h1M3 4h1M6 4h1M9 4h1M12 4h1M3 5h1M12 5h1M3 6h1M12 6h1M4 7h8M4 8h1M11 8h1M3 9h2M11 9h2M2 10h1M4 10h1M11 10h1M13 10h1M2 11h1M4 11h1M11 11h1M13 11h1M2 12h3M11 12h3M4 13h1M11 13h1M4 14h1M7 14h2M11 14h1M4 15h3M9 15h3" />
+<path stroke="#ffffff" d="M4 1h2M10 1h2M4 2h2M10 2h2M4 3h2M10 3h2M4 4h1M11 4h1M4 5h1M11 5h1M4 6h2M10 6h2" />
+<path stroke="#ffab91" d="M6 3h4M5 4h1M7 4h2M10 4h1M5 5h6M6 6h4" />
+<path stroke="#00bcd4" d="M5 8h6M5 9h6M3 10h1M5 10h6M12 10h1M3 11h1M12 11h1" />
+<path stroke="#2196f3" d="M5 11h6M5 12h6M5 13h6M5 14h2M9 14h2" />
 </svg>
