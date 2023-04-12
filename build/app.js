@@ -2858,7 +2858,7 @@ class GameCoordinator {
    */
   powerUp() {
     if (this.remainingDots !== 0) {
-      this.soundManager.setAmbience('power_up');
+      this.soundManager.play('power_up');
     }
 
     this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
