@@ -46,10 +46,21 @@ body {
 }
 
 .header-buttons {
-  margin: 16px;
+  padding: 2rem 3rem;
   position: absolute;
-  width: 100%;
+  top: 0;
+  left: 0;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.header-buttons a {
+  font-family: none;
+  display: inline-block;
+}
+.header-buttons img {
+  height: 2rem;
 }
 .header-buttons button {
   background: none;
