@@ -1,17 +1,19 @@
 const gulp = require('gulp');
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('sass'));
 const concat = require('gulp-concat');
 const removeCode = require('gulp-remove-code');
 
 function styles() {
-  return gulp.src('app/style/scss/**/*.scss')
+  return gulp
+    .src('app/style/scss/**/*.scss')
     .pipe(sass())
     .pipe(concat('app.css'))
     .pipe(gulp.dest('build'));
 }
 
 function scripts() {
-  return gulp.src('app/scripts/**/*.js')
+  return gulp
+    .src('app/scripts/**/*.js')
     .pipe(removeCode({ production: true }))
     .pipe(concat('app.js'))
     .pipe(gulp.dest('build'));
