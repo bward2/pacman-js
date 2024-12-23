@@ -10,7 +10,8 @@
     "coverage": "nyc report --reporter=text-lcov | node ./node_modules/coveralls/bin/coveralls.js",
     "lint": "./node_modules/.bin/eslint .",
     "update": "ncu -i --format group",
-    "serve": "node ./node_modules/http-server/bin/http-server"
+    "serve": "node ./node_modules/http-server/bin/http-server",
+    "watch": "gulp watch"
   },
   "husky": {
     "hooks": {
@@ -23,10 +24,10 @@
     "npm": ">=6.14.6"
   },
   "devDependencies": {
-    "coveralls": "^3.0.3",
+    "coveralls": "^3.1.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-import": "^2.31.0",
     "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
     "gulp-remove-code": "^3.0.4",
@@ -36,7 +37,7 @@
     "mocha": "^8.1.2",
     "npm-check-updates": "^17.1.12",
     "nyc": "^14.1.0",
-    "sass": "^1.26.10",
+    "sass": "^1.83.0",
     "sinon": "^7.3.2"
   }
 }
