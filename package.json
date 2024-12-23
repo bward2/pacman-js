@@ -11,13 +11,8 @@
     "lint": "./node_modules/.bin/eslint .",
     "update": "ncu -i --format group",
     "serve": "node ./node_modules/http-server/bin/http-server",
-    "watch": "gulp watch"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint",
-      "pre-push": "npm test"
-    }
+    "watch": "gulp watch",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=12.18.3",
