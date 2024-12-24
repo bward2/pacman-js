@@ -17,20 +17,25 @@
     <link href='https://fonts.googleapis.com/icon?family=Material+Icons'
       rel='stylesheet'>
     <title>Pacman</title>
+    <meta name="author" content="Brent Ward">
+    <meta name="description" content="The classic arcade game Pac-Man! Remade in Javascript by Brent Ward">
+    <meta name="keywords" content="Pac-Man, games, retro, arcade">
+    <!-- TODO - Find how to hook this up. -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
   </head>
 
   <body>
     <div id='overflow-mask' class='overflow-mask'>
-      <img id='backdrop' class='backdrop' src='app/style/graphics/backdrop.png'>
+      <img id='backdrop' class='backdrop' src='app/style/graphics/backdrop.png' alt='Backdrop'>
 
       <div id='fps-display' class='fps-display'></div>
       <div id='preload-div' class='preload-div'></div>
 
       <div id='main-menu-container' class='main-menu-container'>
         <a href="https://www.brentward.io" class="brent-ward-logo">
-          <img src="app/style/graphics/brent_ward_logo_black.svg" />
+          <img src="app/style/graphics/brent_ward_logo_black.svg" alt="Brent Ward Website Link"/>
         </a>
-        <img id='logo' class='logo' src='app/style/graphics/pacman_logo.png'>
+        <img id='logo' class='logo' src='app/style/graphics/pacman_logo.png' alt='Pacman Logo'>
         <button id='game-start' class='game-start'>
           PLAY
         </button>
@@ -38,7 +43,7 @@
 
       <div class='header-buttons'>
         <a href="https://www.brentward.io" >
-          <img src="app/style/graphics/brent_ward_logo.svg" />
+          <img src="app/style/graphics/brent_ward_logo.svg" alt="Brent Ward Website Link"/>
         </a>
         <button>
           <i id='pause-button' class='material-icons'>
@@ -67,7 +72,7 @@
         </div>
 
         <div id='maze' class='maze'>
-          <img id='maze-img' class='maze-img' src='app/style//graphics/spriteSheets/maze/maze_blue.svg'>
+          <img id='maze-img' class='maze-img' src='app/style//graphics/spriteSheets/maze/maze_blue.svg' alt='Maze'>
           <div id='maze-cover' class='maze-cover'></div>
           <div id='dot-container'></div>
           <p id='pacman' class='pacman'></p>
