@@ -208,15 +208,18 @@ body {
   border: 5px solid #2121ff;
   border-radius: 10px;
   height: 48px;
-  left: 50%;
   position: absolute;
   top: 50%;
-  transform: translateX(-50%) translateY(-50%);
   transition: opacity 0.5s 1s;
   width: 500px;
   z-index: 5;
 }
 
+@media only screen and (max-width: 600px) {
+  .loading-container {
+    transform: scale(0.5);
+  }
+}
 .loading-pacman {
   animation: loading-animation 0.3s steps(4) infinite;
   background-color: #000;
