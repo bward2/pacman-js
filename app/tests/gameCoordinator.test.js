@@ -482,6 +482,14 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('handleTouchStart', () => {
+    it('updates touch values', () => {
+      comp.handleTouchStart({ touches: [{ clientX: 100, clientY: 200 }] });
+      assert.strictEqual(comp.touchStartX, 100);
+      assert.strictEqual(comp.touchStartY, 200);
+    });
+  });
+
   describe('handleKeyDown', () => {
     beforeEach(() => {
       comp.gameEngine = {};
