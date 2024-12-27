@@ -93,6 +93,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  height: 100%;
 
   .one-up {
     animation: blink 0.6s infinite;
@@ -147,18 +148,6 @@ body {
       display: flex;
       flex-direction: row-reverse;
     }
-  }
-}
-
-@media (orientation: landscape) {
-  .game-ui {
-    height: 100%;
-  }
-}
-
-@media (orientation: portrait) {
-  .game-ui {
-    height: 66%;
   }
 }
 
