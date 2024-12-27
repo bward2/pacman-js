@@ -624,6 +624,16 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('handleSwipe', () => {
+    it('calls changeDirection with the direction of the user\'s swipe', () => {
+      const spy = sinon.fake();
+      comp.changeDirection = spy;
+
+      comp.handleSwipe({ detail: { direction: 'up' } });
+      assert(comp.changeDirection.calledWith('up'));
+    });
+  });
+
   describe('handlePauseKey', () => {
     beforeEach(() => {
       comp.gameEngine = {
