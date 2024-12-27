@@ -17,7 +17,6 @@ class GameCoordinator {
     this.rightCover = document.getElementById('right-cover');
     this.pausedText = document.getElementById('paused-text');
     this.bottomRow = document.getElementById('bottom-row');
-    this.movementButtons = document.getElementById('movement-buttons');
 
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
@@ -708,16 +707,6 @@ class GameCoordinator {
     window.addEventListener('addTimer', this.addTimer.bind(this));
     window.addEventListener('removeTimer', this.removeTimer.bind(this));
     window.addEventListener('releaseGhost', this.releaseGhost.bind(this));
-
-    const directions = ['up', 'down', 'left', 'right'];
-
-    directions.forEach((direction) => {
-      document
-        .getElementById(`button-${direction}`)
-        .addEventListener('touchstart', () => {
-          this.changeDirection(direction);
-        });
-    });
   }
 
   /**
@@ -765,7 +754,6 @@ class GameCoordinator {
       if (this.gameEngine.started) {
         this.soundManager.resumeAmbience();
         this.gameUi.style.filter = 'unset';
-        this.movementButtons.style.filter = 'unset';
         this.pausedText.style.visibility = 'hidden';
         this.pauseButton.innerHTML = 'pause';
         this.activeTimers.forEach((timer) => {
@@ -775,7 +763,6 @@ class GameCoordinator {
         this.soundManager.stopAmbience();
         this.soundManager.setAmbience('pause_beat', true);
         this.gameUi.style.filter = 'blur(5px)';
-        this.movementButtons.style.filter = 'blur(5px)';
         this.pausedText.style.visibility = 'visible';
         this.pauseButton.innerHTML = 'play_arrow';
         this.activeTimers.forEach((timer) => {
