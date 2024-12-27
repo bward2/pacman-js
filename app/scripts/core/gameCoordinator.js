@@ -72,6 +72,12 @@ class GameCoordinator {
       39: 'right',
     };
 
+    // Mobile touch trackers
+    this.touchStartX = 0;
+    this.touchStartY = 0;
+    this.touchEndX = 0;
+    this.touchEndY = 0;
+
     this.fruitPoints = {
       1: 100,
       2: 300,
@@ -577,7 +583,7 @@ class GameCoordinator {
   }
 
   /**
-   * Displays "Ready!" and allows Pacman to move after a breif delay
+   * Displays "Ready!" and allows Pacman to move after a brief delay
    * @param {Boolean} initialStart - Special condition for the game's beginning
    */
   startGameplay(initialStart) {
@@ -715,21 +721,16 @@ class GameCoordinator {
    * Register listeners for touchstart and touchend to handle mobile device swipes
    */
   registerSwipeListeners() {
-    let startX;
-    let startY;
-    let endX;
-    let endY;
-
     document.addEventListener('touchstart', (event) => {
-      startX = event.touches[0].clientX;
-      startY = event.touches[0].clientY;
+      this.touchStartX = event.touches[0].clientX;
+      this.touchStartY = event.touches[0].clientY;
     });
 
     document.addEventListener('touchend', (event) => {
-      endX = event.changedTouches[0].clientX;
-      endY = event.changedTouches[0].clientY;
-      const diffX = endX - startX;
-      const diffY = endY - startY;
+      this.touchEndX = event.changedTouches[0].clientX;
+      this.touchEndY = event.changedTouches[0].clientY;
+      const diffX = this.touchEndX - this.touchStartX;
+      const diffY = this.touchEndY - this.touchStartY;
       let direction;
 
       if (Math.abs(diffX) > Math.abs(diffY)) {
