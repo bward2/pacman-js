@@ -1831,30 +1831,41 @@ class GameCoordinator {
    * Register listeners for touchstart and touchend to handle mobile device swipes
    */
   registerSwipeListeners() {
-    document.addEventListener('touchstart', (event) => {
-      this.touchStartX = event.touches[0].clientX;
-      this.touchStartY = event.touches[0].clientY;
-    });
+    document.addEventListener('touchstart', this.handleTouchStart.bind(this));
+    document.addEventListener('touchend', this.handleTouchEnd.bind(this));
+  }
 
-    document.addEventListener('touchend', (event) => {
-      this.touchEndX = event.changedTouches[0].clientX;
-      this.touchEndY = event.changedTouches[0].clientY;
-      const diffX = this.touchEndX - this.touchStartX;
-      const diffY = this.touchEndY - this.touchStartY;
-      let direction;
+  /**
+   * Sets touch values where the user's touch begins
+   * @param {Event} event
+   */
+  handleTouchStart(event) {
+    this.touchStartX = event.touches[0].clientX;
+    this.touchStartY = event.touches[0].clientY;
+  }
 
-      if (Math.abs(diffX) > Math.abs(diffY)) {
-        direction = diffX > 0 ? 'right' : 'left';
-      } else {
-        direction = diffY > 0 ? 'down' : 'up';
-      }
+  /**
+   * Sets touch values where the user's touch ends and attempts to change Pac-Man's direction
+   * @param {*} event
+   */
+  handleTouchEnd(event) {
+    this.touchEndX = event.changedTouches[0].clientX;
+    this.touchEndY = event.changedTouches[0].clientY;
+    const diffX = this.touchEndX - this.touchStartX;
+    const diffY = this.touchEndY - this.touchStartY;
+    let direction;
 
-      window.dispatchEvent(new CustomEvent('swipe', {
-        detail: {
-          direction,
-        },
-      }));
-    });
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      direction = diffX > 0 ? 'right' : 'left';
+    } else {
+      direction = diffY > 0 ? 'down' : 'up';
+    }
+
+    window.dispatchEvent(new CustomEvent('swipe', {
+      detail: {
+        direction,
+      },
+    }));
   }
 
   /**
