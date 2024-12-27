@@ -470,6 +470,18 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('registerTouchListeners', () => {
+    it('registers listeners for touches', () => {
+      global.document = {
+        addEventListener: sinon.fake(),
+      };
+
+      comp.registerTouchListeners();
+      assert(global.document.addEventListener.calledWith('touchstart'));
+      assert(global.document.addEventListener.calledWith('touchend'));
+    });
+  });
+
   describe('handleKeyDown', () => {
     beforeEach(() => {
       comp.gameEngine = {};
