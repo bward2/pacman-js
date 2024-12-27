@@ -1617,6 +1617,7 @@ class GameCoordinator {
    */
   init() {
     this.registerEventListeners();
+    this.registerSwipeListeners();
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
@@ -1808,6 +1809,7 @@ class GameCoordinator {
    */
   registerEventListeners() {
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    window.addEventListener('swipe', this.handleSwipe.bind(this));
     window.addEventListener('awardPoints', this.awardPoints.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
     window.addEventListener('dotEaten', this.dotEaten.bind(this));
@@ -1817,6 +1819,41 @@ class GameCoordinator {
     window.addEventListener('addTimer', this.addTimer.bind(this));
     window.addEventListener('removeTimer', this.removeTimer.bind(this));
     window.addEventListener('releaseGhost', this.releaseGhost.bind(this));
+  }
+
+  /**
+   * Register listeners for touchstart and touchend to handle mobile device swipes
+   */
+  registerSwipeListeners() {
+    let startX;
+    let startY;
+    let endX;
+    let endY;
+
+    document.addEventListener('touchstart', (event) => {
+      startX = event.touches[0].clientX;
+      startY = event.touches[0].clientY;
+    });
+
+    document.addEventListener('touchend', (event) => {
+      endX = event.changedTouches[0].clientX;
+      endY = event.changedTouches[0].clientY;
+      const diffX = endX - startX;
+      const diffY = endY - startY;
+      let direction;
+
+      if (Math.abs(diffX) > Math.abs(diffY)) {
+        direction = diffX > 0 ? 'right' : 'left';
+      } else {
+        direction = diffY > 0 ? 'down' : 'up';
+      }
+
+      window.dispatchEvent(new CustomEvent('swipe', {
+        detail: {
+          direction,
+        },
+      }));
+    });
   }
 
   /**
@@ -1843,6 +1880,15 @@ class GameCoordinator {
     } else if (this.movementKeys[e.keyCode]) {
       this.changeDirection(this.movementKeys[e.keyCode]);
     }
+  }
+
+  /**
+   * Calls changeDirection with the direction of the user's swipe
+   * @param {Event} e - The direction of the swipe
+   */
+  handleSwipe(e) {
+    const { direction } = e.detail;
+    this.changeDirection(direction);
   }
 
   /**

@@ -254,6 +254,7 @@ describe('gameCoordinator', () => {
   describe('init', () => {
     it('calls necessary setup functions to start the game', () => {
       comp.registerEventListeners = sinon.fake();
+      comp.registerSwipeListeners = sinon.fake();
       comp.collisionDetectionLoop = sinon.fake();
       global.SoundManager = class {};
 
