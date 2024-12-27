@@ -188,7 +188,8 @@ body {
 }
 
 .logo {
-  height: 200px;
+  width: 800px;
+  max-width: 80vw;
   margin-top: 25vh;
 }
 
