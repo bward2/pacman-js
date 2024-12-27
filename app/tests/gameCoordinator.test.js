@@ -490,6 +490,25 @@ describe('gameCoordinator', () => {
     });
   });
 
+  describe('handleTouchEnd', () => {
+    it('calls the correct direction upon touchEnd', () => {
+      const originalX = 100;
+      const originalY = 100;
+      comp.touchStartX = originalX;
+      comp.touchStartY = originalY;
+      global.window.dispatchEvent = sinon.fake();
+
+      comp.handleTouchEnd({
+        changedTouches: [{ clientX: originalX, clientY: originalY * 2 }],
+      });
+      assert(global.window.dispatchEvent.calledWith(new CustomEvent('swipe', {
+        detail: {
+          direction: 'down',
+        },
+      })));
+    });
+  });
+
   describe('handleKeyDown', () => {
     beforeEach(() => {
       comp.gameEngine = {};
