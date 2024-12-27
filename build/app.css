@@ -203,6 +203,11 @@ body {
   cursor: default;
 }
 
+@media only screen and (max-width: 600px) {
+  .game-start {
+    scale: 0.5;
+  }
+}
 .loading-container {
   background-color: #000;
   border: 5px solid #2121ff;

@@ -221,6 +221,12 @@ body {
   }
 }
 
+@media only screen and (max-width: 600px) {
+  .game-start {
+    scale: 0.5;
+  }
+}
+
 .loading-container {
   background-color: $black;
   border: 5px solid $blue;
