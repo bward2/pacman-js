@@ -506,6 +506,33 @@ describe('gameCoordinator', () => {
           direction: 'down',
         },
       })));
+
+      comp.handleTouchEnd({
+        changedTouches: [{ clientX: originalX, clientY: originalY * -1 }],
+      });
+      assert(global.window.dispatchEvent.calledWith(new CustomEvent('swipe', {
+        detail: {
+          direction: 'up',
+        },
+      })));
+
+      comp.handleTouchEnd({
+        changedTouches: [{ clientX: originalX * 2, clientY: originalY }],
+      });
+      assert(global.window.dispatchEvent.calledWith(new CustomEvent('swipe', {
+        detail: {
+          direction: 'right',
+        },
+      })));
+
+      comp.handleTouchEnd({
+        changedTouches: [{ clientX: originalX * -1, clientY: originalY }],
+      });
+      assert(global.window.dispatchEvent.calledWith(new CustomEvent('swipe', {
+        detail: {
+          direction: 'left',
+        },
+      })));
     });
   });
 
