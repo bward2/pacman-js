@@ -17,7 +17,6 @@ class GameCoordinator {
     this.rightCover = document.getElementById('right-cover');
     this.pausedText = document.getElementById('paused-text');
     this.bottomRow = document.getElementById('bottom-row');
-    this.movementButtons = document.getElementById('movement-buttons');
 
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
@@ -72,6 +71,12 @@ class GameCoordinator {
       37: 'left',
       39: 'right',
     };
+
+    // Mobile touch trackers
+    this.touchStartX = 0;
+    this.touchStartY = 0;
+    this.touchEndX = 0;
+    this.touchEndY = 0;
 
     this.fruitPoints = {
       1: 100,
@@ -290,7 +295,7 @@ class GameCoordinator {
         `${imgBase}maze/maze_blue.svg`,
 
         // Misc
-        'app/style/graphics/extra_life.png',
+        'app/style/graphics/extra_life.svg',
       ];
 
       const audioBase = 'app/style/audio/';
@@ -508,6 +513,7 @@ class GameCoordinator {
    */
   init() {
     this.registerEventListeners();
+    this.registerTouchListeners();
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
@@ -577,7 +583,7 @@ class GameCoordinator {
   }
 
   /**
-   * Displays "Ready!" and allows Pacman to move after a breif delay
+   * Displays "Ready!" and allows Pacman to move after a brief delay
    * @param {Boolean} initialStart - Special condition for the game's beginning
    */
   startGameplay(initialStart) {
@@ -699,6 +705,7 @@ class GameCoordinator {
    */
   registerEventListeners() {
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    window.addEventListener('swipe', this.handleSwipe.bind(this));
     window.addEventListener('awardPoints', this.awardPoints.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
     window.addEventListener('dotEaten', this.dotEaten.bind(this));
@@ -708,16 +715,47 @@ class GameCoordinator {
     window.addEventListener('addTimer', this.addTimer.bind(this));
     window.addEventListener('removeTimer', this.removeTimer.bind(this));
     window.addEventListener('releaseGhost', this.releaseGhost.bind(this));
+  }
 
-    const directions = ['up', 'down', 'left', 'right'];
+  /**
+   * Register listeners for touchstart and touchend to handle mobile device swipes
+   */
+  registerTouchListeners() {
+    document.addEventListener('touchstart', this.handleTouchStart.bind(this));
+    document.addEventListener('touchend', this.handleTouchEnd.bind(this));
+  }
 
-    directions.forEach((direction) => {
-      document
-        .getElementById(`button-${direction}`)
-        .addEventListener('touchstart', () => {
-          this.changeDirection(direction);
-        });
-    });
+  /**
+   * Sets touch values where the user's touch begins
+   * @param {Event} event
+   */
+  handleTouchStart(event) {
+    this.touchStartX = event.touches[0].clientX;
+    this.touchStartY = event.touches[0].clientY;
+  }
+
+  /**
+   * Sets touch values where the user's touch ends and attempts to change Pac-Man's direction
+   * @param {*} event
+   */
+  handleTouchEnd(event) {
+    this.touchEndX = event.changedTouches[0].clientX;
+    this.touchEndY = event.changedTouches[0].clientY;
+    const diffX = this.touchEndX - this.touchStartX;
+    const diffY = this.touchEndY - this.touchStartY;
+    let direction;
+
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      direction = diffX > 0 ? 'right' : 'left';
+    } else {
+      direction = diffY > 0 ? 'down' : 'up';
+    }
+
+    window.dispatchEvent(new CustomEvent('swipe', {
+      detail: {
+        direction,
+      },
+    }));
   }
 
   /**
@@ -747,6 +785,15 @@ class GameCoordinator {
   }
 
   /**
+   * Calls changeDirection with the direction of the user's swipe
+   * @param {Event} e - The direction of the swipe
+   */
+  handleSwipe(e) {
+    const { direction } = e.detail;
+    this.changeDirection(direction);
+  }
+
+  /**
    * Handle behavior for the pause key
    */
   handlePauseKey() {
@@ -765,7 +812,6 @@ class GameCoordinator {
       if (this.gameEngine.started) {
         this.soundManager.resumeAmbience();
         this.gameUi.style.filter = 'unset';
-        this.movementButtons.style.filter = 'unset';
         this.pausedText.style.visibility = 'hidden';
         this.pauseButton.innerHTML = 'pause';
         this.activeTimers.forEach((timer) => {
@@ -775,7 +821,6 @@ class GameCoordinator {
         this.soundManager.stopAmbience();
         this.soundManager.setAmbience('pause_beat', true);
         this.gameUi.style.filter = 'blur(5px)';
-        this.movementButtons.style.filter = 'blur(5px)';
         this.pausedText.style.visibility = 'visible';
         this.pauseButton.innerHTML = 'play_arrow';
         this.activeTimers.forEach((timer) => {

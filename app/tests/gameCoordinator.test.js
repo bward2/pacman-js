@@ -38,7 +38,7 @@ describe('gameCoordinator', () => {
       }
     };
     global.GameEngine = class {
-      start() { }
+      start() {}
     };
 
     global.SoundManager = class {
@@ -62,32 +62,30 @@ describe('gameCoordinator', () => {
         clientHeight: 1000,
         clientWidth: 1000,
       },
-      getElementsByTagName: () => ([
-        { appendChild: () => { } },
-      ]),
+      getElementsByTagName: () => [{ appendChild: () => {} }],
       getElementById: () => ({
-        appendChild: () => { },
-        removeChild: () => { },
-        addEventListener: () => { },
-        style: { },
+        appendChild: () => {},
+        removeChild: () => {},
+        addEventListener: () => {},
+        style: {},
       }),
       createElement: () => ({
         classList: {
-          add: () => { },
+          add: () => {},
         },
-        appendChild: () => { },
-        setAttribute: () => { },
+        appendChild: () => {},
+        setAttribute: () => {},
         style: {},
       }),
     };
 
     global.localStorage = {
-      getItem: () => { },
-      setItem: () => { },
+      getItem: () => {},
+      setItem: () => {},
     };
     global.Image = class {};
     global.Audio = class {
-      addEventListener() { }
+      addEventListener() {}
     };
 
     clock = sinon.useFakeTimers();
@@ -256,8 +254,9 @@ describe('gameCoordinator', () => {
   describe('init', () => {
     it('calls necessary setup functions to start the game', () => {
       comp.registerEventListeners = sinon.fake();
+      comp.registerTouchListeners = sinon.fake();
       comp.collisionDetectionLoop = sinon.fake();
-      global.SoundManager = class { };
+      global.SoundManager = class {};
 
       comp.init();
       assert(comp.registerEventListeners.called);
@@ -276,13 +275,16 @@ describe('gameCoordinator', () => {
 
       comp.drawMaze(mazeArray, entityList);
       assert.strictEqual(
-        comp.mazeDiv.style.height, `${comp.scaledTileSize * 31}px`,
+        comp.mazeDiv.style.height,
+        `${comp.scaledTileSize * 31}px`,
       );
       assert.strictEqual(
-        comp.mazeDiv.style.width, `${comp.scaledTileSize * 28}px`,
+        comp.mazeDiv.style.width,
+        `${comp.scaledTileSize * 28}px`,
       );
       assert.strictEqual(
-        comp.gameUi.style.width, `${comp.scaledTileSize * 28}px`,
+        comp.gameUi.style.width,
+        `${comp.scaledTileSize * 28}px`,
       );
       assert.strictEqual(entityList.length, 2);
     });
@@ -299,7 +301,7 @@ describe('gameCoordinator', () => {
       assert(spy.called);
     });
 
-    it('does nothing if Pacman\'s position is undefined', () => {
+    it("does nothing if Pacman's position is undefined", () => {
       comp.pacman.position = undefined;
       comp.collisionDetectionLoop();
     });
@@ -316,24 +318,28 @@ describe('gameCoordinator', () => {
       };
 
       comp.startGameplay();
-      assert(comp.displayText.calledWith(
-        {
-          left: comp.scaledTileSize * 11,
-          top: comp.scaledTileSize * 16.5,
-        },
-        'ready',
-        2000,
-        comp.scaledTileSize * 6,
-        comp.scaledTileSize * 2,
-      ));
+      assert(
+        comp.displayText.calledWith(
+          {
+            left: comp.scaledTileSize * 11,
+            top: comp.scaledTileSize * 16.5,
+          },
+          'ready',
+          2000,
+          comp.scaledTileSize * 6,
+          comp.scaledTileSize * 2,
+        ),
+      );
       assert(comp.updateExtraLivesDisplay.called);
 
       clock.tick(2000);
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
-      assert(comp.soundManager.setAmbience.calledWith(
-        comp.determineSiren(comp.remainingDots),
-      ));
+      assert(
+        comp.soundManager.setAmbience.calledWith(
+          comp.determineSiren(comp.remainingDots),
+        ),
+      );
     });
 
     it('waits longer for the initialStart', () => {
@@ -349,24 +355,28 @@ describe('gameCoordinator', () => {
 
       comp.startGameplay(true);
       assert(playSpy.calledWith('game_start'));
-      assert(comp.displayText.calledWith(
-        {
-          left: comp.scaledTileSize * 11,
-          top: comp.scaledTileSize * 16.5,
-        },
-        'ready',
-        4500,
-        comp.scaledTileSize * 6,
-        comp.scaledTileSize * 2,
-      ));
+      assert(
+        comp.displayText.calledWith(
+          {
+            left: comp.scaledTileSize * 11,
+            top: comp.scaledTileSize * 16.5,
+          },
+          'ready',
+          4500,
+          comp.scaledTileSize * 6,
+          comp.scaledTileSize * 2,
+        ),
+      );
       assert(comp.updateExtraLivesDisplay.called);
 
       clock.tick(4500);
       assert(comp.allowPacmanMovement);
       assert(comp.pacman.moving);
-      assert(comp.soundManager.setAmbience.calledWith(
-        comp.determineSiren(comp.remainingDots),
-      ));
+      assert(
+        comp.soundManager.setAmbience.calledWith(
+          comp.determineSiren(comp.remainingDots),
+        ),
+      );
     });
   });
 
@@ -458,26 +468,71 @@ describe('gameCoordinator', () => {
       assert(global.window.addEventListener.calledWith('removeTimer'));
       assert(global.window.addEventListener.calledWith('releaseGhost'));
     });
+  });
 
-    it('registers directional button touch events', () => {
-      comp.changeDirection = sinon.fake();
+  describe('registerTouchListeners', () => {
+    it('registers listeners for touches', () => {
       global.document = {
-        getElementById: sinon.stub().returns({
-          addEventListener: sinon.stub().callsFake((eventType, callback) => {
-            callback();
-          }),
-        }),
+        addEventListener: sinon.fake(),
       };
 
-      comp.registerEventListeners();
-      assert(global.document.getElementById.calledWith('button-up'));
-      assert(global.document.getElementById.calledWith('button-down'));
-      assert(global.document.getElementById.calledWith('button-left'));
-      assert(global.document.getElementById.calledWith('button-right'));
-      assert(comp.changeDirection.calledWith('up'));
-      assert(comp.changeDirection.calledWith('down'));
-      assert(comp.changeDirection.calledWith('left'));
-      assert(comp.changeDirection.calledWith('right'));
+      comp.registerTouchListeners();
+      assert(global.document.addEventListener.calledWith('touchstart'));
+      assert(global.document.addEventListener.calledWith('touchend'));
+    });
+  });
+
+  describe('handleTouchStart', () => {
+    it('updates touch values', () => {
+      comp.handleTouchStart({ touches: [{ clientX: 100, clientY: 200 }] });
+      assert.strictEqual(comp.touchStartX, 100);
+      assert.strictEqual(comp.touchStartY, 200);
+    });
+  });
+
+  describe('handleTouchEnd', () => {
+    it('calls the correct direction upon touchEnd', () => {
+      const originalX = 100;
+      const originalY = 100;
+      comp.touchStartX = originalX;
+      comp.touchStartY = originalY;
+      global.window.dispatchEvent = sinon.fake();
+
+      comp.handleTouchEnd({
+        changedTouches: [{ clientX: originalX, clientY: originalY * 2 }],
+      });
+      assert(global.window.dispatchEvent.calledWith(new CustomEvent('swipe', {
+        detail: {
+          direction: 'down',
+        },
+      })));
+
+      comp.handleTouchEnd({
+        changedTouches: [{ clientX: originalX, clientY: originalY * -1 }],
+      });
+      assert(global.window.dispatchEvent.calledWith(new CustomEvent('swipe', {
+        detail: {
+          direction: 'up',
+        },
+      })));
+
+      comp.handleTouchEnd({
+        changedTouches: [{ clientX: originalX * 2, clientY: originalY }],
+      });
+      assert(global.window.dispatchEvent.calledWith(new CustomEvent('swipe', {
+        detail: {
+          direction: 'right',
+        },
+      })));
+
+      comp.handleTouchEnd({
+        changedTouches: [{ clientX: originalX * -1, clientY: originalY }],
+      });
+      assert(global.window.dispatchEvent.calledWith(new CustomEvent('swipe', {
+        detail: {
+          direction: 'left',
+        },
+      })));
     });
   });
 
@@ -500,7 +555,7 @@ describe('gameCoordinator', () => {
       assert(comp.soundButtonClick.called);
     });
 
-    it('calls Pacman\'s changeDirection when a move key is pressed', () => {
+    it("calls Pacman's changeDirection when a move key is pressed", () => {
       comp.gameEngine.running = true;
       const changeSpy = sinon.fake();
       comp.pacman.changeDirection = changeSpy;
@@ -538,7 +593,7 @@ describe('gameCoordinator', () => {
       assert.strictEqual(changeSpy.callCount, 8);
     });
 
-    it('won\'t call changeDirection unless the gameEngine is running', () => {
+    it("won't call changeDirection unless the gameEngine is running", () => {
       comp.gameEngine.running = false;
       const changeSpy = sinon.fake();
       comp.pacman.changeDirection = changeSpy;
@@ -547,7 +602,7 @@ describe('gameCoordinator', () => {
       assert(!changeSpy.called);
     });
 
-    it('won\'t call changeDirection if allowKeyPresses is FALSE', () => {
+    it("won't call changeDirection if allowKeyPresses is FALSE", () => {
       comp.allowKeyPresses = false;
       comp.handlePauseKey = sinon.fake();
       comp.pacman.changeDirection = sinon.fake();
@@ -558,7 +613,7 @@ describe('gameCoordinator', () => {
       assert(!comp.pacman.changeDirection.called);
     });
 
-    it('won\'t call anything if an unrecognized key is pressed', () => {
+    it("won't call anything if an unrecognized key is pressed", () => {
       comp.gameEngine.changePausedState = sinon.fake();
       comp.pacman.changeDirection = sinon.fake();
 
@@ -566,6 +621,16 @@ describe('gameCoordinator', () => {
       comp.handleKeyDown({ keyCode: 80 });
       assert(!comp.gameEngine.changePausedState.called);
       assert(!comp.pacman.changeDirection.called);
+    });
+  });
+
+  describe('handleSwipe', () => {
+    it('calls changeDirection with the direction of the user\'s swipe', () => {
+      const spy = sinon.fake();
+      comp.changeDirection = spy;
+
+      comp.handleSwipe({ detail: { direction: 'up' } });
+      assert(comp.changeDirection.calledWith('up'));
     });
   });
 
@@ -616,13 +681,13 @@ describe('gameCoordinator', () => {
       assert(comp.allowPause);
     });
 
-    it('won\'t call changePausedState unless allowPause is TRUE', () => {
+    it("won't call changePausedState unless allowPause is TRUE", () => {
       comp.allowPause = false;
       comp.handlePauseKey();
       assert(!comp.gameEngine.changePausedState.called);
     });
 
-    it('won\'t set allowPause to TRUE if a cutscene is playing', () => {
+    it("won't set allowPause to TRUE if a cutscene is playing", () => {
       comp.activeTimers[0].pause = sinon.fake();
       comp.handlePauseKey();
       comp.cutscene = true;
@@ -642,24 +707,18 @@ describe('gameCoordinator', () => {
       comp.points = 0;
       global.localStorage.setItem = sinon.fake();
 
-      comp.awardPoints(
-        { detail: { points: 50 } },
-      );
+      comp.awardPoints({ detail: { points: 50 } });
       assert.strictEqual(comp.points, 50);
       assert.strictEqual(comp.highScore, 50);
       assert.strictEqual(comp.highScoreDisplay.innerText, 50);
-      assert(global.localStorage.setItem.calledWith(
-        'highScore', 50,
-      ));
+      assert(global.localStorage.setItem.calledWith('highScore', 50));
     });
 
     it('only updates the highScore when it is surpassed', () => {
       comp.points = 0;
       comp.highScore = 100;
 
-      comp.awardPoints(
-        { detail: { points: 50 } },
-      );
+      comp.awardPoints({ detail: { points: 50 } });
       assert.strictEqual(comp.points, 50);
       assert.strictEqual(comp.highScore, 100);
     });
@@ -668,40 +727,40 @@ describe('gameCoordinator', () => {
       comp.points = 0;
       comp.displayText = sinon.fake();
 
-      comp.awardPoints(
-        { detail: { points: 50, type: 'fruit' } },
-      );
+      comp.awardPoints({ detail: { points: 50, type: 'fruit' } });
       assert.strictEqual(comp.points, 50);
-      assert(comp.displayText.calledWith(
-        {
-          left: comp.scaledTileSize * 13,
-          top: comp.scaledTileSize * 16.5,
-        },
-        50,
-        2000,
-        comp.scaledTileSize * 2,
-        comp.scaledTileSize * 2,
-      ));
+      assert(
+        comp.displayText.calledWith(
+          {
+            left: comp.scaledTileSize * 13,
+            top: comp.scaledTileSize * 16.5,
+          },
+          50,
+          2000,
+          comp.scaledTileSize * 2,
+          comp.scaledTileSize * 2,
+        ),
+      );
     });
 
     it('displays a wider image when fruit worth four figures is eaten', () => {
       comp.points = 0;
       comp.displayText = sinon.fake();
 
-      comp.awardPoints(
-        { detail: { points: 1000, type: 'fruit' } },
-      );
+      comp.awardPoints({ detail: { points: 1000, type: 'fruit' } });
       assert.strictEqual(comp.points, 1000);
-      assert(comp.displayText.calledWith(
-        {
-          left: comp.scaledTileSize * 12.5,
-          top: comp.scaledTileSize * 16.5,
-        },
-        1000,
-        2000,
-        comp.scaledTileSize * 3,
-        comp.scaledTileSize * 2,
-      ));
+      assert(
+        comp.displayText.calledWith(
+          {
+            left: comp.scaledTileSize * 12.5,
+            top: comp.scaledTileSize * 16.5,
+          },
+          1000,
+          2000,
+          comp.scaledTileSize * 3,
+          comp.scaledTileSize * 2,
+        ),
+      );
     });
 
     it('gives an extra life when reaching 10k points', () => {
@@ -711,9 +770,7 @@ describe('gameCoordinator', () => {
       comp.updateExtraLivesDisplay = sinon.fake();
       comp.soundManager.play = sinon.fake();
 
-      comp.awardPoints(
-        { detail: { points: 10000, type: 'fruit' } },
-      );
+      comp.awardPoints({ detail: { points: 10000, type: 'fruit' } });
       assert.strictEqual(comp.extraLifeGiven, true);
       assert(comp.soundManager.play.calledWith('extra_life'));
       assert.strictEqual(comp.lives, 1);
@@ -750,13 +807,11 @@ describe('gameCoordinator', () => {
       assert.strictEqual(comp.lives, 1);
 
       clock.tick(2250);
-      assert.strictEqual(comp.mazeCover.style.visibility,
-        'visible');
+      assert.strictEqual(comp.mazeCover.style.visibility, 'visible');
 
       clock.tick(500);
       assert(comp.allowKeyPresses);
-      assert.strictEqual(comp.mazeCover.style.visibility,
-        'hidden');
+      assert.strictEqual(comp.mazeCover.style.visibility, 'hidden');
       assert(comp.pacman.reset.called);
       assert(comp.blinky.reset.called);
       assert(comp.fruit.hideFruit.called);
@@ -788,9 +843,9 @@ describe('gameCoordinator', () => {
       global.localStorage.setItem = sinon.fake();
 
       comp.gameOver();
-      assert(global.localStorage.setItem.calledWith(
-        'highScore', comp.highScore,
-      ));
+      assert(
+        global.localStorage.setItem.calledWith('highScore', comp.highScore),
+      );
 
       clock.tick(2250);
       assert(comp.displayText.called);
@@ -894,9 +949,11 @@ describe('gameCoordinator', () => {
       comp.determineSiren = sinon.fake();
 
       comp.speedUpBlinky();
-      assert(comp.soundManager.setAmbience.calledWith(
-        comp.determineSiren(comp.remainingDots),
-      ));
+      assert(
+        comp.soundManager.setAmbience.calledWith(
+          comp.determineSiren(comp.remainingDots),
+        ),
+      );
     });
 
     it('does not call setAmbience otherwise', () => {
@@ -930,11 +987,7 @@ describe('gameCoordinator', () => {
       fruit.reset = sinon.fake();
       fruit.type = 'fruit';
       pacdot.reset = sinon.fake();
-      comp.entityList = [
-        ghost,
-        fruit,
-        pacdot,
-      ];
+      comp.entityList = [ghost, fruit, pacdot];
       comp.mazeCover = { style: {} };
       comp.remainingDots = 0;
       comp.removeTimer = sinon.fake();
@@ -943,9 +996,9 @@ describe('gameCoordinator', () => {
 
       comp.advanceLevel();
       assert(!comp.allowKeyPresses);
-      assert(comp.removeTimer.calledWith(
-        { detail: { timer: comp.ghostTimer } },
-      ));
+      assert(
+        comp.removeTimer.calledWith({ detail: { timer: comp.ghostTimer } }),
+      );
 
       clock.tick(2000);
       assert.strictEqual(comp.mazeImg.src, `${imgBase}maze_white.svg`);
@@ -980,10 +1033,12 @@ describe('gameCoordinator', () => {
 
   describe('flashGhosts', () => {
     it('calls itself recursively a number of times', () => {
-      comp.scaredGhosts = [{
-        toggleScaredColor: sinon.fake(),
-        endScared: sinon.fake(),
-      }];
+      comp.scaredGhosts = [
+        {
+          toggleScaredColor: sinon.fake(),
+          endScared: sinon.fake(),
+        },
+      ];
       sinon.spy(comp, 'flashGhosts');
       comp.soundManager.setAmbience = sinon.fake();
       comp.determineSiren = sinon.fake();
@@ -992,16 +1047,20 @@ describe('gameCoordinator', () => {
       comp.flashGhosts(0, 9);
       clock.tick(10000);
       assert.strictEqual(comp.flashGhosts.callCount, 10);
-      assert(comp.soundManager.setAmbience.calledWith(
-        comp.determineSiren(comp.remainingDots),
-      ));
+      assert(
+        comp.soundManager.setAmbience.calledWith(
+          comp.determineSiren(comp.remainingDots),
+        ),
+      );
     });
 
     it('will not set ambience if there are eye ghosts', () => {
-      comp.scaredGhosts = [{
-        toggleScaredColor: sinon.fake(),
-        endScared: sinon.fake(),
-      }];
+      comp.scaredGhosts = [
+        {
+          toggleScaredColor: sinon.fake(),
+          endScared: sinon.fake(),
+        },
+      ];
       sinon.spy(comp, 'flashGhosts');
       comp.soundManager.setAmbience = sinon.fake();
       comp.eyeGhosts = 1;
@@ -1043,7 +1102,7 @@ describe('gameCoordinator', () => {
       assert(comp.flashGhosts.calledWith(0, 9));
     });
 
-    it('won\'t push EYES mode ghosts to the scaredGhosts array', () => {
+    it("won't push EYES mode ghosts to the scaredGhosts array", () => {
       comp.timerExists = sinon.fake.returns(false);
 
       comp.powerUp();
@@ -1093,20 +1152,22 @@ describe('gameCoordinator', () => {
       comp.scaredGhosts = [ghost];
       comp.determineComboPoints = sinon.fake();
       global.window.dispatchEvent = sinon.fake();
-      global.CustomEvent = class { };
+      global.CustomEvent = class {};
 
       comp.eatGhost(e);
       assert(!comp.allowPacmanMovement);
       assert(!e.detail.ghost.display);
       assert(!comp.pacman.moving);
       assert(!comp.blinky.moving);
-      assert(global.window.dispatchEvent.calledWith(
-        new CustomEvent('awardPoints', {
-          detail: {
-            points: 200,
-          },
-        }),
-      ));
+      assert(
+        global.window.dispatchEvent.calledWith(
+          new CustomEvent('awardPoints', {
+            detail: {
+              points: 200,
+            },
+          }),
+        ),
+      );
       assert(comp.displayText.called);
       assert(comp.determineComboPoints.called);
 
@@ -1134,9 +1195,11 @@ describe('gameCoordinator', () => {
 
       comp.restoreGhost();
       assert.strictEqual(comp.eyeGhosts, 0);
-      assert(comp.soundManager.setAmbience.calledWith(
-        comp.determineSiren(comp.remainingDots),
-      ));
+      assert(
+        comp.soundManager.setAmbience.calledWith(
+          comp.determineSiren(comp.remainingDots),
+        ),
+      );
 
       comp.eyeGhosts = 1;
       comp.scaredGhosts = [1, 2, 3];
@@ -1152,9 +1215,7 @@ describe('gameCoordinator', () => {
         removeChild: sinon.fake(),
       };
 
-      comp.displayText(
-        { left: 10, top: 25 }, 200, 1000, 48,
-      );
+      comp.displayText({ left: 10, top: 25 }, 200, 1000, 48);
       assert(comp.mazeDiv.appendChild.called);
 
       clock.tick(1000);
@@ -1210,10 +1271,7 @@ describe('gameCoordinator', () => {
   describe('removeTimer', () => {
     it('removes a timer from the active timers list based on timerId', () => {
       global.window.clearTimeout = sinon.fake();
-      comp.activeTimers = [
-        { timerId: 1 },
-        { timerId: 2 },
-      ];
+      comp.activeTimers = [{ timerId: 1 }, { timerId: 2 }];
       comp.removeTimer({
         detail: { timer: { timerId: 1 } },
       });

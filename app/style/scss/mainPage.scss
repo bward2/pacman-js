@@ -93,6 +93,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  height: 100%;
 
   .one-up {
     animation: blink 0.6s infinite;
@@ -150,18 +151,6 @@ body {
   }
 }
 
-@media (orientation: landscape) {
-  .game-ui {
-    height: 100%;
-  }
-}
-
-@media (orientation: portrait) {
-  .game-ui {
-    height: 66%;
-  }
-}
-
 .loading-cover {
   background: $yellow;
   height: 100vh;
@@ -206,7 +195,8 @@ body {
 }
 
 .logo {
-  height: 200px;
+  width: 800px;
+  max-width: 80vw;
   margin-top: 25vh;
 }
 
@@ -231,18 +221,28 @@ body {
   }
 }
 
+@media only screen and (max-width: 600px) {
+  .game-start {
+    scale: 0.5;
+  }
+}
+
 .loading-container {
   background-color: $black;
   border: 5px solid $blue;
   border-radius: 10px;
   height: 48px;
-  left: 50%;
   position: absolute;
   top: 50%;
-  transform: translateX(-50%) translateY(-50%);
   transition: opacity $generic-duration $loading-pacman-duration;
   width: 500px;
   z-index: 5;
+}
+
+@media only screen and (max-width: 600px) {
+  .loading-container {
+    transform: scale(0.5);
+  }
 }
 
 .loading-pacman {
@@ -341,74 +341,6 @@ body {
 }
 ._95 {
   left: 95%;
-}
-
-.movement-buttons {
-  align-items: center;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  height: 34%;
-  left: 0;
-  position: fixed;
-  width: 100%;
-
-  .row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: -3px;
-  }
-
-  button {
-    background: transparent;
-    border: 3px solid $blue;
-    border-radius: 5px;
-    color: $blue;
-    height: 7vh;
-    outline: none;
-    padding: 0;
-    user-select: none;
-
-    &:active {
-      background: radial-gradient(closest-side, $transparent-gray, transparent);
-    }
-  }
-
-  .button-up {
-    border-bottom: 0;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  .button-left {
-    border-bottom-right-radius: 0;
-    border-right: 0;
-    border-top-right-radius: 0;
-    margin-right: calc(7vh - 6px);
-  }
-
-  .button-right {
-    border-bottom-left-radius: 0;
-    border-left: 0;
-    border-top-left-radius: 0;
-  }
-
-  .button-down {
-    border-top: 0;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-  }
-
-  .material-icons {
-    font-size: 7vh;
-    margin: -3px;
-  }
-}
-
-@media (orientation: landscape) {
-  .movement-buttons {
-    visibility: hidden;
-  }
 }
 
 .error-message {
