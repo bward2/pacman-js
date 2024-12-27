@@ -513,7 +513,7 @@ class GameCoordinator {
    */
   init() {
     this.registerEventListeners();
-    this.registerSwipeListeners();
+    this.registerTouchListeners();
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
@@ -720,7 +720,7 @@ class GameCoordinator {
   /**
    * Register listeners for touchstart and touchend to handle mobile device swipes
    */
-  registerSwipeListeners() {
+  registerTouchListeners() {
     document.addEventListener('touchstart', this.handleTouchStart.bind(this));
     document.addEventListener('touchend', this.handleTouchEnd.bind(this));
   }
