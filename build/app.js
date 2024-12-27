@@ -1399,7 +1399,7 @@ class GameCoordinator {
         `${imgBase}maze/maze_blue.svg`,
 
         // Misc
-        'app/style/graphics/extra_life.png',
+        'app/style/graphics/extra_life.svg',
       ];
 
       const audioBase = 'app/style/audio/';
