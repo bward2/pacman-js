@@ -2775,6 +2775,7 @@ class Pickup {
 class CharacterUtil {
   constructor(scaledTileSize) {
     this.scaledTileSize = scaledTileSize;
+    this.threshold = 5 * this.scaledTileSize;
     this.directions = {
       up: 'up',
       down: 'down',
@@ -2792,11 +2793,10 @@ class CharacterUtil {
    */
   checkForStutter(position, oldPosition) {
     let stutter = false;
-    const threshold = 5 * this.scaledTileSize;
 
     if (position && oldPosition) {
-      if (Math.abs(position.top - oldPosition.top) > threshold
-        || Math.abs(position.left - oldPosition.left) > threshold) {
+      if (Math.abs(position.top - oldPosition.top) > this.threshold
+        || Math.abs(position.left - oldPosition.left) > this.threshold) {
         stutter = true;
       }
     }
