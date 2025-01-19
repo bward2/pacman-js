@@ -1528,7 +1528,7 @@ class GameCoordinator {
       this.pacman = new Pacman(
         this.scaledTileSize,
         this.mazeArray,
-        new CharacterUtil(),
+        new CharacterUtil(this.scaledTileSize),
       );
       this.blinky = new Ghost(
         this.scaledTileSize,
@@ -1536,7 +1536,7 @@ class GameCoordinator {
         this.pacman,
         'blinky',
         this.level,
-        new CharacterUtil(),
+        new CharacterUtil(this.scaledTileSize),
       );
       this.pinky = new Ghost(
         this.scaledTileSize,
@@ -1544,7 +1544,7 @@ class GameCoordinator {
         this.pacman,
         'pinky',
         this.level,
-        new CharacterUtil(),
+        new CharacterUtil(this.scaledTileSize),
       );
       this.inky = new Ghost(
         this.scaledTileSize,
@@ -1552,7 +1552,7 @@ class GameCoordinator {
         this.pacman,
         'inky',
         this.level,
-        new CharacterUtil(),
+        new CharacterUtil(this.scaledTileSize),
         this.blinky,
       );
       this.clyde = new Ghost(
@@ -1561,7 +1561,7 @@ class GameCoordinator {
         this.pacman,
         'clyde',
         this.level,
-        new CharacterUtil(),
+        new CharacterUtil(this.scaledTileSize),
       );
       this.fruit = new Pickup(
         'fruit',
@@ -2773,7 +2773,9 @@ class Pickup {
 
 
 class CharacterUtil {
-  constructor() {
+  constructor(scaledTileSize) {
+    this.scaledTileSize = scaledTileSize;
+    this.threshold = 5 * this.scaledTileSize;
     this.directions = {
       up: 'up',
       down: 'down',
@@ -2791,11 +2793,10 @@ class CharacterUtil {
    */
   checkForStutter(position, oldPosition) {
     let stutter = false;
-    const threshold = 5;
 
     if (position && oldPosition) {
-      if (Math.abs(position.top - oldPosition.top) > threshold
-        || Math.abs(position.left - oldPosition.left) > threshold) {
+      if (Math.abs(position.top - oldPosition.top) > this.threshold
+        || Math.abs(position.left - oldPosition.left) > this.threshold) {
         stutter = true;
       }
     }
@@ -2860,7 +2861,7 @@ class CharacterUtil {
   }
 
   /**
-   * Check to see if a character's disired direction results in turning around
+   * Check to see if a character's desired direction results in turning around
    * @param {('up'|'down'|'left'|'right')} direction - The character's current travel orientation
    * @param {('up'|'down'|'left'|'right')} desiredDirection - Character's desired orientation
    * @returns {boolean}
