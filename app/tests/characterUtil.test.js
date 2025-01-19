@@ -12,7 +12,7 @@ const mazeArray = [
 const scaledTileSize = 8;
 
 beforeEach(() => {
-  characterUtil = new CharacterUtil();
+  characterUtil = new CharacterUtil(scaledTileSize);
 });
 
 describe('characterUtil', () => {
@@ -34,16 +34,16 @@ describe('characterUtil', () => {
 
     it('returns HIDDEN if the character moves more than five tiles', () => {
       assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: 0, left: 6 },
+        oldPosition, { top: 0, left: 6 * scaledTileSize },
       ), 'hidden');
       assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: 0, left: -6 },
+        oldPosition, { top: 0, left: -6 * scaledTileSize },
       ), 'hidden');
       assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: 6, left: 0 },
+        oldPosition, { top: 6 * scaledTileSize, left: 0 },
       ), 'hidden');
       assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: -6, left: 0 },
+        oldPosition, { top: -6 * scaledTileSize, left: 0 },
       ), 'hidden');
     });
 
