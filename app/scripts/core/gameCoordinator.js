@@ -103,14 +103,7 @@ class GameCoordinator {
       this.soundButtonClick.bind(this),
     );
 
-    const head = document.getElementsByTagName('head')[0];
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'build/app.css';
-
-    link.onload = this.preloadAssets.bind(this);
-
-    head.appendChild(link);
+    this.preloadAssets();
   }
 
   /**
