@@ -1,7 +1,5 @@
 class Ghost {
-  constructor(
-    scaledTileSize, mazeArray, pacman, name, level, characterUtil, blinky,
-  ) {
+  constructor(scaledTileSize, mazeArray, pacman, name, level, characterUtil, blinky) {
     this.scaledTileSize = scaledTileSize;
     this.mazeArray = mazeArray;
     this.pacman = pacman;
@@ -155,8 +153,8 @@ class Ghost {
         };
         break;
     }
-    this.position = Object.assign({}, this.defaultPosition);
-    this.oldPosition = Object.assign({}, this.position);
+    this.position = { ...this.defaultPosition };
+    this.oldPosition = { ...this.position };
     this.animationTarget.style.top = `${this.position.top}px`;
     this.animationTarget.style.left = `${this.position.left}px`;
   }
@@ -278,7 +276,7 @@ class Ghost {
    * @param {number} spaces
    */
   getPositionInFrontOfPacman(pacmanGridPosition, spaces) {
-    const target = Object.assign({}, pacmanGridPosition);
+    const target = { ...pacmanGridPosition };
     const pacDirection = this.pacman.direction;
     const propToChange = (pacDirection === 'up' || pacDirection === 'down')
       ? 'y' : 'x';
@@ -295,9 +293,7 @@ class Ghost {
    * @returns {({x: number, y: number})}
    */
   determinePinkyTarget(pacmanGridPosition) {
-    return this.getPositionInFrontOfPacman(
-      pacmanGridPosition, 4,
-    );
+    return this.getPositionInFrontOfPacman(pacmanGridPosition, 4);
   }
 
   /**
@@ -308,12 +304,8 @@ class Ghost {
    * @returns {({x: number, y: number})}
    */
   determineInkyTarget(pacmanGridPosition) {
-    const blinkyGridPosition = this.characterUtil.determineGridPosition(
-      this.blinky.position, this.scaledTileSize,
-    );
-    const pivotPoint = this.getPositionInFrontOfPacman(
-      pacmanGridPosition, 2,
-    );
+    const blinkyGridPosition = this.characterUtil.determineGridPosition(this.blinky.position, this.scaledTileSize);
+    const pivotPoint = this.getPositionInFrontOfPacman(pacmanGridPosition, 2);
     return {
       x: pivotPoint.x + (pivotPoint.x - blinkyGridPosition.x),
       y: pivotPoint.y + (pivotPoint.y - blinkyGridPosition.y),
@@ -393,17 +385,13 @@ class Ghost {
    * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {('up'|'down'|'left'|'right')}
    */
-  determineBestMove(
-    name, possibleMoves, gridPosition, pacmanGridPosition, mode,
-  ) {
+  determineBestMove(name, possibleMoves, gridPosition, pacmanGridPosition, mode) {
     let bestDistance = (mode === 'scared') ? 0 : Infinity;
     let bestMove;
     const target = this.getTarget(name, gridPosition, pacmanGridPosition, mode);
 
     Object.keys(possibleMoves).forEach((move) => {
-      const distance = this.calculateDistance(
-        possibleMoves[move], target,
-      );
+      const distance = this.calculateDistance(possibleMoves[move], target);
       const betterMove = (mode === 'scared')
         ? (distance > bestDistance)
         : (distance < bestDistance);
@@ -427,20 +415,14 @@ class Ghost {
    * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {('up'|'down'|'left'|'right')}
    */
-  determineDirection(
-    name, gridPosition, pacmanGridPosition, direction, mazeArray, mode,
-  ) {
+  determineDirection(name, gridPosition, pacmanGridPosition, direction, mazeArray, mode) {
     let newDirection = direction;
-    const possibleMoves = this.determinePossibleMoves(
-      gridPosition, direction, mazeArray,
-    );
+    const possibleMoves = this.determinePossibleMoves(gridPosition, direction, mazeArray);
 
     if (Object.keys(possibleMoves).length === 1) {
       [newDirection] = Object.keys(possibleMoves);
     } else if (Object.keys(possibleMoves).length > 1) {
-      newDirection = this.determineBestMove(
-        name, possibleMoves, gridPosition, pacmanGridPosition, mode,
-      );
+      newDirection = this.determineBestMove(name, possibleMoves, gridPosition, pacmanGridPosition, mode);
     }
 
     return newDirection;
@@ -454,7 +436,7 @@ class Ghost {
    * @returns {({ top: number, left: number})}
    */
   handleIdleMovement(elapsedMs, position, velocity) {
-    const newPosition = Object.assign({}, this.position);
+    const newPosition = { ...this.position };
 
     if (position.y <= 13.5) {
       this.direction = this.characterUtil.directions.down;
@@ -501,11 +483,15 @@ class Ghost {
    * @returns {({ top: number, left: number})}
    */
   handleSnappedMovement(elapsedMs, gridPosition, velocity, pacmanGridPosition) {
-    const newPosition = Object.assign({}, this.position);
+    const newPosition = { ...this.position };
 
     this.direction = this.determineDirection(
-      this.name, gridPosition, pacmanGridPosition, this.direction,
-      this.mazeArray, this.mode,
+      this.name,
+      gridPosition,
+      pacmanGridPosition,
+      this.direction,
+      this.mazeArray,
+      this.mode,
     );
     newPosition[this.characterUtil.getPropertyToChange(this.direction)]
       += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
@@ -561,31 +547,25 @@ class Ghost {
    * @returns {({x: number, y: number})}
    */
   handleGhostHouse(gridPosition) {
-    const gridPositionCopy = Object.assign({}, gridPosition);
+    const gridPositionCopy = { ...gridPosition };
 
     if (this.enteringGhostHouse(this.mode, gridPosition)) {
       this.direction = this.characterUtil.directions.down;
       gridPositionCopy.x = 13.5;
-      this.position = this.characterUtil.snapToGrid(
-        gridPositionCopy, this.direction, this.scaledTileSize,
-      );
+      this.position = this.characterUtil.snapToGrid(gridPositionCopy, this.direction, this.scaledTileSize);
     }
 
     if (this.enteredGhostHouse(this.mode, gridPosition)) {
       this.direction = this.characterUtil.directions.up;
       gridPositionCopy.y = 14;
-      this.position = this.characterUtil.snapToGrid(
-        gridPositionCopy, this.direction, this.scaledTileSize,
-      );
+      this.position = this.characterUtil.snapToGrid(gridPositionCopy, this.direction, this.scaledTileSize);
       this.mode = this.defaultMode;
       window.dispatchEvent(new Event('restoreGhost'));
     }
 
     if (this.leavingGhostHouse(this.mode, gridPosition)) {
       gridPositionCopy.y = 11;
-      this.position = this.characterUtil.snapToGrid(
-        gridPositionCopy, this.direction, this.scaledTileSize,
-      );
+      this.position = this.characterUtil.snapToGrid(gridPositionCopy, this.direction, this.scaledTileSize);
       this.direction = this.characterUtil.directions.left;
     }
 
@@ -603,15 +583,15 @@ class Ghost {
     const gridPositionCopy = this.handleGhostHouse(gridPosition);
 
     const desired = this.characterUtil.determineNewPositions(
-      this.position, this.direction, velocity, elapsedMs, this.scaledTileSize,
+      this.position,
+      this.direction,
+      velocity,
+      elapsedMs,
+      this.scaledTileSize,
     );
 
-    if (this.characterUtil.changingGridPosition(
-      gridPositionCopy, desired.newGridPosition,
-    )) {
-      return this.characterUtil.snapToGrid(
-        gridPositionCopy, this.direction, this.scaledTileSize,
-      );
+    if (this.characterUtil.changingGridPosition(gridPositionCopy, desired.newGridPosition)) {
+      return this.characterUtil.snapToGrid(gridPositionCopy, this.direction, this.scaledTileSize);
     }
 
     return desired.newPosition;
@@ -625,37 +605,21 @@ class Ghost {
   handleMovement(elapsedMs) {
     let newPosition;
 
-    const gridPosition = this.characterUtil.determineGridPosition(
-      this.position, this.scaledTileSize,
-    );
-    const pacmanGridPosition = this.characterUtil.determineGridPosition(
-      this.pacman.position, this.scaledTileSize,
-    );
-    const velocity = this.determineVelocity(
-      gridPosition, this.mode,
-    );
+    const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
+    const pacmanGridPosition = this.characterUtil.determineGridPosition(this.pacman.position, this.scaledTileSize);
+    const velocity = this.determineVelocity(gridPosition, this.mode);
 
     if (this.idleMode) {
-      newPosition = this.handleIdleMovement(
-        elapsedMs, gridPosition, velocity,
-      );
+      newPosition = this.handleIdleMovement(elapsedMs, gridPosition, velocity);
     } else if (JSON.stringify(this.position) === JSON.stringify(
-      this.characterUtil.snapToGrid(
-        gridPosition, this.direction, this.scaledTileSize,
-      ),
+      this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize),
     )) {
-      newPosition = this.handleSnappedMovement(
-        elapsedMs, gridPosition, velocity, pacmanGridPosition,
-      );
+      newPosition = this.handleSnappedMovement(elapsedMs, gridPosition, velocity, pacmanGridPosition);
     } else {
-      newPosition = this.handleUnsnappedMovement(
-        elapsedMs, gridPosition, velocity,
-      );
+      newPosition = this.handleUnsnappedMovement(elapsedMs, gridPosition, velocity);
     }
 
-    newPosition = this.characterUtil.handleWarp(
-      newPosition, this.scaledTileSize, this.mazeArray,
-    );
+    newPosition = this.characterUtil.handleWarp(newPosition, this.scaledTileSize, this.mazeArray);
 
     this.checkCollision(gridPosition, pacmanGridPosition);
 
@@ -670,9 +634,7 @@ class Ghost {
   changeMode(newMode) {
     this.defaultMode = newMode;
 
-    const gridPosition = this.characterUtil.determineGridPosition(
-      this.position, this.scaledTileSize,
-    );
+    const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
 
     if ((this.mode === 'chase' || this.mode === 'scatter')
       && !this.cruiseElroy) {
@@ -700,9 +662,7 @@ class Ghost {
    * and changes spritesheets accordingly
    */
   becomeScared() {
-    const gridPosition = this.characterUtil.determineGridPosition(
-      this.position, this.scaledTileSize,
-    );
+    const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
 
     if (this.mode !== 'eyes') {
       if (!this.isInGhostHouse(gridPosition) && this.mode !== 'scared') {
@@ -807,12 +767,8 @@ class Ghost {
    * @param {number} interp - The animation accuracy as a percentage
    */
   draw(interp) {
-    const newTop = this.characterUtil.calculateNewDrawValue(
-      interp, 'top', this.oldPosition, this.position,
-    );
-    const newLeft = this.characterUtil.calculateNewDrawValue(
-      interp, 'left', this.oldPosition, this.position,
-    );
+    const newTop = this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position);
+    const newLeft = this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position);
     this.animationTarget.style.top = `${newTop}px`;
     this.animationTarget.style.left = `${newLeft}px`;
 
@@ -831,7 +787,7 @@ class Ghost {
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    */
   update(elapsedMs) {
-    this.oldPosition = Object.assign({}, this.position);
+    this.oldPosition = { ...this.position };
 
     if (this.moving) {
       this.position = this.handleMovement(elapsedMs);

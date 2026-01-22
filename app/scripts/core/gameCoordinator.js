@@ -1161,7 +1161,7 @@ class GameCoordinator {
     this.soundManager.play('eat_ghost');
 
     this.scaredGhosts = this.scaredGhosts.filter(
-      ghost => ghost.name !== e.detail.ghost.name,
+      (ghost) => ghost.name !== e.detail.ghost.name,
     );
     this.eyeGhosts += 1;
 
@@ -1296,7 +1296,7 @@ class GameCoordinator {
     if (this.timerExists(e)) {
       window.clearTimeout(e.detail.timer.timerId);
       this.activeTimers = this.activeTimers.filter(
-        timer => timer.timerId !== e.detail.timer.timerId,
+        (timer) => timer.timerId !== e.detail.timer.timerId,
       );
     }
   }

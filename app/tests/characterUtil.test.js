@@ -18,33 +18,17 @@ beforeEach(() => {
 describe('characterUtil', () => {
   describe('checkForStutter', () => {
     it('returns VISIBLE if the character moves less than five tiles', () => {
-      assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: 0, left: 0 },
-      ), 'visible');
-      assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: 0, left: 5 },
-      ), 'visible');
-      assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: 5, left: 0 },
-      ), 'visible');
-      assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: 5, left: 5 },
-      ), 'visible');
+      assert.strictEqual(characterUtil.checkForStutter(oldPosition, { top: 0, left: 0 }), 'visible');
+      assert.strictEqual(characterUtil.checkForStutter(oldPosition, { top: 0, left: 5 }), 'visible');
+      assert.strictEqual(characterUtil.checkForStutter(oldPosition, { top: 5, left: 0 }), 'visible');
+      assert.strictEqual(characterUtil.checkForStutter(oldPosition, { top: 5, left: 5 }), 'visible');
     });
 
     it('returns HIDDEN if the character moves more than five tiles', () => {
-      assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: 0, left: 6 * scaledTileSize },
-      ), 'hidden');
-      assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: 0, left: -6 * scaledTileSize },
-      ), 'hidden');
-      assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: 6 * scaledTileSize, left: 0 },
-      ), 'hidden');
-      assert.strictEqual(characterUtil.checkForStutter(
-        oldPosition, { top: -6 * scaledTileSize, left: 0 },
-      ), 'hidden');
+      assert.strictEqual(characterUtil.checkForStutter(oldPosition, { top: 0, left: 6 * scaledTileSize }), 'hidden');
+      assert.strictEqual(characterUtil.checkForStutter(oldPosition, { top: 0, left: -6 * scaledTileSize }), 'hidden');
+      assert.strictEqual(characterUtil.checkForStutter(oldPosition, { top: 6 * scaledTileSize, left: 0 }), 'hidden');
+      assert.strictEqual(characterUtil.checkForStutter(oldPosition, { top: -6 * scaledTileSize, left: 0 }), 'hidden');
     });
 
     it('returns VISIBLE by default if either param is missing', () => {
@@ -82,32 +66,20 @@ describe('characterUtil', () => {
 
   describe('calculateNewDrawValue', () => {
     it('calculates a new value given all parameters', () => {
-      assert.strictEqual(characterUtil.calculateNewDrawValue(
-        1, 'top', oldPosition, position,
-      ), 10);
-      assert.strictEqual(characterUtil.calculateNewDrawValue(
-        1, 'left', oldPosition, position,
-      ), 100);
+      assert.strictEqual(characterUtil.calculateNewDrawValue(1, 'top', oldPosition, position), 10);
+      assert.strictEqual(characterUtil.calculateNewDrawValue(1, 'left', oldPosition, position), 100);
     });
 
     it('factors in interp when calculating the new value', () => {
-      assert.strictEqual(characterUtil.calculateNewDrawValue(
-        0.5, 'top', oldPosition, position,
-      ), 5);
-      assert.strictEqual(characterUtil.calculateNewDrawValue(
-        0.5, 'left', oldPosition, position,
-      ), 50);
+      assert.strictEqual(characterUtil.calculateNewDrawValue(0.5, 'top', oldPosition, position), 5);
+      assert.strictEqual(characterUtil.calculateNewDrawValue(0.5, 'left', oldPosition, position), 50);
     });
   });
 
   describe('determineGridPosition', () => {
     it('returns an x-y object given a valid position', () => {
-      assert.deepEqual(characterUtil.determineGridPosition(
-        oldPosition, scaledTileSize,
-      ), { x: 0.5, y: 0.5 });
-      assert.deepEqual(characterUtil.determineGridPosition(
-        position, scaledTileSize,
-      ), { x: 13, y: 1.75 });
+      assert.deepEqual(characterUtil.determineGridPosition(oldPosition, scaledTileSize), { x: 0.5, y: 0.5 });
+      assert.deepEqual(characterUtil.determineGridPosition(position, scaledTileSize), { x: 13, y: 1.75 });
     });
   });
 
@@ -137,87 +109,51 @@ describe('characterUtil', () => {
 
   describe('determineRoundingFunction', () => {
     it('returns MATH.FLOOR for UP or LEFT', () => {
-      assert.strictEqual(
-        characterUtil.determineRoundingFunction('up'), Math.floor,
-      );
-      assert.strictEqual(
-        characterUtil.determineRoundingFunction('left'), Math.floor,
-      );
+      assert.strictEqual(characterUtil.determineRoundingFunction('up'), Math.floor);
+      assert.strictEqual(characterUtil.determineRoundingFunction('left'), Math.floor);
     });
 
     it('returns MATH.CEIL for DOWN or RIGHT', () => {
-      assert.strictEqual(
-        characterUtil.determineRoundingFunction('down'), Math.ceil,
-      );
-      assert.strictEqual(
-        characterUtil.determineRoundingFunction('right'), Math.ceil,
-      );
+      assert.strictEqual(characterUtil.determineRoundingFunction('down'), Math.ceil);
+      assert.strictEqual(characterUtil.determineRoundingFunction('right'), Math.ceil);
     });
   });
 
   describe('changingGridPosition', () => {
     it('returns TRUE if changing grid positions', () => {
-      assert(characterUtil.changingGridPosition(
-        { x: 0, y: 0 }, { x: 0, y: 1 },
-      ));
-      assert(characterUtil.changingGridPosition(
-        { x: 0, y: 0 }, { x: 1, y: 0 },
-      ));
-      assert(characterUtil.changingGridPosition(
-        { x: 0, y: 0 }, { x: 1, y: 1 },
-      ));
+      assert(characterUtil.changingGridPosition({ x: 0, y: 0 }, { x: 0, y: 1 }));
+      assert(characterUtil.changingGridPosition({ x: 0, y: 0 }, { x: 1, y: 0 }));
+      assert(characterUtil.changingGridPosition({ x: 0, y: 0 }, { x: 1, y: 1 }));
     });
 
     it('returns FALSE if not', () => {
-      assert(!characterUtil.changingGridPosition(
-        { x: 0, y: 0 }, { x: 0, y: 0 },
-      ));
-      assert(!characterUtil.changingGridPosition(
-        { x: 0, y: 0 }, { x: 0.1, y: 0.9 },
-      ));
+      assert(!characterUtil.changingGridPosition({ x: 0, y: 0 }, { x: 0, y: 0 }));
+      assert(!characterUtil.changingGridPosition({ x: 0, y: 0 }, { x: 0.1, y: 0.9 }));
     });
   });
 
   describe('checkForWallCollision', () => {
     it('returns TRUE if running into a wall', () => {
-      assert(characterUtil.checkForWallCollision(
-        { x: 0, y: 1 }, mazeArray, 'left',
-      ));
-      assert(characterUtil.checkForWallCollision(
-        { x: 1, y: 0 }, mazeArray, 'up',
-      ));
+      assert(characterUtil.checkForWallCollision({ x: 0, y: 1 }, mazeArray, 'left'));
+      assert(characterUtil.checkForWallCollision({ x: 1, y: 0 }, mazeArray, 'up'));
     });
 
     it('returns FALSE if running to a free tile', () => {
-      assert(!characterUtil.checkForWallCollision(
-        { x: 2, y: 1 }, mazeArray, 'right',
-      ));
-      assert(!characterUtil.checkForWallCollision(
-        { x: 1, y: 2 }, mazeArray, 'down',
-      ));
-      assert(!characterUtil.checkForWallCollision(
-        { x: 1, y: 1 }, mazeArray, 'left',
-      ));
-      assert(!characterUtil.checkForWallCollision(
-        { x: 1, y: 1 }, mazeArray, 'up',
-      ));
+      assert(!characterUtil.checkForWallCollision({ x: 2, y: 1 }, mazeArray, 'right'));
+      assert(!characterUtil.checkForWallCollision({ x: 1, y: 2 }, mazeArray, 'down'));
+      assert(!characterUtil.checkForWallCollision({ x: 1, y: 1 }, mazeArray, 'left'));
+      assert(!characterUtil.checkForWallCollision({ x: 1, y: 1 }, mazeArray, 'up'));
     });
 
     it('returns FALSE if moving outside the maze', () => {
-      assert(!characterUtil.checkForWallCollision(
-        { x: -1, y: -1 }, mazeArray, 'right',
-      ));
-      assert(!characterUtil.checkForWallCollision(
-        { x: Infinity, y: Infinity }, mazeArray, 'right',
-      ));
+      assert(!characterUtil.checkForWallCollision({ x: -1, y: -1 }, mazeArray, 'right'));
+      assert(!characterUtil.checkForWallCollision({ x: Infinity, y: Infinity }, mazeArray, 'right'));
     });
   });
 
   describe('determineNewPositions', () => {
     it('returns an object containing a position and gridPosition', () => {
-      const newPositions = characterUtil.determineNewPositions(
-        { top: 500, left: 500 }, 'up', 5, 20, scaledTileSize,
-      );
+      const newPositions = characterUtil.determineNewPositions({ top: 500, left: 500 }, 'up', 5, 20, scaledTileSize);
       assert.deepEqual(newPositions, {
         newPosition: { top: 400, left: 500 },
         newGridPosition: { x: 63, y: 50.5 },
@@ -229,35 +165,21 @@ describe('characterUtil', () => {
     const unsnappedPosition = { x: 1.5, y: 1.5 };
 
     it('returns a snapped value when traveling in any direction', () => {
-      assert.deepEqual(characterUtil.snapToGrid(
-        unsnappedPosition, 'up', scaledTileSize,
-      ), { top: 4, left: 8 });
-      assert.deepEqual(characterUtil.snapToGrid(
-        unsnappedPosition, 'down', scaledTileSize,
-      ), { top: 12, left: 8 });
-      assert.deepEqual(characterUtil.snapToGrid(
-        unsnappedPosition, 'left', scaledTileSize,
-      ), { top: 8, left: 4 });
-      assert.deepEqual(characterUtil.snapToGrid(
-        unsnappedPosition, 'right', scaledTileSize,
-      ), { top: 8, left: 12 });
+      assert.deepEqual(characterUtil.snapToGrid(unsnappedPosition, 'up', scaledTileSize), { top: 4, left: 8 });
+      assert.deepEqual(characterUtil.snapToGrid(unsnappedPosition, 'down', scaledTileSize), { top: 12, left: 8 });
+      assert.deepEqual(characterUtil.snapToGrid(unsnappedPosition, 'left', scaledTileSize), { top: 8, left: 4 });
+      assert.deepEqual(characterUtil.snapToGrid(unsnappedPosition, 'right', scaledTileSize), { top: 8, left: 12 });
     });
   });
 
   describe('handleWarp', () => {
     it('warps if leaving the maze', () => {
-      assert.deepEqual(characterUtil.handleWarp(
-        { top: 0, left: -100 }, scaledTileSize, mazeArray,
-      ), { top: 0, left: 18 });
-      assert.deepEqual(characterUtil.handleWarp(
-        { top: 0, left: 100 }, scaledTileSize, mazeArray,
-      ), { top: 0, left: -10 });
+      assert.deepEqual(characterUtil.handleWarp({ top: 0, left: -100 }, scaledTileSize, mazeArray), { top: 0, left: 18 });
+      assert.deepEqual(characterUtil.handleWarp({ top: 0, left: 100 }, scaledTileSize, mazeArray), { top: 0, left: -10 });
     });
 
     it('doesn\'t warp otherwise', () => {
-      assert.deepEqual(characterUtil.handleWarp(
-        { top: 0, left: 0 }, scaledTileSize, mazeArray,
-      ), { top: 0, left: 0 });
+      assert.deepEqual(characterUtil.handleWarp({ top: 0, left: 0 }, scaledTileSize, mazeArray), { top: 0, left: 0 });
     });
   });
 
@@ -283,9 +205,7 @@ describe('characterUtil', () => {
     it('advances animation by one frame if enough time has passed', () => {
       const updatedProperties = characterUtil.advanceSpriteSheet(character);
       assert.strictEqual(updatedProperties.msSinceLastSprite, 0);
-      assert.strictEqual(
-        updatedProperties.animationTarget.style.backgroundPosition, '-75px 0px',
-      );
+      assert.strictEqual(updatedProperties.animationTarget.style.backgroundPosition, '-75px 0px');
       assert.strictEqual(updatedProperties.backgroundOffsetPixels, 75);
     });
 

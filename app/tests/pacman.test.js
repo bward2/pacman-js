@@ -33,14 +33,14 @@ describe('pacman', () => {
       pacman.reset();
       assert(pacman.setMovementStats.calledWith(pacman.scaledTileSize));
       assert(pacman.setSpriteAnimationStats.called);
-      assert(pacman.setStyleMeasurements.calledWith(
-        pacman.scaledTileSize, pacman.spriteFrames,
-      ));
+      assert(pacman.setStyleMeasurements.calledWith(pacman.scaledTileSize, pacman.spriteFrames));
       assert(pacman.setDefaultPosition.calledWith(pacman.scaledTileSize));
       assert(pacman.setSpriteSheet.calledWith(pacman.direction));
-      assert.strictEqual(pacman.pacmanArrow.style.backgroundImage,
+      assert.strictEqual(
+        pacman.pacmanArrow.style.backgroundImage,
         'url(app/style/graphics/spriteSheets/characters/pacman/arrow_'
-        + `${pacman.direction}.svg)`);
+        + `${pacman.direction}.svg)`,
+      );
     });
   });
 
@@ -75,9 +75,7 @@ describe('pacman', () => {
       assert.strictEqual(pacman.animationTarget.style.backgroundSize, '64px');
 
       pacman.setStyleMeasurements(1000, 4);
-      assert.strictEqual(
-        pacman.animationTarget.style.backgroundSize, '8000px',
-      );
+      assert.strictEqual(pacman.animationTarget.style.backgroundSize, '8000px');
     });
   });
 
@@ -149,13 +147,19 @@ describe('pacman', () => {
       assert.strictEqual(pacman.spriteFrames, 12);
       assert(pacman.specialAnimation);
       assert.strictEqual(pacman.backgroundOffsetPixels, 0);
-      assert.strictEqual(pacman.animationTarget.style.backgroundSize,
-        `${pacman.measurement * pacman.spriteFrames}px`);
-      assert.strictEqual(pacman.animationTarget.style.backgroundImage,
+      assert.strictEqual(
+        pacman.animationTarget.style.backgroundSize,
+        `${pacman.measurement * pacman.spriteFrames}px`,
+      );
+      assert.strictEqual(
+        pacman.animationTarget.style.backgroundImage,
         'url(app/style/graphics/spriteSheets/characters/pacman/'
-        + 'pacman_death.svg)');
-      assert.strictEqual(pacman.animationTarget.style.backgroundPosition,
-        '0px 0px');
+        + 'pacman_death.svg)',
+      );
+      assert.strictEqual(
+        pacman.animationTarget.style.backgroundPosition,
+        '0px 0px',
+      );
       assert.strictEqual(pacman.pacmanArrow.style.backgroundImage, '');
     });
   });

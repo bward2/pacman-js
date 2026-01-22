@@ -29,8 +29,14 @@ beforeEach(() => {
     },
   };
 
-  comp = new Ghost(scaledTileSize, undefined, pacman, undefined, 1,
-    new CharacterUtil());
+  comp = new Ghost(
+    scaledTileSize,
+    undefined,
+    pacman,
+    undefined,
+    1,
+    new CharacterUtil(),
+  );
 });
 
 describe('ghost', () => {
@@ -91,32 +97,40 @@ describe('ghost', () => {
   describe('setDefaultPosition', () => {
     it('sets the correct position for each ghost', () => {
       comp.setDefaultPosition(scaledTileSize, 'blinky');
-      assert.deepEqual(comp.defaultPosition,
+      assert.deepEqual(
+        comp.defaultPosition,
         {
           top: comp.scaledTileSize * 10.5,
           left: comp.scaledTileSize * 13,
-        });
+        },
+      );
 
       comp.setDefaultPosition(scaledTileSize, 'pinky');
-      assert.deepEqual(comp.defaultPosition,
+      assert.deepEqual(
+        comp.defaultPosition,
         {
           top: comp.scaledTileSize * 13.5,
           left: comp.scaledTileSize * 13,
-        });
+        },
+      );
 
       comp.setDefaultPosition(scaledTileSize, 'inky');
-      assert.deepEqual(comp.defaultPosition,
+      assert.deepEqual(
+        comp.defaultPosition,
         {
           top: scaledTileSize * 13.5,
           left: scaledTileSize * 11,
-        });
+        },
+      );
 
       comp.setDefaultPosition(scaledTileSize, 'clyde');
-      assert.deepEqual(comp.defaultPosition,
+      assert.deepEqual(
+        comp.defaultPosition,
         {
           top: scaledTileSize * 13.5,
           left: scaledTileSize * 15,
-        });
+        },
+      );
 
       comp.setDefaultPosition(scaledTileSize, undefined);
       assert.deepEqual(comp.defaultPosition, { top: 0, left: 0 });
@@ -126,10 +140,14 @@ describe('ghost', () => {
       comp.setDefaultPosition(scaledTileSize, 'blinky');
       assert.deepEqual(comp.position, comp.defaultPosition);
       assert.deepEqual(comp.oldPosition, comp.position);
-      assert.strictEqual(comp.animationTarget.style.top,
-        `${comp.position.top}px`);
-      assert.strictEqual(comp.animationTarget.style.left,
-        `${comp.position.left}px`);
+      assert.strictEqual(
+        comp.animationTarget.style.top,
+        `${comp.position.top}px`,
+      );
+      assert.strictEqual(
+        comp.animationTarget.style.left,
+        `${comp.position.left}px`,
+      );
     });
   });
 
@@ -157,24 +175,16 @@ describe('ghost', () => {
       const url = 'url(app/style/graphics/spriteSheets/characters/ghosts/';
 
       comp.setSpriteSheet('blinky', 'up', 'eyes');
-      assert.strictEqual(
-        comp.animationTarget.style.backgroundImage, `${url}eyes_up.svg)`,
-      );
+      assert.strictEqual(comp.animationTarget.style.backgroundImage, `${url}eyes_up.svg)`);
 
       comp.setSpriteSheet('blinky', 'down', 'eyes');
-      assert.strictEqual(
-        comp.animationTarget.style.backgroundImage, `${url}eyes_down.svg)`,
-      );
+      assert.strictEqual(comp.animationTarget.style.backgroundImage, `${url}eyes_down.svg)`);
 
       comp.setSpriteSheet('blinky', 'left', 'eyes');
-      assert.strictEqual(
-        comp.animationTarget.style.backgroundImage, `${url}eyes_left.svg)`,
-      );
+      assert.strictEqual(comp.animationTarget.style.backgroundImage, `${url}eyes_left.svg)`);
 
       comp.setSpriteSheet('blinky', 'right', 'eyes');
-      assert.strictEqual(
-        comp.animationTarget.style.backgroundImage, `${url}eyes_right.svg)`,
-      );
+      assert.strictEqual(comp.animationTarget.style.backgroundImage, `${url}eyes_right.svg)`);
     });
 
     it('sets the correct spritesheet for any given direction', () => {
@@ -233,12 +243,16 @@ describe('ghost', () => {
       comp.reset();
       assert.deepEqual(comp.position, comp.defaultPosition);
       assert.strictEqual(comp.direction, comp.defaultDirection);
-      assert.strictEqual(comp.animationTarget.style.backgroundImage,
+      assert.strictEqual(
+        comp.animationTarget.style.backgroundImage,
         'url(app/style/graphics/spriteSheets/characters/ghosts/blinky'
-        + '/blinky_left.svg)');
+        + '/blinky_left.svg)',
+      );
       assert.strictEqual(comp.backgroundOffsetPixels, 0);
-      assert.strictEqual(comp.animationTarget.style.backgroundPosition,
-        '0px 0px');
+      assert.strictEqual(
+        comp.animationTarget.style.backgroundPosition,
+        '0px 0px',
+      );
     });
 
     it('resets extra params for full game resets', () => {
@@ -311,9 +325,7 @@ describe('ghost', () => {
 
   describe('determinePossibleMoves', () => {
     it('returns a list of moves given valid coordinates', () => {
-      const possibleMoves = comp.determinePossibleMoves(
-        { x: 1, y: 1 }, 'right', mazeArray,
-      );
+      const possibleMoves = comp.determinePossibleMoves({ x: 1, y: 1 }, 'right', mazeArray);
       assert.deepEqual(possibleMoves, {
         down: { x: 1, y: 2 },
         right: { x: 2, y: 1 },
@@ -321,34 +333,26 @@ describe('ghost', () => {
     });
 
     it('does not allow the ghost to turn around at a crossroads', () => {
-      const possibleMoves = comp.determinePossibleMoves(
-        { x: 1, y: 1 }, 'up', mazeArray,
-      );
+      const possibleMoves = comp.determinePossibleMoves({ x: 1, y: 1 }, 'up', mazeArray);
       assert.deepEqual(possibleMoves, {
         right: { x: 2, y: 1 },
       });
     });
 
     it('returns an empty object if no moves are available', () => {
-      const possibleMoves = comp.determinePossibleMoves(
-        { x: -1, y: -1 }, 'up', mazeArray,
-      );
+      const possibleMoves = comp.determinePossibleMoves({ x: -1, y: -1 }, 'up', mazeArray);
       assert.deepEqual(possibleMoves, {});
     });
   });
 
   describe('calculateDistance', () => {
     it('uses the Pythagorean Theorem to measure distance', () => {
-      const distance = comp.calculateDistance(
-        { x: 0, y: 0 }, { x: 3, y: 4 },
-      );
+      const distance = comp.calculateDistance({ x: 0, y: 0 }, { x: 3, y: 4 });
       assert.strictEqual(distance, 5);
     });
 
     it('returns zero if the two given positions are identical', () => {
-      const distance = comp.calculateDistance(
-        { x: 0, y: 0 }, { x: 0, y: 0 },
-      );
+      const distance = comp.calculateDistance({ x: 0, y: 0 }, { x: 0, y: 0 });
       assert.strictEqual(distance, 0);
     });
   });
@@ -358,20 +362,28 @@ describe('ghost', () => {
       const pacmanPos = { x: 10, y: 10 };
 
       comp.pacman.direction = 'up';
-      assert.deepEqual(comp.getPositionInFrontOfPacman(pacmanPos, 4),
-        { x: 10, y: 6 });
+      assert.deepEqual(
+        comp.getPositionInFrontOfPacman(pacmanPos, 4),
+        { x: 10, y: 6 },
+      );
 
       comp.pacman.direction = 'down';
-      assert.deepEqual(comp.getPositionInFrontOfPacman(pacmanPos, 4),
-        { x: 10, y: 14 });
+      assert.deepEqual(
+        comp.getPositionInFrontOfPacman(pacmanPos, 4),
+        { x: 10, y: 14 },
+      );
 
       comp.pacman.direction = 'left';
-      assert.deepEqual(comp.getPositionInFrontOfPacman(pacmanPos, 4),
-        { x: 6, y: 10 });
+      assert.deepEqual(
+        comp.getPositionInFrontOfPacman(pacmanPos, 4),
+        { x: 6, y: 10 },
+      );
 
       comp.pacman.direction = 'right';
-      assert.deepEqual(comp.getPositionInFrontOfPacman(pacmanPos, 4),
-        { x: 14, y: 10 });
+      assert.deepEqual(
+        comp.getPositionInFrontOfPacman(pacmanPos, 4),
+        { x: 14, y: 10 },
+      );
     });
   });
 
@@ -405,12 +417,8 @@ describe('ghost', () => {
     it('returns Pacman\'s position when far away', () => {
       comp.calculateDistance = sinon.fake.returns(10);
 
-      const result = comp.determineClydeTarget(
-        { x: 1, y: 1 }, { x: 2, y: 2 },
-      );
-      assert(comp.calculateDistance.calledWith(
-        { x: 1, y: 1 }, { x: 2, y: 2 },
-      ));
+      const result = comp.determineClydeTarget({ x: 1, y: 1 }, { x: 2, y: 2 });
+      assert(comp.calculateDistance.calledWith({ x: 1, y: 1 }, { x: 2, y: 2 }));
       assert.deepEqual(result, { x: 2, y: 2 });
     });
 
@@ -493,23 +501,17 @@ describe('ghost', () => {
     });
 
     it('returns the greatest distance from Pacman when scared', () => {
-      const result = comp.determineBestMove(
-        'blinky', possibleMoves, undefined, pacmanPos, 'scared',
-      );
+      const result = comp.determineBestMove('blinky', possibleMoves, undefined, pacmanPos, 'scared');
       assert.strictEqual(result, 'left');
     });
 
     it('returns the shortest distance to the target otherwise', () => {
-      const result = comp.determineBestMove(
-        'blinky', possibleMoves, undefined, pacmanPos, 'chase',
-      );
+      const result = comp.determineBestMove('blinky', possibleMoves, undefined, pacmanPos, 'chase');
       assert.strictEqual(result, 'right');
     });
 
     it('returns UNDEFINED if there are no possible moves', () => {
-      const result = comp.determineBestMove(
-        'blinky', {}, undefined, pacmanPos, 'chase',
-      );
+      const result = comp.determineBestMove('blinky', {}, undefined, pacmanPos, 'chase');
       assert.strictEqual(result, undefined);
     });
   });
@@ -534,9 +536,7 @@ describe('ghost', () => {
     it('returns the ghost\'s default direction if there are no moves', () => {
       comp.determinePossibleMoves = sinon.fake.returns({});
 
-      const direction = comp.determineDirection(
-        undefined, undefined, undefined, 'right',
-      );
+      const direction = comp.determineDirection(undefined, undefined, undefined, 'right');
       assert.strictEqual(direction, 'right');
     });
   });
@@ -696,7 +696,7 @@ describe('ghost', () => {
 
   describe('handleUnsnappedMovement', () => {
     beforeEach(() => {
-      sinon.stub(comp, 'handleGhostHouse').callsFake(input => input);
+      sinon.stub(comp, 'handleGhostHouse').callsFake((input) => input);
     });
 
     it('returns the desired new position', () => {
@@ -816,9 +816,7 @@ describe('ghost', () => {
       comp.becomeScared();
       assert.strictEqual(comp.mode, 'scared');
       assert(comp.characterUtil.getOppositeDirection.called);
-      assert(comp.setSpriteSheet.calledWith(
-        'blinky', 'down', 'scared',
-      ));
+      assert(comp.setSpriteSheet.calledWith('blinky', 'down', 'scared'));
     });
 
     it('only u-turns if the ghost is not in the Ghost House', () => {

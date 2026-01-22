@@ -76,8 +76,8 @@ class Pacman {
       top: scaledTileSize * 22.5,
       left: scaledTileSize * 13,
     };
-    this.position = Object.assign({}, this.defaultPosition);
-    this.oldPosition = Object.assign({}, this.position);
+    this.position = { ...this.defaultPosition };
+    this.oldPosition = { ...this.position };
     this.animationTarget.style.top = `${this.position.top}px`;
     this.animationTarget.style.left = `${this.position.left}px`;
   }
@@ -147,20 +147,22 @@ class Pacman {
    */
   handleSnappedMovement(elapsedMs) {
     const desired = this.characterUtil.determineNewPositions(
-      this.position, this.desiredDirection, this.velocityPerMs,
-      elapsedMs, this.scaledTileSize,
+      this.position,
+      this.desiredDirection,
+      this.velocityPerMs,
+      elapsedMs,
+      this.scaledTileSize,
     );
     const alternate = this.characterUtil.determineNewPositions(
-      this.position, this.direction, this.velocityPerMs,
-      elapsedMs, this.scaledTileSize,
+      this.position,
+      this.direction,
+      this.velocityPerMs,
+      elapsedMs,
+      this.scaledTileSize,
     );
 
-    if (this.characterUtil.checkForWallCollision(
-      desired.newGridPosition, this.mazeArray, this.desiredDirection,
-    )) {
-      if (this.characterUtil.checkForWallCollision(
-        alternate.newGridPosition, this.mazeArray, this.direction,
-      )) {
+    if (this.characterUtil.checkForWallCollision(desired.newGridPosition, this.mazeArray, this.desiredDirection)) {
+      if (this.characterUtil.checkForWallCollision(alternate.newGridPosition, this.mazeArray, this.direction)) {
         this.moving = false;
         return this.position;
       }
@@ -179,26 +181,26 @@ class Pacman {
    */
   handleUnsnappedMovement(gridPosition, elapsedMs) {
     const desired = this.characterUtil.determineNewPositions(
-      this.position, this.desiredDirection, this.velocityPerMs,
-      elapsedMs, this.scaledTileSize,
+      this.position,
+      this.desiredDirection,
+      this.velocityPerMs,
+      elapsedMs,
+      this.scaledTileSize,
     );
     const alternate = this.characterUtil.determineNewPositions(
-      this.position, this.direction, this.velocityPerMs,
-      elapsedMs, this.scaledTileSize,
+      this.position,
+      this.direction,
+      this.velocityPerMs,
+      elapsedMs,
+      this.scaledTileSize,
     );
 
-    if (this.characterUtil.turningAround(
-      this.direction, this.desiredDirection,
-    )) {
+    if (this.characterUtil.turningAround(this.direction, this.desiredDirection)) {
       this.direction = this.desiredDirection;
       this.setSpriteSheet(this.direction);
       return desired.newPosition;
-    } if (this.characterUtil.changingGridPosition(
-      gridPosition, alternate.newGridPosition,
-    )) {
-      return this.characterUtil.snapToGrid(
-        gridPosition, this.direction, this.scaledTileSize,
-      );
+    } if (this.characterUtil.changingGridPosition(gridPosition, alternate.newGridPosition)) {
+      return this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
     }
     return alternate.newPosition;
   }
@@ -208,12 +210,8 @@ class Pacman {
    * @param {number} interp - The animation accuracy as a percentage
    */
   draw(interp) {
-    const newTop = this.characterUtil.calculateNewDrawValue(
-      interp, 'top', this.oldPosition, this.position,
-    );
-    const newLeft = this.characterUtil.calculateNewDrawValue(
-      interp, 'left', this.oldPosition, this.position,
-    );
+    const newTop = this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position);
+    const newLeft = this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position);
     this.animationTarget.style.top = `${newTop}px`;
     this.animationTarget.style.left = `${newLeft}px`;
 
@@ -235,26 +233,20 @@ class Pacman {
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    */
   update(elapsedMs) {
-    this.oldPosition = Object.assign({}, this.position);
+    this.oldPosition = { ...this.position };
 
     if (this.moving) {
-      const gridPosition = this.characterUtil.determineGridPosition(
-        this.position, this.scaledTileSize,
-      );
+      const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
 
       if (JSON.stringify(this.position) === JSON.stringify(
-        this.characterUtil.snapToGrid(
-          gridPosition, this.direction, this.scaledTileSize,
-        ),
+        this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize),
       )) {
         this.position = this.handleSnappedMovement(elapsedMs);
       } else {
         this.position = this.handleUnsnappedMovement(gridPosition, elapsedMs);
       }
 
-      this.position = this.characterUtil.handleWarp(
-        this.position, this.scaledTileSize, this.mazeArray,
-      );
+      this.position = this.characterUtil.handleWarp(this.position, this.scaledTileSize, this.mazeArray);
     }
 
     if (this.moving || this.specialAnimation) {
