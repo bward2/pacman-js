@@ -67,7 +67,9 @@ describe('gameCoordinator', () => {
         appendChild: () => {},
         removeChild: () => {},
         addEventListener: () => {},
+        remove: () => {},
         style: {},
+        scrollWidth: 500,
       }),
       createElement: () => ({
         classList: {
@@ -83,9 +85,47 @@ describe('gameCoordinator', () => {
       getItem: () => {},
       setItem: () => {},
     };
-    global.Image = class {};
+
+    global.Image = class {
+      set src(value) {
+        // Trigger onload callback immediately
+        if (this.onload) {
+          this.onload();
+        }
+      }
+    };
+
     global.Audio = class {
-      addEventListener() {}
+      constructor() {
+        this.eventListeners = {};
+      }
+
+      addEventListener(event, callback) {
+        if (event === 'canplaythrough') {
+          // Trigger the callback immediately
+          if (callback) {
+            callback();
+          }
+        }
+      }
+
+      load() {
+        // Trigger canplaythrough event after load
+        const callback = this.eventListeners.canplaythrough;
+        if (callback) {
+          callback();
+        }
+      }
+
+      set src(value) {
+        // When src is set, trigger canplaythrough
+        const callback = this.eventListeners.canplaythrough;
+        if (callback) {
+          callback();
+        }
+      }
+
+      onerror() {}
     };
 
     clock = sinon.useFakeTimers();
