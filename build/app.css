@@ -24,11 +24,6 @@ body {
   touch-action: manipulation;
 }
 
-.backdrop {
-  position: absolute;
-  visibility: hidden;
-}
-
 .fps-display {
   position: absolute;
   right: 10px;

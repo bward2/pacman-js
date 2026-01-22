@@ -1,5 +1,6 @@
 # pacman-js
 
+![Code Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)
 [![Code Style](https://img.shields.io/badge/code%20style-airbnb-brightgreen.svg)](https://github.com/airbnb/javascript)
 
 Pacman clone made with Javascript, HTML, and CSS.

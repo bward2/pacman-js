@@ -1,7 +1,5 @@
 class Ghost {
-  constructor(
-    scaledTileSize, mazeArray, pacman, name, level, characterUtil, blinky,
-  ) {
+  constructor(scaledTileSize, mazeArray, pacman, name, level, characterUtil, blinky) {
     this.scaledTileSize = scaledTileSize;
     this.mazeArray = mazeArray;
     this.pacman = pacman;
@@ -155,8 +153,8 @@ class Ghost {
         };
         break;
     }
-    this.position = Object.assign({}, this.defaultPosition);
-    this.oldPosition = Object.assign({}, this.position);
+    this.position = { ...this.defaultPosition };
+    this.oldPosition = { ...this.position };
     this.animationTarget.style.top = `${this.position.top}px`;
     this.animationTarget.style.left = `${this.position.left}px`;
   }
@@ -278,7 +276,7 @@ class Ghost {
    * @param {number} spaces
    */
   getPositionInFrontOfPacman(pacmanGridPosition, spaces) {
-    const target = Object.assign({}, pacmanGridPosition);
+    const target = { ...pacmanGridPosition };
     const pacDirection = this.pacman.direction;
     const propToChange = (pacDirection === 'up' || pacDirection === 'down')
       ? 'y' : 'x';
@@ -295,9 +293,7 @@ class Ghost {
    * @returns {({x: number, y: number})}
    */
   determinePinkyTarget(pacmanGridPosition) {
-    return this.getPositionInFrontOfPacman(
-      pacmanGridPosition, 4,
-    );
+    return this.getPositionInFrontOfPacman(pacmanGridPosition, 4);
   }
 
   /**
@@ -308,12 +304,8 @@ class Ghost {
    * @returns {({x: number, y: number})}
    */
   determineInkyTarget(pacmanGridPosition) {
-    const blinkyGridPosition = this.characterUtil.determineGridPosition(
-      this.blinky.position, this.scaledTileSize,
-    );
-    const pivotPoint = this.getPositionInFrontOfPacman(
-      pacmanGridPosition, 2,
-    );
+    const blinkyGridPosition = this.characterUtil.determineGridPosition(this.blinky.position, this.scaledTileSize);
+    const pivotPoint = this.getPositionInFrontOfPacman(pacmanGridPosition, 2);
     return {
       x: pivotPoint.x + (pivotPoint.x - blinkyGridPosition.x),
       y: pivotPoint.y + (pivotPoint.y - blinkyGridPosition.y),
@@ -393,17 +385,13 @@ class Ghost {
    * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {('up'|'down'|'left'|'right')}
    */
-  determineBestMove(
-    name, possibleMoves, gridPosition, pacmanGridPosition, mode,
-  ) {
+  determineBestMove(name, possibleMoves, gridPosition, pacmanGridPosition, mode) {
     let bestDistance = (mode === 'scared') ? 0 : Infinity;
     let bestMove;
     const target = this.getTarget(name, gridPosition, pacmanGridPosition, mode);
 
     Object.keys(possibleMoves).forEach((move) => {
-      const distance = this.calculateDistance(
-        possibleMoves[move], target,
-      );
+      const distance = this.calculateDistance(possibleMoves[move], target);
       const betterMove = (mode === 'scared')
         ? (distance > bestDistance)
         : (distance < bestDistance);
@@ -427,20 +415,14 @@ class Ghost {
    * @param {('chase'|'scatter'|'scared'|'eyes')} mode - The character's behavior mode
    * @returns {('up'|'down'|'left'|'right')}
    */
-  determineDirection(
-    name, gridPosition, pacmanGridPosition, direction, mazeArray, mode,
-  ) {
+  determineDirection(name, gridPosition, pacmanGridPosition, direction, mazeArray, mode) {
     let newDirection = direction;
-    const possibleMoves = this.determinePossibleMoves(
-      gridPosition, direction, mazeArray,
-    );
+    const possibleMoves = this.determinePossibleMoves(gridPosition, direction, mazeArray);
 
     if (Object.keys(possibleMoves).length === 1) {
       [newDirection] = Object.keys(possibleMoves);
     } else if (Object.keys(possibleMoves).length > 1) {
-      newDirection = this.determineBestMove(
-        name, possibleMoves, gridPosition, pacmanGridPosition, mode,
-      );
+      newDirection = this.determineBestMove(name, possibleMoves, gridPosition, pacmanGridPosition, mode);
     }
 
     return newDirection;
@@ -454,7 +436,7 @@ class Ghost {
    * @returns {({ top: number, left: number})}
    */
   handleIdleMovement(elapsedMs, position, velocity) {
-    const newPosition = Object.assign({}, this.position);
+    const newPosition = { ...this.position };
 
     if (position.y <= 13.5) {
       this.direction = this.characterUtil.directions.down;
@@ -501,11 +483,15 @@ class Ghost {
    * @returns {({ top: number, left: number})}
    */
   handleSnappedMovement(elapsedMs, gridPosition, velocity, pacmanGridPosition) {
-    const newPosition = Object.assign({}, this.position);
+    const newPosition = { ...this.position };
 
     this.direction = this.determineDirection(
-      this.name, gridPosition, pacmanGridPosition, this.direction,
-      this.mazeArray, this.mode,
+      this.name,
+      gridPosition,
+      pacmanGridPosition,
+      this.direction,
+      this.mazeArray,
+      this.mode,
     );
     newPosition[this.characterUtil.getPropertyToChange(this.direction)]
       += this.characterUtil.getVelocity(this.direction, velocity) * elapsedMs;
@@ -561,31 +547,25 @@ class Ghost {
    * @returns {({x: number, y: number})}
    */
   handleGhostHouse(gridPosition) {
-    const gridPositionCopy = Object.assign({}, gridPosition);
+    const gridPositionCopy = { ...gridPosition };
 
     if (this.enteringGhostHouse(this.mode, gridPosition)) {
       this.direction = this.characterUtil.directions.down;
       gridPositionCopy.x = 13.5;
-      this.position = this.characterUtil.snapToGrid(
-        gridPositionCopy, this.direction, this.scaledTileSize,
-      );
+      this.position = this.characterUtil.snapToGrid(gridPositionCopy, this.direction, this.scaledTileSize);
     }
 
     if (this.enteredGhostHouse(this.mode, gridPosition)) {
       this.direction = this.characterUtil.directions.up;
       gridPositionCopy.y = 14;
-      this.position = this.characterUtil.snapToGrid(
-        gridPositionCopy, this.direction, this.scaledTileSize,
-      );
+      this.position = this.characterUtil.snapToGrid(gridPositionCopy, this.direction, this.scaledTileSize);
       this.mode = this.defaultMode;
       window.dispatchEvent(new Event('restoreGhost'));
     }
 
     if (this.leavingGhostHouse(this.mode, gridPosition)) {
       gridPositionCopy.y = 11;
-      this.position = this.characterUtil.snapToGrid(
-        gridPositionCopy, this.direction, this.scaledTileSize,
-      );
+      this.position = this.characterUtil.snapToGrid(gridPositionCopy, this.direction, this.scaledTileSize);
       this.direction = this.characterUtil.directions.left;
     }
 
@@ -603,15 +583,15 @@ class Ghost {
     const gridPositionCopy = this.handleGhostHouse(gridPosition);
 
     const desired = this.characterUtil.determineNewPositions(
-      this.position, this.direction, velocity, elapsedMs, this.scaledTileSize,
+      this.position,
+      this.direction,
+      velocity,
+      elapsedMs,
+      this.scaledTileSize,
     );
 
-    if (this.characterUtil.changingGridPosition(
-      gridPositionCopy, desired.newGridPosition,
-    )) {
-      return this.characterUtil.snapToGrid(
-        gridPositionCopy, this.direction, this.scaledTileSize,
-      );
+    if (this.characterUtil.changingGridPosition(gridPositionCopy, desired.newGridPosition)) {
+      return this.characterUtil.snapToGrid(gridPositionCopy, this.direction, this.scaledTileSize);
     }
 
     return desired.newPosition;
@@ -625,37 +605,21 @@ class Ghost {
   handleMovement(elapsedMs) {
     let newPosition;
 
-    const gridPosition = this.characterUtil.determineGridPosition(
-      this.position, this.scaledTileSize,
-    );
-    const pacmanGridPosition = this.characterUtil.determineGridPosition(
-      this.pacman.position, this.scaledTileSize,
-    );
-    const velocity = this.determineVelocity(
-      gridPosition, this.mode,
-    );
+    const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
+    const pacmanGridPosition = this.characterUtil.determineGridPosition(this.pacman.position, this.scaledTileSize);
+    const velocity = this.determineVelocity(gridPosition, this.mode);
 
     if (this.idleMode) {
-      newPosition = this.handleIdleMovement(
-        elapsedMs, gridPosition, velocity,
-      );
+      newPosition = this.handleIdleMovement(elapsedMs, gridPosition, velocity);
     } else if (JSON.stringify(this.position) === JSON.stringify(
-      this.characterUtil.snapToGrid(
-        gridPosition, this.direction, this.scaledTileSize,
-      ),
+      this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize),
     )) {
-      newPosition = this.handleSnappedMovement(
-        elapsedMs, gridPosition, velocity, pacmanGridPosition,
-      );
+      newPosition = this.handleSnappedMovement(elapsedMs, gridPosition, velocity, pacmanGridPosition);
     } else {
-      newPosition = this.handleUnsnappedMovement(
-        elapsedMs, gridPosition, velocity,
-      );
+      newPosition = this.handleUnsnappedMovement(elapsedMs, gridPosition, velocity);
     }
 
-    newPosition = this.characterUtil.handleWarp(
-      newPosition, this.scaledTileSize, this.mazeArray,
-    );
+    newPosition = this.characterUtil.handleWarp(newPosition, this.scaledTileSize, this.mazeArray);
 
     this.checkCollision(gridPosition, pacmanGridPosition);
 
@@ -670,9 +634,7 @@ class Ghost {
   changeMode(newMode) {
     this.defaultMode = newMode;
 
-    const gridPosition = this.characterUtil.determineGridPosition(
-      this.position, this.scaledTileSize,
-    );
+    const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
 
     if ((this.mode === 'chase' || this.mode === 'scatter')
       && !this.cruiseElroy) {
@@ -700,9 +662,7 @@ class Ghost {
    * and changes spritesheets accordingly
    */
   becomeScared() {
-    const gridPosition = this.characterUtil.determineGridPosition(
-      this.position, this.scaledTileSize,
-    );
+    const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
 
     if (this.mode !== 'eyes') {
       if (!this.isInGhostHouse(gridPosition) && this.mode !== 'scared') {
@@ -807,12 +767,8 @@ class Ghost {
    * @param {number} interp - The animation accuracy as a percentage
    */
   draw(interp) {
-    const newTop = this.characterUtil.calculateNewDrawValue(
-      interp, 'top', this.oldPosition, this.position,
-    );
-    const newLeft = this.characterUtil.calculateNewDrawValue(
-      interp, 'left', this.oldPosition, this.position,
-    );
+    const newTop = this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position);
+    const newLeft = this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position);
     this.animationTarget.style.top = `${newTop}px`;
     this.animationTarget.style.left = `${newLeft}px`;
 
@@ -831,7 +787,7 @@ class Ghost {
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    */
   update(elapsedMs) {
-    this.oldPosition = Object.assign({}, this.position);
+    this.oldPosition = { ...this.position };
 
     if (this.moving) {
       this.position = this.handleMovement(elapsedMs);
@@ -920,8 +876,8 @@ class Pacman {
       top: scaledTileSize * 22.5,
       left: scaledTileSize * 13,
     };
-    this.position = Object.assign({}, this.defaultPosition);
-    this.oldPosition = Object.assign({}, this.position);
+    this.position = { ...this.defaultPosition };
+    this.oldPosition = { ...this.position };
     this.animationTarget.style.top = `${this.position.top}px`;
     this.animationTarget.style.left = `${this.position.left}px`;
   }
@@ -991,20 +947,22 @@ class Pacman {
    */
   handleSnappedMovement(elapsedMs) {
     const desired = this.characterUtil.determineNewPositions(
-      this.position, this.desiredDirection, this.velocityPerMs,
-      elapsedMs, this.scaledTileSize,
+      this.position,
+      this.desiredDirection,
+      this.velocityPerMs,
+      elapsedMs,
+      this.scaledTileSize,
     );
     const alternate = this.characterUtil.determineNewPositions(
-      this.position, this.direction, this.velocityPerMs,
-      elapsedMs, this.scaledTileSize,
+      this.position,
+      this.direction,
+      this.velocityPerMs,
+      elapsedMs,
+      this.scaledTileSize,
     );
 
-    if (this.characterUtil.checkForWallCollision(
-      desired.newGridPosition, this.mazeArray, this.desiredDirection,
-    )) {
-      if (this.characterUtil.checkForWallCollision(
-        alternate.newGridPosition, this.mazeArray, this.direction,
-      )) {
+    if (this.characterUtil.checkForWallCollision(desired.newGridPosition, this.mazeArray, this.desiredDirection)) {
+      if (this.characterUtil.checkForWallCollision(alternate.newGridPosition, this.mazeArray, this.direction)) {
         this.moving = false;
         return this.position;
       }
@@ -1023,26 +981,26 @@ class Pacman {
    */
   handleUnsnappedMovement(gridPosition, elapsedMs) {
     const desired = this.characterUtil.determineNewPositions(
-      this.position, this.desiredDirection, this.velocityPerMs,
-      elapsedMs, this.scaledTileSize,
+      this.position,
+      this.desiredDirection,
+      this.velocityPerMs,
+      elapsedMs,
+      this.scaledTileSize,
     );
     const alternate = this.characterUtil.determineNewPositions(
-      this.position, this.direction, this.velocityPerMs,
-      elapsedMs, this.scaledTileSize,
+      this.position,
+      this.direction,
+      this.velocityPerMs,
+      elapsedMs,
+      this.scaledTileSize,
     );
 
-    if (this.characterUtil.turningAround(
-      this.direction, this.desiredDirection,
-    )) {
+    if (this.characterUtil.turningAround(this.direction, this.desiredDirection)) {
       this.direction = this.desiredDirection;
       this.setSpriteSheet(this.direction);
       return desired.newPosition;
-    } if (this.characterUtil.changingGridPosition(
-      gridPosition, alternate.newGridPosition,
-    )) {
-      return this.characterUtil.snapToGrid(
-        gridPosition, this.direction, this.scaledTileSize,
-      );
+    } if (this.characterUtil.changingGridPosition(gridPosition, alternate.newGridPosition)) {
+      return this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize);
     }
     return alternate.newPosition;
   }
@@ -1052,12 +1010,8 @@ class Pacman {
    * @param {number} interp - The animation accuracy as a percentage
    */
   draw(interp) {
-    const newTop = this.characterUtil.calculateNewDrawValue(
-      interp, 'top', this.oldPosition, this.position,
-    );
-    const newLeft = this.characterUtil.calculateNewDrawValue(
-      interp, 'left', this.oldPosition, this.position,
-    );
+    const newTop = this.characterUtil.calculateNewDrawValue(interp, 'top', this.oldPosition, this.position);
+    const newLeft = this.characterUtil.calculateNewDrawValue(interp, 'left', this.oldPosition, this.position);
     this.animationTarget.style.top = `${newTop}px`;
     this.animationTarget.style.left = `${newLeft}px`;
 
@@ -1079,26 +1033,20 @@ class Pacman {
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    */
   update(elapsedMs) {
-    this.oldPosition = Object.assign({}, this.position);
+    this.oldPosition = { ...this.position };
 
     if (this.moving) {
-      const gridPosition = this.characterUtil.determineGridPosition(
-        this.position, this.scaledTileSize,
-      );
+      const gridPosition = this.characterUtil.determineGridPosition(this.position, this.scaledTileSize);
 
       if (JSON.stringify(this.position) === JSON.stringify(
-        this.characterUtil.snapToGrid(
-          gridPosition, this.direction, this.scaledTileSize,
-        ),
+        this.characterUtil.snapToGrid(gridPosition, this.direction, this.scaledTileSize),
       )) {
         this.position = this.handleSnappedMovement(elapsedMs);
       } else {
         this.position = this.handleUnsnappedMovement(gridPosition, elapsedMs);
       }
 
-      this.position = this.characterUtil.handleWarp(
-        this.position, this.scaledTileSize, this.mazeArray,
-      );
+      this.position = this.characterUtil.handleWarp(this.position, this.scaledTileSize, this.mazeArray);
     }
 
     if (this.moving || this.specialAnimation) {
@@ -1213,14 +1161,7 @@ class GameCoordinator {
       this.soundButtonClick.bind(this),
     );
 
-    const head = document.getElementsByTagName('head')[0];
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'build/app.css';
-
-    link.onload = this.preloadAssets.bind(this);
-
-    head.appendChild(link);
+    this.preloadAssets();
   }
 
   /**
@@ -2271,7 +2212,7 @@ class GameCoordinator {
     this.soundManager.play('eat_ghost');
 
     this.scaredGhosts = this.scaredGhosts.filter(
-      ghost => ghost.name !== e.detail.ghost.name,
+      (ghost) => ghost.name !== e.detail.ghost.name,
     );
     this.eyeGhosts += 1;
 
@@ -2406,7 +2347,7 @@ class GameCoordinator {
     if (this.timerExists(e)) {
       window.clearTimeout(e.detail.timer.timerId);
       this.activeTimers = this.activeTimers.filter(
-        timer => timer.timerId !== e.detail.timer.timerId,
+        (timer) => timer.timerId !== e.detail.timer.timerId,
       );
     }
   }
@@ -2632,9 +2573,7 @@ class Pickup {
     this.animationTarget = document.createElement('div');
     this.animationTarget.style.position = 'absolute';
     this.animationTarget.style.backgroundSize = `${this.size}px`;
-    this.animationTarget.style.backgroundImage = this.determineImage(
-      type, points,
-    );
+    this.animationTarget.style.backgroundImage = this.determineImage(type, points);
     this.animationTarget.style.height = `${this.size}px`;
     this.animationTarget.style.width = `${this.size}px`;
     this.animationTarget.style.top = `${this.y}px`;
@@ -2672,9 +2611,7 @@ class Pickup {
    */
   showFruit(points) {
     this.points = points;
-    this.animationTarget.style.backgroundImage = this.determineImage(
-      this.type, points,
-    );
+    this.animationTarget.style.backgroundImage = this.determineImage(this.type, points);
     this.animationTarget.style.visibility = 'visible';
   }
 
@@ -2691,7 +2628,7 @@ class Pickup {
    * @param {({ x: number, y: number, size: number})} originalPacman
    */
   checkForCollision(pickup, originalPacman) {
-    const pacman = Object.assign({}, originalPacman);
+    const pacman = { ...originalPacman };
 
     pacman.x += (pacman.size * 0.25);
     pacman.y += (pacman.size * 0.25);
@@ -2741,17 +2678,15 @@ class Pickup {
    */
   update() {
     if (this.shouldCheckForCollision()) {
-      if (this.checkForCollision(
-        {
-          x: this.x,
-          y: this.y,
-          size: this.size,
-        }, {
-          x: this.pacman.position.left,
-          y: this.pacman.position.top,
-          size: this.pacman.measurement,
-        },
-      )) {
+      if (this.checkForCollision({
+        x: this.x,
+        y: this.y,
+        size: this.size,
+      }, {
+        x: this.pacman.position.left,
+        y: this.pacman.position.top,
+        size: this.pacman.measurement,
+      })) {
         this.animationTarget.style.visibility = 'hidden';
         window.dispatchEvent(new CustomEvent('awardPoints', {
           detail: {
@@ -2924,9 +2859,7 @@ class CharacterUtil {
    * @returns {boolean}
    */
   checkForWallCollision(desiredNewGridPosition, mazeArray, direction) {
-    const roundingFunction = this.determineRoundingFunction(
-      direction, this.directions,
-    );
+    const roundingFunction = this.determineRoundingFunction(direction, this.directions);
 
     const desiredX = roundingFunction(desiredNewGridPosition.x);
     const desiredY = roundingFunction(desiredNewGridPosition.y);
@@ -2948,15 +2881,11 @@ class CharacterUtil {
    * @param {number} scaledTileSize - The dimensions of a single tile
    * @returns {object}
    */
-  determineNewPositions(
-    position, direction, velocityPerMs, elapsedMs, scaledTileSize,
-  ) {
-    const newPosition = Object.assign({}, position);
+  determineNewPositions(position, direction, velocityPerMs, elapsedMs, scaledTileSize) {
+    const newPosition = { ...position };
     newPosition[this.getPropertyToChange(direction)]
       += this.getVelocity(direction, velocityPerMs) * elapsedMs;
-    const newGridPosition = this.determineGridPosition(
-      newPosition, scaledTileSize,
-    );
+    const newGridPosition = this.determineGridPosition(newPosition, scaledTileSize);
 
     return {
       newPosition,
@@ -2972,10 +2901,8 @@ class CharacterUtil {
    * @returns {({top: number, left: number})}
    */
   snapToGrid(position, direction, scaledTileSize) {
-    const newPosition = Object.assign({}, position);
-    const roundingFunction = this.determineRoundingFunction(
-      direction, this.directions,
-    );
+    const newPosition = { ...position };
+    const roundingFunction = this.determineRoundingFunction(direction, this.directions);
 
     switch (direction) {
       case this.directions.up:
@@ -3001,7 +2928,7 @@ class CharacterUtil {
    * @returns {({top: number, left: number})}
    */
   handleWarp(position, scaledTileSize, mazeArray) {
-    const newPosition = Object.assign({}, position);
+    const newPosition = { ...position };
     const gridPosition = this.determineGridPosition(position, scaledTileSize);
 
     if (gridPosition.x < -0.75) {

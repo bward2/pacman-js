@@ -6,7 +6,7 @@
     "all": true
   },
   "scripts": {
-    "test": "nyc --check-coverage --lines 100 --functions 100 --branches 100 mocha app/tests",
+    "test": "nyc --reporter=html --reporter=text --check-coverage --lines 100 --functions 100 --branches 100 mocha app/tests",
     "lint": "eslint .",
     "update": "ncu -i --format group",
     "serve": "node ./node_modules/http-server/bin/http-server",
