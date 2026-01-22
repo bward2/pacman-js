@@ -59,9 +59,7 @@ class Pickup {
     this.animationTarget = document.createElement('div');
     this.animationTarget.style.position = 'absolute';
     this.animationTarget.style.backgroundSize = `${this.size}px`;
-    this.animationTarget.style.backgroundImage = this.determineImage(
-      type, points,
-    );
+    this.animationTarget.style.backgroundImage = this.determineImage(type, points);
     this.animationTarget.style.height = `${this.size}px`;
     this.animationTarget.style.width = `${this.size}px`;
     this.animationTarget.style.top = `${this.y}px`;
@@ -99,9 +97,7 @@ class Pickup {
    */
   showFruit(points) {
     this.points = points;
-    this.animationTarget.style.backgroundImage = this.determineImage(
-      this.type, points,
-    );
+    this.animationTarget.style.backgroundImage = this.determineImage(this.type, points);
     this.animationTarget.style.visibility = 'visible';
   }
 
@@ -118,7 +114,7 @@ class Pickup {
    * @param {({ x: number, y: number, size: number})} originalPacman
    */
   checkForCollision(pickup, originalPacman) {
-    const pacman = Object.assign({}, originalPacman);
+    const pacman = { ...originalPacman };
 
     pacman.x += (pacman.size * 0.25);
     pacman.y += (pacman.size * 0.25);
@@ -168,17 +164,15 @@ class Pickup {
    */
   update() {
     if (this.shouldCheckForCollision()) {
-      if (this.checkForCollision(
-        {
-          x: this.x,
-          y: this.y,
-          size: this.size,
-        }, {
-          x: this.pacman.position.left,
-          y: this.pacman.position.top,
-          size: this.pacman.measurement,
-        },
-      )) {
+      if (this.checkForCollision({
+        x: this.x,
+        y: this.y,
+        size: this.size,
+      }, {
+        x: this.pacman.position.left,
+        y: this.pacman.position.top,
+        size: this.pacman.measurement,
+      })) {
         this.animationTarget.style.visibility = 'hidden';
         window.dispatchEvent(new CustomEvent('awardPoints', {
           detail: {

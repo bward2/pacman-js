@@ -1,10 +1,27 @@
 module.exports = {
-  "extends": "airbnb-base",
-  "rules": {
-    "no-undef": "off",
-    "class-methods-use-this": "off",
-    "linebreak-style": "off",
-    "no-new": "off",
-    "max-len": ["error", { "comments": 100 }]
-  }
+  extends: 'airbnb-base',
+  rules: {
+    'no-undef': 'off',
+    'class-methods-use-this': 'off',
+    'linebreak-style': 'off',
+    'no-new': 'off',
+    'max-len': ['error', { code: 120, comments: 120 }],
+    'default-case-last': 'off',
+    'default-param-last': 'off',
+    'grouped-accessor-pairs': 'off',
+    'no-constructor-return': 'off',
+    'no-nonoctal-decimal-escape': 'off',
+    'prefer-regex-literals': 'off',
+    'no-dupe-else-if': 'off',
+    'no-import-assign': 'off',
+    'no-loss-of-precision': 'off',
+    'no-promise-executor-return': 'off',
+    'no-setter-return': 'off',
+    'no-unreachable-loop': 'off',
+    'no-unsafe-optional-chaining': 'off',
+    'no-useless-backreference': 'off',
+    'function-call-argument-newline': 'off',
+    'prefer-exponentiation-operator': 'off',
+    'no-restricted-exports': 'off',
+  },
 };

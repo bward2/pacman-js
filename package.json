@@ -7,8 +7,7 @@
   },
   "scripts": {
     "test": "nyc --check-coverage --lines 100 --functions 100 --branches 100 mocha app/tests",
-    "coverage": "nyc report --reporter=text-lcov | node ./node_modules/coveralls/bin/coveralls.js",
-    "lint": "./node_modules/.bin/eslint .",
+    "lint": "eslint .",
     "update": "ncu -i --format group",
     "serve": "node ./node_modules/http-server/bin/http-server",
     "watch": "gulp watch",
@@ -19,20 +18,19 @@
     "npm": ">=6.14.6"
   },
   "devDependencies": {
-    "coveralls": "^3.1.1",
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.31.0",
-    "gulp": "^5.0.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "gulp": "^5.0.1",
     "gulp-concat": "^2.6.1",
     "gulp-remove-code": "^3.0.4",
-    "gulp-sass": "^6.0.0",
+    "gulp-sass": "^6.0.1",
     "http-server": "^14.1.1",
     "husky": "^9.1.7",
-    "mocha": "^11.0.1",
-    "npm-check-updates": "^17.1.12",
+    "mocha": "^11.7.5",
+    "npm-check-updates": "^19.3.1",
     "nyc": "^17.1.0",
-    "sass": "^1.83.0",
-    "sinon": "^19.0.2"
+    "sass": "^1.97.3",
+    "sinon": "^21.0.1"
   }
 }
