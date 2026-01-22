@@ -27,7 +27,7 @@
     "gulp-sass": "^6.0.1",
     "http-server": "^14.1.1",
     "husky": "^9.1.7",
-    "mocha": "^11.7.5",
+    "mocha": "^11.3.0",
     "npm-check-updates": "^19.3.1",
     "nyc": "^17.1.0",
     "sass": "^1.97.3",
