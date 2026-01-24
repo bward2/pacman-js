@@ -8,6 +8,27 @@ class SoundManager {
 
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     this.ambience = new AudioContext();
+
+    // Cache for sound effects to avoid recreating them
+    this.soundEffectCache = new Map();
+    this.currentDotSound = 1;
+  }
+
+  /**
+   * Gets or creates a cached audio element for a sound effect
+   * @param {String} sound
+   * @returns {Audio}
+   */
+  getOrCreateAudio(sound, isDotSound = false) {
+    if (!this.soundEffectCache.has(sound)) {
+      const audio = new Audio(`${this.baseUrl}${sound}.${this.fileFormat}`);
+      audio.volume = this.masterVolume;
+      if (isDotSound) {
+        audio.onended = this.dotSoundEnded.bind(this);
+      }
+      this.soundEffectCache.set(sound, audio);
+    }
+    return this.soundEffectCache.get(sound);
   }
 
   /**
@@ -25,12 +46,10 @@ class SoundManager {
   setMasterVolume(newVolume) {
     this.masterVolume = newVolume;
 
-    if (this.soundEffect) {
-      this.soundEffect.volume = this.masterVolume;
-    }
-
-    if (this.dotPlayer) {
-      this.dotPlayer.volume = this.masterVolume;
+    // Update all cached sound effects
+    const audioArray = Array.from(this.soundEffectCache.values());
+    for (let index = 0; index < audioArray.length; index += 1) {
+      audioArray[index].volume = this.masterVolume;
     }
 
     if (this.masterVolume === 0) {
@@ -45,9 +64,9 @@ class SoundManager {
    * @param {String} sound
    */
   play(sound) {
-    this.soundEffect = new Audio(`${this.baseUrl}${sound}.${this.fileFormat}`);
-    this.soundEffect.volume = this.masterVolume;
-    this.soundEffect.play();
+    const audio = this.getOrCreateAudio(sound);
+    audio.currentTime = 0;
+    audio.play();
   }
 
   /**
@@ -59,13 +78,10 @@ class SoundManager {
 
     if (!this.dotPlayer) {
       this.queuedDotSound = false;
-      this.dotSound = (this.dotSound === 1) ? 2 : 1;
+      this.currentDotSound = (this.currentDotSound === 1) ? 2 : 1;
 
-      this.dotPlayer = new Audio(
-        `${this.baseUrl}dot_${this.dotSound}.${this.fileFormat}`,
-      );
-      this.dotPlayer.onended = this.dotSoundEnded.bind(this);
-      this.dotPlayer.volume = this.masterVolume;
+      this.dotPlayer = this.getOrCreateAudio(`dot_${this.currentDotSound}`, true);
+      this.dotPlayer.currentTime = 0;
       this.dotPlayer.play();
     }
   }
