@@ -3004,20 +3004,16 @@ class SoundManager {
    * Initializes the dot loop audio context
    */
   async initializeDotLoop() {
-    try {
-      const response = await fetch(`${this.baseUrl}dot_loop.${this.fileFormat}`);
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await this.dotLoopContext.decodeAudioData(arrayBuffer);
+    const response = await fetch(`${this.baseUrl}dot_loop.${this.fileFormat}`);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await this.dotLoopContext.decodeAudioData(arrayBuffer);
 
-      this.dotLoopBuffer = audioBuffer;
-      this.dotLoopGain = this.dotLoopContext.createGain();
-      this.dotLoopGain.gain.value = 0;
-      this.dotLoopGain.connect(this.dotLoopContext.destination);
+    this.dotLoopBuffer = audioBuffer;
+    this.dotLoopGain = this.dotLoopContext.createGain();
+    this.dotLoopGain.gain.value = 0;
+    this.dotLoopGain.connect(this.dotLoopContext.destination);
 
-      this.startDotLoop();
-    } catch (error) {
-      console.error('Failed to initialize dot loop:', error);
-    }
+    this.startDotLoop();
   }
 
   /**
