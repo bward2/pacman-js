@@ -1,4 +1,6 @@
 {
+  "name": "pacman-js",
+  "author": "Brent Ward",
   "nyc": {
     "include": [
       "app/scripts/**/*.js"
