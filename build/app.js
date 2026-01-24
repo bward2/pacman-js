@@ -3090,17 +3090,26 @@ class SoundManager {
       return;
     }
 
+    const isFreshActivation = !this.dotLoopTimeout;
+
     // Clear existing timeout if one is running
     if (this.dotLoopTimeout) {
       clearTimeout(this.dotLoopTimeout);
     }
 
+    // Reset playback to the beginning on fresh activation
+    if (isFreshActivation) {
+      this.dotLoopSource.stop();
+      this.startDotLoop();
+    }
+
     // Turn volume on
     this.dotLoopGain.gain.value = 1;
 
-    // Set timeout to turn volume off after 0.15 seconds
+    // Set timeout to fade out volume over 0.1 seconds after 0.15 seconds
     this.dotLoopTimeout = setTimeout(() => {
-      this.dotLoopGain.gain.value = 0;
+      const now = this.dotLoopContext.currentTime;
+      this.dotLoopGain.gain.linearRampToValueAtTime(0, now + 0.05);
       this.dotLoopTimeout = null;
     }, 150);
   }
