@@ -2985,13 +2985,52 @@ class SoundManager {
     this.masterVolume = 1;
     this.paused = false;
     this.cutscene = true;
+    this.dotLoopTimeout = null;
 
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     this.ambience = new AudioContext();
 
+    // Separate AudioContext for dot loop
+    this.dotLoopContext = new AudioContext();
+
     // Cache for sound effects to avoid recreating them
     this.soundEffectCache = new Map();
-    this.currentDotSound = 1;
+
+    // Initialize the dot loop
+    this.initializeDotLoop();
+  }
+
+  /**
+   * Initializes the dot loop audio context
+   */
+  async initializeDotLoop() {
+    try {
+      const response = await fetch(`${this.baseUrl}dot_loop.${this.fileFormat}`);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await this.dotLoopContext.decodeAudioData(arrayBuffer);
+
+      this.dotLoopBuffer = audioBuffer;
+      this.dotLoopGain = this.dotLoopContext.createGain();
+      this.dotLoopGain.gain.value = 0;
+      this.dotLoopGain.connect(this.dotLoopContext.destination);
+
+      this.startDotLoop();
+    } catch (error) {
+      console.error('Failed to initialize dot loop:', error);
+    }
+  }
+
+  /**
+   * Starts the dot loop playback
+   */
+  startDotLoop() {
+    if (this.dotLoopBuffer) {
+      this.dotLoopSource = this.dotLoopContext.createBufferSource();
+      this.dotLoopSource.buffer = this.dotLoopBuffer;
+      this.dotLoopSource.connect(this.dotLoopGain);
+      this.dotLoopSource.loop = true;
+      this.dotLoopSource.start();
+    }
   }
 
   /**
@@ -2999,13 +3038,10 @@ class SoundManager {
    * @param {String} sound
    * @returns {Audio}
    */
-  getOrCreateAudio(sound, isDotSound = false) {
+  getOrCreateAudio(sound) {
     if (!this.soundEffectCache.has(sound)) {
       const audio = new Audio(`${this.baseUrl}${sound}.${this.fileFormat}`);
       audio.volume = this.masterVolume;
-      if (isDotSound) {
-        audio.onended = this.dotSoundEnded.bind(this);
-      }
       this.soundEffectCache.set(sound, audio);
     }
     return this.soundEffectCache.get(sound);
@@ -3050,31 +3086,27 @@ class SoundManager {
   }
 
   /**
-   * Special method for eating dots. The dots should alternate between two
-   * sound effects, but not too quickly.
+   * Special method for eating dots. Toggles the dot loop volume on for 0.15 seconds.
+   * If another dot sound is requested while the volume is on, resets the timer.
    */
   playDotSound() {
-    this.queuedDotSound = true;
-
-    if (!this.dotPlayer) {
-      this.queuedDotSound = false;
-      this.currentDotSound = (this.currentDotSound === 1) ? 2 : 1;
-
-      this.dotPlayer = this.getOrCreateAudio(`dot_${this.currentDotSound}`, true);
-      this.dotPlayer.currentTime = 0;
-      this.dotPlayer.play();
+    if (this.masterVolume === 0 || !this.dotLoopGain) {
+      return;
     }
-  }
 
-  /**
-   * Deletes the dotSound player and plays another dot sound if needed
-   */
-  dotSoundEnded() {
-    this.dotPlayer = undefined;
-
-    if (this.queuedDotSound) {
-      this.playDotSound();
+    // Clear existing timeout if one is running
+    if (this.dotLoopTimeout) {
+      clearTimeout(this.dotLoopTimeout);
     }
+
+    // Turn volume on
+    this.dotLoopGain.gain.value = 1;
+
+    // Set timeout to turn volume off after 0.15 seconds
+    this.dotLoopTimeout = setTimeout(() => {
+      this.dotLoopGain.gain.value = 0;
+      this.dotLoopTimeout = null;
+    }, 150);
   }
 
   /**
