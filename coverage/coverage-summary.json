@@ -1,22 +1,22 @@
 {
   "statements": {
-    "covered": 1116,
-    "total": 1116,
+    "covered": 1134,
+    "total": 1134,
     "pct": 100
   },
   "branches": {
-    "covered": 451,
-    "total": 451,
+    "covered": 454,
+    "total": 454,
     "pct": 100
   },
   "functions": {
-    "covered": 214,
-    "total": 214,
+    "covered": 216,
+    "total": 216,
     "pct": 100
   },
   "lines": {
-    "covered": 1115,
-    "total": 1115,
+    "covered": 1133,
+    "total": 1133,
     "pct": 100
   }
 }
