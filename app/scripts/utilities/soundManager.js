@@ -5,62 +5,47 @@ class SoundManager {
     this.masterVolume = 1;
     this.paused = false;
     this.cutscene = true;
-    this.dotLoopTimeout = null;
 
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     this.ambience = new AudioContext();
 
-    // Separate AudioContext for dot loop
-    this.dotLoopContext = new AudioContext();
+    // Dedicated AudioContext for dot sounds (mobile optimization)
+    this.dotContext = new AudioContext();
+    this.dotGain = this.dotContext.createGain();
+    this.dotGain.gain.value = 1;
+    this.dotGain.connect(this.dotContext.destination);
 
-    // Cache for sound effects to avoid recreating them
-    this.soundEffectCache = new Map();
+    // Pre-load dot sound buffers
+    this.dotBuffers = {};
+    this.initializeDotSounds();
 
-    // Initialize the dot loop
-    this.initializeDotLoop();
+    // Dot sound state
+    this.dotSound = 0; // Will alternate between 1 and 2
+    this.queuedDotSound = false;
+    this.dotPlayerActive = false;
   }
 
   /**
-   * Initializes the dot loop audio context
+   * Pre-loads both dot sound buffers for instant playback
    */
-  async initializeDotLoop() {
-    const response = await fetch(`${this.baseUrl}dot_loop.${this.fileFormat}`);
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await this.dotLoopContext.decodeAudioData(arrayBuffer);
+  async initializeDotSounds() {
+    const [response1, response2] = await Promise.all([
+      fetch(`${this.baseUrl}dot_1.${this.fileFormat}`),
+      fetch(`${this.baseUrl}dot_2.${this.fileFormat}`),
+    ]);
 
-    this.dotLoopBuffer = audioBuffer;
-    this.dotLoopGain = this.dotLoopContext.createGain();
-    this.dotLoopGain.gain.value = 0;
-    this.dotLoopGain.connect(this.dotLoopContext.destination);
+    const [arrayBuffer1, arrayBuffer2] = await Promise.all([
+      response1.arrayBuffer(),
+      response2.arrayBuffer(),
+    ]);
 
-    this.startDotLoop();
-  }
+    const [audioBuffer1, audioBuffer2] = await Promise.all([
+      this.dotContext.decodeAudioData(arrayBuffer1),
+      this.dotContext.decodeAudioData(arrayBuffer2),
+    ]);
 
-  /**
-   * Starts the dot loop playback
-   */
-  startDotLoop() {
-    if (this.dotLoopBuffer) {
-      this.dotLoopSource = this.dotLoopContext.createBufferSource();
-      this.dotLoopSource.buffer = this.dotLoopBuffer;
-      this.dotLoopSource.connect(this.dotLoopGain);
-      this.dotLoopSource.loop = true;
-      this.dotLoopSource.start();
-    }
-  }
-
-  /**
-   * Gets or creates a cached audio element for a sound effect
-   * @param {String} sound
-   * @returns {Audio}
-   */
-  getOrCreateAudio(sound) {
-    if (!this.soundEffectCache.has(sound)) {
-      const audio = new Audio(`${this.baseUrl}${sound}.${this.fileFormat}`);
-      audio.volume = this.masterVolume;
-      this.soundEffectCache.set(sound, audio);
-    }
-    return this.soundEffectCache.get(sound);
+    this.dotBuffers[1] = audioBuffer1;
+    this.dotBuffers[2] = audioBuffer2;
   }
 
   /**
@@ -78,10 +63,13 @@ class SoundManager {
   setMasterVolume(newVolume) {
     this.masterVolume = newVolume;
 
-    // Update all cached sound effects
-    const audioArray = Array.from(this.soundEffectCache.values());
-    for (let index = 0; index < audioArray.length; index += 1) {
-      audioArray[index].volume = this.masterVolume;
+    if (this.soundEffect) {
+      this.soundEffect.volume = this.masterVolume;
+    }
+
+    // Update dot sound gain
+    if (this.dotGain) {
+      this.dotGain.gain.value = this.masterVolume;
     }
 
     if (this.masterVolume === 0) {
@@ -96,42 +84,51 @@ class SoundManager {
    * @param {String} sound
    */
   play(sound) {
-    const audio = this.getOrCreateAudio(sound);
-    audio.currentTime = 0;
-    audio.play();
+    this.soundEffect = new Audio(`${this.baseUrl}${sound}.${this.fileFormat}`);
+    this.soundEffect.volume = this.masterVolume;
+    this.soundEffect.play();
   }
 
   /**
-   * Special method for eating dots. Toggles the dot loop volume on for 0.15 seconds.
-   * If another dot sound is requested while the volume is on, resets the timer.
+   * Special method for eating dots. The dots should alternate between two
+   * sound effects, but not too quickly. Uses pre-loaded AudioBuffers for
+   * instant playback on mobile.
    */
   playDotSound() {
-    if (this.masterVolume === 0 || !this.dotLoopGain) {
-      return;
+    this.queuedDotSound = true;
+
+    if (!this.dotPlayerActive && this.dotBuffers[1] && this.dotBuffers[2]) {
+      this.queuedDotSound = false;
+      this.dotPlayerActive = true;
+
+      // Alternate between dot sounds
+      this.dotSound = (this.dotSound === 1) ? 2 : 1;
+
+      // Create a new BufferSourceNode (cheap operation)
+      const source = this.dotContext.createBufferSource();
+      source.buffer = this.dotBuffers[this.dotSound];
+      source.connect(this.dotGain);
+
+      // Play immediately
+      source.start(0);
+
+      // Use setTimeout with buffer duration + 100ms gap to preserve "wa ka" timing
+      const { duration } = this.dotBuffers[this.dotSound];
+      setTimeout(() => {
+        this.dotSoundEnded();
+      }, (duration * 1000) + 100);
     }
+  }
 
-    const isFreshActivation = !this.dotLoopTimeout;
+  /**
+   * Called when a dot sound finishes playing. Plays another dot sound if queued.
+   */
+  dotSoundEnded() {
+    this.dotPlayerActive = false;
 
-    // Clear existing timeout if one is running
-    if (this.dotLoopTimeout) {
-      clearTimeout(this.dotLoopTimeout);
+    if (this.queuedDotSound) {
+      this.playDotSound();
     }
-
-    // Reset playback to the beginning on fresh activation
-    if (isFreshActivation) {
-      this.dotLoopSource.stop();
-      this.startDotLoop();
-    }
-
-    // Turn volume on
-    this.dotLoopGain.gain.value = 1;
-
-    // Set timeout to fade out volume over 0.1 seconds after 0.15 seconds
-    this.dotLoopTimeout = setTimeout(() => {
-      const now = this.dotLoopContext.currentTime;
-      this.dotLoopGain.gain.linearRampToValueAtTime(0, now + 0.05);
-      this.dotLoopTimeout = null;
-    }, 150);
   }
 
   /**
