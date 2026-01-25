@@ -9,10 +9,45 @@ describe('soundManager', () => {
     global.Audio = class {
       play() { }
     };
-    const AudioContext = class { };
+    const AudioContext = class {
+      createGain() {
+        return {
+          gain: { value: 1 },
+          connect: sinon.fake(),
+        };
+      }
+
+      createBufferSource() {
+        return {
+          buffer: null,
+          connect: sinon.fake(),
+          start: sinon.fake(),
+          stop: sinon.fake(),
+        };
+      }
+
+      get destination() {
+        return {};
+      }
+
+      get currentTime() {
+        return 0;
+      }
+
+      decodeAudioData() {
+        return Promise.resolve({ duration: 0.15 });
+      }
+    };
     global.window = {
       AudioContext,
     };
+
+    // Mock fetch for dot sound loading
+    global.fetch = sinon.fake.returns(
+      Promise.resolve({
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
+      }),
+    );
 
     comp = new SoundManager();
   });
@@ -20,10 +55,39 @@ describe('soundManager', () => {
   describe('constructor', () => {
     it('uses webkitAudioContext if needed', () => {
       global.window.AudioContext = undefined;
-      global.window.webkitAudioContext = class { };
+      global.window.webkitAudioContext = class {
+        createGain() {
+          return {
+            gain: { value: 1 },
+            connect: sinon.fake(),
+          };
+        }
+
+        createBufferSource() {
+          return {
+            buffer: null,
+            connect: sinon.fake(),
+            start: sinon.fake(),
+            stop: sinon.fake(),
+          };
+        }
+
+        get destination() {
+          return {};
+        }
+
+        get currentTime() {
+          return 0;
+        }
+
+        decodeAudioData() {
+          return Promise.resolve({ duration: 0.15 });
+        }
+      };
 
       const testComp = new SoundManager();
       assert.notEqual(testComp.ambience, undefined);
+      assert.notEqual(testComp.dotContext, undefined);
     });
   });
 
@@ -45,11 +109,22 @@ describe('soundManager', () => {
       assert(comp.resumeAmbience.calledWith(comp.paused));
 
       comp.soundEffect = {};
-      comp.dotPlayer = {};
       comp.setMasterVolume(0);
       assert.strictEqual(comp.soundEffect.volume, 0);
-      assert.strictEqual(comp.dotPlayer.volume, 0);
+      assert.strictEqual(comp.dotGain.gain.value, 0);
       assert(comp.stopAmbience.called);
+    });
+
+    it('handles missing dotGain gracefully', () => {
+      const originalDotGain = comp.dotGain;
+      comp.dotGain = null;
+      comp.stopAmbience = sinon.fake();
+
+      // Should not throw even if dotGain is null
+      comp.setMasterVolume(0);
+      assert(comp.stopAmbience.called);
+
+      comp.dotGain = originalDotGain;
     });
   });
 
@@ -63,32 +138,48 @@ describe('soundManager', () => {
   });
 
   describe('playDotSound', () => {
-    it('alternates between two dot sounds', () => {
-      const spy = sinon.spy(global, 'Audio');
+    beforeEach(() => {
+      // Ensure buffers are loaded for tests
+      comp.dotBuffers = {
+        1: { duration: 0.15 },
+        2: { duration: 0.15 },
+      };
+    });
+
+    it('alternates between two dot sounds using AudioContext', () => {
+      const createSourceSpy = sinon.spy(comp.dotContext, 'createBufferSource');
 
       comp.playDotSound();
-      assert(spy.calledWith('app/style/audio/dot_1.mp3'));
+      assert(createSourceSpy.called);
+      assert.strictEqual(comp.dotSound, 1);
 
-      comp.dotPlayer = undefined;
+      comp.dotPlayerActive = false;
       comp.playDotSound();
-      assert(spy.calledWith('app/style/audio/dot_2.mp3'));
+      assert.strictEqual(comp.dotSound, 2);
     });
 
     it('does nothing if another dot sound is already playing', () => {
-      comp.dotPlayer = {};
-      const spy = sinon.spy(global, 'Audio');
+      comp.dotPlayerActive = true;
+      const createSourceSpy = sinon.spy(comp.dotContext, 'createBufferSource');
 
       comp.playDotSound();
-      assert(!spy.called);
+      assert.strictEqual(createSourceSpy.callCount, 0);
+    });
+
+    it('sets queuedDotSound to true when called', () => {
+      comp.queuedDotSound = false;
+      comp.playDotSound();
+      // Should be reset to false after playing
+      assert.strictEqual(comp.queuedDotSound, false);
     });
   });
 
   describe('dotSoundEnded', () => {
-    it('deletes the current dotPlayer', () => {
-      comp.dotPlayer = {};
+    it('sets dotPlayerActive to false', () => {
+      comp.dotPlayerActive = true;
 
       comp.dotSoundEnded();
-      assert.strictEqual(comp.dotPlayer, undefined);
+      assert.strictEqual(comp.dotPlayerActive, false);
     });
 
     it('calls playDotSound if queuedDotSound is TRUE', () => {

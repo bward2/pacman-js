@@ -8,6 +8,44 @@ class SoundManager {
 
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     this.ambience = new AudioContext();
+
+    // Dedicated AudioContext for dot sounds (mobile optimization)
+    this.dotContext = new AudioContext();
+    this.dotGain = this.dotContext.createGain();
+    this.dotGain.gain.value = 1;
+    this.dotGain.connect(this.dotContext.destination);
+
+    // Pre-load dot sound buffers
+    this.dotBuffers = {};
+    this.initializeDotSounds();
+
+    // Dot sound state
+    this.dotSound = 0; // Will alternate between 1 and 2
+    this.queuedDotSound = false;
+    this.dotPlayerActive = false;
+  }
+
+  /**
+   * Pre-loads both dot sound buffers for instant playback
+   */
+  async initializeDotSounds() {
+    const [response1, response2] = await Promise.all([
+      fetch(`${this.baseUrl}dot_1.${this.fileFormat}`),
+      fetch(`${this.baseUrl}dot_2.${this.fileFormat}`),
+    ]);
+
+    const [arrayBuffer1, arrayBuffer2] = await Promise.all([
+      response1.arrayBuffer(),
+      response2.arrayBuffer(),
+    ]);
+
+    const [audioBuffer1, audioBuffer2] = await Promise.all([
+      this.dotContext.decodeAudioData(arrayBuffer1),
+      this.dotContext.decodeAudioData(arrayBuffer2),
+    ]);
+
+    this.dotBuffers[1] = audioBuffer1;
+    this.dotBuffers[2] = audioBuffer2;
   }
 
   /**
@@ -29,8 +67,9 @@ class SoundManager {
       this.soundEffect.volume = this.masterVolume;
     }
 
-    if (this.dotPlayer) {
-      this.dotPlayer.volume = this.masterVolume;
+    // Update dot sound gain
+    if (this.dotGain) {
+      this.dotGain.gain.value = this.masterVolume;
     }
 
     if (this.masterVolume === 0) {
@@ -52,29 +91,40 @@ class SoundManager {
 
   /**
    * Special method for eating dots. The dots should alternate between two
-   * sound effects, but not too quickly.
+   * sound effects, but not too quickly. Uses pre-loaded AudioBuffers for
+   * instant playback on mobile.
    */
   playDotSound() {
     this.queuedDotSound = true;
 
-    if (!this.dotPlayer) {
+    if (!this.dotPlayerActive && this.dotBuffers[1] && this.dotBuffers[2]) {
       this.queuedDotSound = false;
+      this.dotPlayerActive = true;
+
+      // Alternate between dot sounds
       this.dotSound = (this.dotSound === 1) ? 2 : 1;
 
-      this.dotPlayer = new Audio(
-        `${this.baseUrl}dot_${this.dotSound}.${this.fileFormat}`,
-      );
-      this.dotPlayer.onended = this.dotSoundEnded.bind(this);
-      this.dotPlayer.volume = this.masterVolume;
-      this.dotPlayer.play();
+      // Create a new BufferSourceNode (cheap operation)
+      const source = this.dotContext.createBufferSource();
+      source.buffer = this.dotBuffers[this.dotSound];
+      source.connect(this.dotGain);
+
+      // Play immediately
+      source.start(0);
+
+      // Use setTimeout with buffer duration + 100ms gap to preserve "wa ka" timing
+      const { duration } = this.dotBuffers[this.dotSound];
+      setTimeout(() => {
+        this.dotSoundEnded();
+      }, (duration * 1000) + 100);
     }
   }
 
   /**
-   * Deletes the dotSound player and plays another dot sound if needed
+   * Called when a dot sound finishes playing. Plays another dot sound if queued.
    */
   dotSoundEnded() {
-    this.dotPlayer = undefined;
+    this.dotPlayerActive = false;
 
     if (this.queuedDotSound) {
       this.playDotSound();
