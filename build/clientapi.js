@@ -1,3 +1,6 @@
+const express = require('express');
+const app = express();
+
 const EventLog = []; // Array for holding tuples of eventName and eventTime, to send to server
 
 const width = window.innerWidth;
@@ -88,5 +91,27 @@ window.addEventListener("unload", e => {
 
    EventLog.push(Event);
 
-   // HERE WRITE LOGIC FOR SENDING EventLog TO SERVER
+
+
+   app.post('/log-data', (req, res) => {
+      const count = 0;
+      res.json({count});
+   });
 });
+   // HERE WRITE LOGIC FOR SENDING EventLog TO SERVER
+   /*fetch("/log-data",
+               { method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(EventLog)});
+});*/
+
+/*fetch("/log-data",
+               { method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: { 
+                           name: "John Doe", 
+                           age: 30, 
+                           occupation: "Software Developer" 
+                  } 
+               });
+*/
