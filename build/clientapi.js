@@ -77,3 +77,16 @@ window.addEventListener("resize", e => {
    console.log(`Logged ${Event.eventName} action. Logged at ${Event.eventTime}.
       Screen size: width: ${Event.windowsize.windowWidth}, height: ${Event.windowsize.windowHeight}`); // Only for testing
 });
+
+// Listen for closing of the browser window from the client, so the EventLog can be sent to server
+window.addEventListener("unload", e => {
+   const Event = {
+      eventName: "Session Ended",
+      location: null,
+      eventTime: e.timeStamp,  // MS since browser load
+   }
+
+   EventLog.push(Event);
+
+   // HERE WRITE LOGIC FOR SENDING EventLog TO SERVER
+});
