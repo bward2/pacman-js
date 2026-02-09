@@ -4,26 +4,53 @@ const EventLog = []; // Array for holding tuples of eventName and eventTime, to 
 window.addEventListener("keydown", e => {
    const Event = {
          eventName: e.key,
-         eventX: null, // Client x and y are null. This does not need to be added in JS,
-                       // but has been added for database coherency. Can consider removing.
-         eventY: null,
-         eventTime: e.timeStamp, // MS since browser load
+         location: null,          // Location is null (unimportant). This does not need to be added in JS,
+                                  // but has been added for database coherency. Can consider removing.
+         eventTime: e.timeStamp,  // MS since browser load
    };
 
-   EventLog.push(Event); // Adding event name and time to the EventLog list.
+   EventLog.push(Event); // Adding event name, location and time to the EventLog list.
 
    console.log(`Logged ${Event.eventName} action. Logged at ${Event.eventTime}`); // Only for testing
 });
 
+// Listener that triggers on a mouse click (or touch click)
 window.addEventListener("click", e => {
    const Event = {
       eventName: "click",
-      eventX: e.clientX, // Position of mouse at time of click.
-      eventY: e.clientY,
+      location: {x: e.clientX, y: e.clientY}, // Position of mouse at time of click.
       eventTime: e.timeStamp,
    }
 
-   EventLog.push(Event); // Adding event name and time to the EventLog list.
+   EventLog.push(Event); // Adding event name, location and time to the EventLog list.
    
    console.log(`Logged ${Event.eventName} action. Logged at ${Event.eventTime}`); // Only for testing
+});
+
+/**
+   Listener that triggers on a touch swipe, logs the start and end of swipes.
+   BUG: Sometimes logs several times for one swipe.
+**/
+window.addEventListener("touchstart", e => {
+   window.addEventListener("touchend", e2 => {
+      const Event = {
+         eventName: "touchstart",
+         location: {x: e.touches[0].clientX, y: e.touches[0].clientY},     // how to get location tree of a swipe?
+         eventTime: e.timeStamp,
+      }
+
+      const Event2 = {
+         eventName: "touchend",
+         location: {x: e2.changedTouches[0].clientX, y: e2.changedTouches[0].clientY},     // how to get location tree of a swipe?
+         eventTime: e2.timeStamp,
+      }
+   
+      EventLog.push(Event); // Adding event name, location and time to the EventLog list.
+      EventLog.push(Event2);
+
+      console.log(`Logged ${Event.eventName} action.
+         Logged at ${Event.eventTime} time, at ${Event.location.x} and ${Event.location.y}`);     // Only for testing
+      console.log(`Logged ${Event2.eventName} action.
+         Logged at ${Event2.eventTime} time, at ${Event2.location.x} and ${Event2.location.y}`);  // Only for testing
+   });
 });
