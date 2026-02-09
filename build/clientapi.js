@@ -1,5 +1,12 @@
 const EventLog = []; // Array for holding tuples of eventName and eventTime, to send to server
 
+const width = window.innerWidth;
+const height = window.innerHeight;
+
+EventLog.push({windowWidth: width, windowHeight: height});
+
+console.log("Width: " + EventLog[0].windowWidth + " Height: " + EventLog[0].windowHeight);
+
 // Listener that triggers on a key-press
 window.addEventListener("keydown", e => {
    const Event = {
@@ -53,4 +60,20 @@ window.addEventListener("touchstart", e => {
       console.log(`Logged ${Event2.eventName} action.
          Logged at ${Event2.eventTime} time, at ${Event2.location.x} and ${Event2.location.y}`);  // Only for testing
    });
+});
+
+// Listener that triggers on a resize
+window.addEventListener("resize", e => {
+   const Event = {
+         eventName: "resize",
+         location: null,          // Location is null (unimportant). This does not need to be added in JS,
+                                  // but has been added for database coherency. Can consider removing.
+         windowsize: {windowWidth: window.innerWidth, windowHeight: window.innerHeight}, //this only exists in resize events
+         eventTime: e.timeStamp,  // MS since browser load
+   };
+
+   EventLog.push(Event); // Adding event name, location and time to the EventLog list.
+
+   console.log(`Logged ${Event.eventName} action. Logged at ${Event.eventTime}.
+      Screen size: width: ${Event.windowsize.windowWidth}, height: ${Event.windowsize.windowHeight}`); // Only for testing
 });
