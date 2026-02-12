@@ -87,22 +87,15 @@ window.addEventListener("unload", e => {
    }
 
    EventLog.push(Event);
-
-
-
-   app.post('/log-data', (req, res) => {
-      const count = 0;
-      res.json({count});
-   });
 });
-   // HERE WRITE LOGIC FOR SENDING EventLog TO SERVER
+
+// Sends the EventLog to the independent server, however right now it only sends at the start of load.
 fetch('http://localhost:3000/log-data',
                {  method: "POST",
                   headers: { "Content-Type": "application/json" },
                   mode: 'cors',
-                  credentials: 'include',
                   cache: 'default',
-                  body: JSON.stringify({ "id": "1" })})
+                  body: JSON.stringify(EventLog)})
                   .then(response => console.log(response))
                   .then(data => console.log(data))
                   .catch(error => console.error('Error:', error));
