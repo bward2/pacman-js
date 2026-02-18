@@ -79,7 +79,7 @@ window.addEventListener("resize", e => {
 });
 
 // Listen for closing of the browser window from the client, so the EventLog can be sent to server
-window.addEventListener("unload", e => {
+window.addEventListener("beforeunload", e => {
    const Event = {
       eventName: "Session Ended",
       location: null,
