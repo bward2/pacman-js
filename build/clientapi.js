@@ -90,7 +90,9 @@ window.addEventListener("unload", e => {
 });
 
 // Sends the EventLog to the independent server, however right now it only sends at the start of load.
-fetch('http://localhost:3000/log-data',
+setInterval(async()=>{
+   if (EventLog.length > 100) {
+      await fetch('http://localhost:3000/log-data',
                {  method: "POST",
                   headers: { "Content-Type": "application/json" },
                   mode: 'cors',
@@ -99,5 +101,9 @@ fetch('http://localhost:3000/log-data',
                   .then(response => console.log(response))
                   .then(data => console.log(data))
                   .catch(error => console.error('Error:', error));
+      EventLog = [];                
+      }
+}, 10000);
+
 
                   
