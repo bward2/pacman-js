@@ -1,4 +1,4 @@
-const EventLog = []; // Array for holding tuples of eventName and eventTime, to send to server
+var EventLog = []; // Array for holding tuples of eventName and eventTime, to send to server
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -87,11 +87,30 @@ window.addEventListener("unload", e => {
    }
 
    EventLog.push(Event);
+
+
+   ///
+
+   fetch('http://localhost:3000/log-data',
+               {  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  mode: 'cors',
+                  cache: 'default',
+                  body: JSON.stringify(EventLog)})
+                  .then(response => console.log(response))
+                  .then(data => console.log(data))
+                  .catch(error => console.error('Error:', error));
+   EventLog = []; // Clear the EventLog after sending to server              
+   
+
+   console.log("EventLog length: " + EventLog.length); // Only for testing
+
+
 });
 
 // Sends the EventLog to the independent server, however right now it only sends at the start of load.
 setInterval(async()=>{
-   if (EventLog.length > 100) {
+   if (EventLog.length > 10) {
       await fetch('http://localhost:3000/log-data',
                {  method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -101,9 +120,10 @@ setInterval(async()=>{
                   .then(response => console.log(response))
                   .then(data => console.log(data))
                   .catch(error => console.error('Error:', error));
-      EventLog = [];                
+      EventLog = []; // Clear the EventLog after sending to server              
       }
-}, 10000);
+      console.log("EventLog length: " + EventLog.length); // Only for testing
+}, 5000);
 
 
                   
