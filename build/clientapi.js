@@ -109,28 +109,8 @@ window.addEventListener("unload", e => {
 });
 
 // Sends the EventLog to the independent server, however right now it only sends at the start of load.
-<<<<<<< HEAD
 setInterval(async()=>{
    if (EventLog.length > 10) {
-=======
-
-if (window.closed) {
-   fetch('http://localhost:3000/log-data',
-               {  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  mode: 'cors',
-                  cache: 'default',
-                  body: JSON.stringify(EventLog)})
-                  .then(response => console.log(response))
-                  .then(data => console.log(data))
-                  .catch(error => console.error('Error:', error));
-   EventLog = [];
-   console.log("Closed data was sent");
-}
-
-setInterval(async() => {
-   if (EventLog.length > 100) {
->>>>>>> 1418b8609c7f087ddea235b16495c8610d9912f3
       await fetch('http://localhost:3000/log-data',
                {  method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -140,7 +120,6 @@ setInterval(async() => {
                   .then(response => console.log(response))
                   .then(data => console.log(data))
                   .catch(error => console.error('Error:', error));
-<<<<<<< HEAD
       EventLog = []; // Clear the EventLog after sending to server              
       }
       console.log("EventLog length: " + EventLog.length); // Only for testing
@@ -148,11 +127,3 @@ setInterval(async() => {
 
 
                   
-=======
-      
-      EventLog = [];
-      console.log(`EventLog length is ${EventLog.length}`);    
-       
-   }
-}, 5000);
->>>>>>> 1418b8609c7f087ddea235b16495c8610d9912f3
