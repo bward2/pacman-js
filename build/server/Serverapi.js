@@ -4,6 +4,8 @@ import cors from 'cors';
 const app = express();
 const PORT = 3000;
 
+var receivedData = {};
+
 app.use(cors());
 
 app.listen(PORT, () => {
@@ -28,9 +30,11 @@ try {
 app.post('/log-data', (req, res) => {
    const eventData = req.body;
    console.log('Received event data:', req.body);
-   /*res.send({
-    message: 'Data received',
-   });*/
+
+   receivedData = Object.assign(receivedData, eventData);
+
+   console.log(receivedData);
+
    res.json({ status : "ok"});
 });
 } catch (e) {
