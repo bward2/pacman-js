@@ -22,6 +22,9 @@
     "node": ">=12.18.3",
     "npm": ">=6.14.6"
   },
+  "overrides": {
+    "serialize-javascript": ">=7.0.5"
+  },
   "devDependencies": {
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
